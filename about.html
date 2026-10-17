@@ -1,0 +1,242 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>About Groundwork</title>
+<meta name="description" content="The 12 phases of Groundwork at a glance: what each skill is and a one-minute way to try it.">
+<link rel="icon" type="image/png" href="assets/favicon.png">
+<link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caveat:wght@600&family=Montserrat:wght@500;700;800&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&display=swap">
+<style>
+/* Layout: an infographic poster. Logo and title on top, then the 12 phases as numbered cards in three stages (foundation → awareness → integration), four per row on desktop, one column on phones. Tokens match index.html. */
+:root {
+  --bg: #f3f1e6; --surface: #fbfaf3; --sunk: #e8e4d2; --ink: #2b2a22; --muted: #6a6754; --line: #d6d0b8;
+  --grass: #c08a2e; --grass-soft: #f1dfb6; --oak: #3f5a3a; --oak-soft: #dbe5d3; --calm: #3f6f78; --calm-soft: #d8e6e8; --amber: #8d611c;
+  --display: "Montserrat", "Avenir Next", "Segoe UI", system-ui, sans-serif;
+  --body: "Atkinson Hyperlegible", "Verdana", system-ui, sans-serif;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #1d1c16; --surface: #26251d; --sunk: #302e24; --ink: #ece7d6; --muted: #aaa48c; --line: #3f3c30;
+  --grass: #e0aa4c; --grass-soft: #44381f; --oak: #9fbf8f; --oak-soft: #2c3627; --calm: #86b9c2; --calm-soft: #23363a; --amber: #e0aa4c; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #1d1c16; --surface: #26251d; --sunk: #302e24; --ink: #ece7d6; --muted: #aaa48c; --line: #3f3c30;
+  --grass: #e0aa4c; --grass-soft: #44381f; --oak: #9fbf8f; --oak-soft: #2c3627; --calm: #86b9c2; --calm-soft: #23363a; --amber: #e0aa4c; color-scheme: dark }
+
+* { box-sizing: border-box }
+:root { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px) }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 16px/1.55 var(--body) }
+img { max-width: 100% }
+h1, h2, h3 { font-family: var(--display); line-height: 1.15; text-wrap: balance; margin: 0 }
+a { color: var(--calm) }
+:focus-visible { outline: 3px solid var(--calm); outline-offset: 2px }
+.wrap { max-width: 1180px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 20px 56px }
+
+nav.top { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; padding-bottom: 16px; border-bottom: 1px solid var(--line) }
+nav.top .home { display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--ink); font: 800 18px var(--display); letter-spacing: .04em; text-transform: uppercase }
+nav.top .home img { width: 40px; height: 40px }
+.btn { display: inline-block; border: 1px solid var(--line); background: var(--surface); color: var(--ink); padding: 9px 16px; border-radius: 999px; font-weight: 700; font-size: 14px; text-decoration: none }
+.btn.primary { background: var(--oak); border-color: var(--oak); color: var(--surface) }
+
+header.hero { display: grid; grid-template-columns: 170px minmax(0, 1fr); gap: 28px; align-items: center; padding-block: 32px 24px }
+header.hero > img { width: 170px; height: 170px }
+header.hero h1 { display: flex; align-items: center; gap: 14px; margin-bottom: 12px; color: var(--oak) }
+header.hero h1 .big { font-size: clamp(64px, 10vw, 104px); font-weight: 800; line-height: .85; letter-spacing: -.04em }
+header.hero h1 .stack { display: grid; gap: 4px; text-transform: uppercase }
+header.hero h1 .l1 { font-size: clamp(24px, 4vw, 44px); font-weight: 800; letter-spacing: .01em }
+header.hero h1 .l2 { font-size: clamp(20px, 3.2vw, 34px); font-weight: 500; letter-spacing: .12em; color: var(--calm) }
+header.hero .lede { color: var(--ink); font-size: 19px; margin-bottom: 8px }
+header.hero p { margin: 0; max-width: 64ch; color: var(--muted); font-size: 16px }
+@media (max-width: 640px) { header.hero { grid-template-columns: minmax(0, 1fr); text-align: center } header.hero > img { width: 130px; height: 130px; margin: 0 auto } header.hero h1 { justify-content: center; text-align: left } header.hero p { margin-inline: auto } }
+
+.principles { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-bottom: 40px }
+.principles div { background: var(--sunk); border-radius: 12px; padding: 14px 16px; font-size: 15px }
+.principles b { display: block; font-family: var(--display); font-size: 16px; margin-bottom: 2px }
+@media (max-width: 720px) { .principles { grid-template-columns: minmax(0, 1fr) } }
+
+section.stage { display: grid; gap: 14px; margin-bottom: 32px }
+.banner { position: relative; display: flex; align-items: center; gap: 12px; background: var(--c); color: var(--surface); border-radius: 12px; min-height: 52px; padding: 8px 18px 8px 92px; flex-wrap: wrap; row-gap: 2px }
+.banner .badge { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); width: 68px; height: 68px; border-radius: 50%; background: var(--surface); border: 4px solid var(--c); color: var(--c); display: grid; place-items: center }
+.banner .badge svg { width: 36px; height: 36px }
+.banner h2 { font-size: clamp(16px, 2.2vw, 21px); font-weight: 800; text-transform: uppercase; letter-spacing: .03em; margin-right: auto; color: var(--surface) }
+.banner .range { font: 700 12px/1 var(--body); letter-spacing: .1em; text-transform: uppercase; opacity: .85 }
+.stage-sub { margin: -4px 0 0; color: var(--muted); font-size: 15px }
+.cards { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px }
+@media (max-width: 980px) { .cards { grid-template-columns: repeat(2, minmax(0, 1fr)) } }
+@media (max-width: 560px) { .cards { grid-template-columns: minmax(0, 1fr) } }
+.stage.s1 { --c: var(--amber); --c-soft: var(--grass-soft) }
+.stage.s2 { --c: var(--calm); --c-soft: var(--calm-soft) }
+.stage.s3 { --c: var(--oak); --c-soft: var(--oak-soft) }
+
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 18px; display: grid; grid-template-rows: auto auto 1fr auto; gap: 12px; min-width: 0; text-decoration: none; color: var(--ink) }
+.card:hover { border-color: var(--c) }
+.card .head { display: flex; align-items: flex-start; gap: 10px }
+.card .num { flex: none; width: 34px; height: 34px; border-radius: 50%; background: var(--c); color: var(--surface); display: grid; place-items: center; font: 800 16px/1 var(--display); font-variant-numeric: tabular-nums }
+.card h3 { font-size: 19px; font-weight: 800; color: var(--c); padding-top: 5px }
+.card .art { width: 104px; height: 104px; margin: 4px auto; border-radius: 50%; background: var(--c-soft); display: grid; place-items: center; color: var(--c) }
+.card .art svg { width: 60px; height: 60px }
+.card p { margin: 0; font-size: 15px }
+.card .try { font-size: 14px; border-top: 1px dashed var(--line); padding-top: 10px }
+.card .try b { color: var(--c) }
+
+.goal { display: grid; grid-template-columns: 72px minmax(0, 1fr) auto; gap: 18px; align-items: center; border: 2px solid var(--line); border-radius: 16px; padding: 18px 22px; margin-top: 28px; background: var(--surface) }
+.goal img { width: 72px; height: 72px }
+.goal b { font: 800 14px/1 var(--display); letter-spacing: .1em; text-transform: uppercase; color: var(--oak) }
+.goal p { margin: 6px 0 0; font-size: 15px; max-width: 70ch }
+.goal .motto { font: 600 26px/1.15 "Caveat", "Segoe Script", cursive; color: var(--oak); border-left: 1px solid var(--line); padding-left: 20px; margin: 0; white-space: nowrap }
+@media (max-width: 720px) { .goal { grid-template-columns: 56px minmax(0, 1fr) } .goal img { width: 56px; height: 56px } .goal .motto { grid-column: 1 / -1; border-left: 0; padding-left: 0; text-align: center } }
+.notes { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; margin-top: 8px }
+.notes > div { border: 1px solid var(--line); border-radius: 14px; padding: 18px 20px; background: var(--surface) }
+.notes h2 { font-size: 18px; margin-bottom: 8px }
+.notes p, .notes ul { margin: 0; font-size: 15px }
+.notes ul { padding-left: 20px; display: grid; gap: 4px }
+@media (max-width: 720px) { .notes { grid-template-columns: minmax(0, 1fr) } }
+.cta { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; margin-top: 32px }
+footer { color: var(--muted); font-size: 13px; border-top: 1px solid var(--line); margin-top: 40px; padding-top: 16px; max-width: 80ch }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <nav class="top" aria-label="Site">
+    <a class="home" href="./"><img src="assets/emblem.png" alt="">Groundwork</a>
+    <a class="btn primary" href="./">Open the program</a>
+  </nav>
+
+  <header class="hero">
+    <img src="assets/emblem.png" alt="Groundwork logo: a California ground squirrel holding an acorn on rocks">
+    <div>
+      <h1><span class="big">12</span><span class="stack"><span class="l1">Groundwork phases</span><span class="l2">at a glance</span></span></h1>
+      <p class="lede">Body-centered skills to steady your nervous system, recover from stress and build resilience.</p>
+      <p>Groundwork teaches body-based self-regulation skills, inspired by Peter Levine's work on how animals, and people, recover from threat. Each phase builds one skill. You learn it, practice it for a few minutes, and carry it into your week.</p>
+    </div>
+  </header>
+
+  <div class="principles">
+    <div><b>Small doses</b>Work with a little discomfort at a time. Slower is faster.</div>
+    <div><b>Body first</b>Stay with sensations in the present moment, not the story of what happened.</div>
+    <div><b>You're in charge</b>Pause, open your eyes or stop at any point. Tap "Sploot now" to settle.</div>
+  </div>
+
+  <section class="stage s1" aria-labelledby="st1">
+    <div class="banner"><span class="badge"><svg viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 4 8 9v9c0 8 5 14 12 17 7-3 12-9 12-17V9L20 4Z"/></svg></span><h2 id="st1">Foundation: feeling safe enough</h2><span class="range">Phases 1–4</span></div>
+    <p class="stage-sub">The base everything else rests on.</p>
+    <div class="cards">
+      <a class="card" href="./#phase-1">
+        <div class="head"><span class="num">1</span><h3>Arriving</h3></div>
+        <div class="art"><svg viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 34h28"/><path d="M11 34V22a9 9 0 0 1 18 0v12"/><path d="M20 13V7m-6 2-2-3m14 3 2-3"/></svg></div>
+        <p>Learn the three states of your nervous system: safe, mobilized and shut down. Each one is your body trying to protect you.</p>
+        <div class="try"><b>Try:</b> name which state you're in right now.</div>
+      </a>
+      <a class="card" href="./#phase-2">
+        <div class="head"><span class="num">2</span><h3>Orienting</h3></div>
+        <div class="art"><svg viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20s6-10 16-10 16 10 16 10-6 10-16 10S4 20 4 20Z"/><circle cx="20" cy="20" r="4.5"/></svg></div>
+        <p>Let your eyes and head explore the room slowly, so your body registers that you're here, now, and safe enough.</p>
+        <div class="try"><b>Try:</b> look slowly around the room and let your gaze rest on three things.</div>
+      </a>
+      <a class="card" href="./#phase-3">
+        <div class="head"><span class="num">3</span><h3>Grounding</h3></div>
+        <div class="art"><svg viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 5v18m-6-6 6 6 6-6"/><path d="M5 30h30M9 35h22"/></svg></div>
+        <p>Feel supported by the floor, your chair and gravity. A stable base to come back to whenever you need one.</p>
+        <div class="try"><b>Try:</b> press your feet into the floor and feel it press back.</div>
+      </a>
+      <a class="card" href="./#phase-4">
+        <div class="head"><span class="num">4</span><h3>Resourcing</h3></div>
+        <div class="art"><svg viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 4v5"/><path d="M7 15c0-6 26-6 26 0 0 2-26 2-26 0Z"/><path d="M9 16.5h22c0 10-6 18-11 19-5-1-11-9-11-19Z"/></svg></div>
+        <p>Build a store of people, places, memories and body areas that help you feel steadier, and feel them in your body.</p>
+        <div class="try"><b>Try:</b> picture someone kind and notice where you feel it.</div>
+      </a>
+    </div>
+  </section>
+
+  <section class="stage s2" aria-labelledby="st2">
+    <div class="banner"><span class="badge"><svg viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 33S6 25 6 15a7 7 0 0 1 14-2 7 7 0 0 1 14 2c0 10-14 18-14 18Z"/></svg></span><h2 id="st2">Awareness: being with sensation</h2><span class="range">Phases 5–8</span></div>
+    <p class="stage-sub">Noticing, following and dosing what you feel.</p>
+    <div class="cards">
+      <a class="card" href="./#phase-5">
+        <div class="head"><span class="num">5</span><h3>Felt sense</h3></div>
+        <div class="art"><svg viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 33S6 25 6 15a7 7 0 0 1 14-2 7 7 0 0 1 14 2c0 10-14 18-14 18Z"/><path d="M14 17h3l2-4 3 8 2-4h3"/></svg></div>
+        <p>Notice raw body sensation (warm, tight, buzzy, heavy) with curiosity, separate from the thoughts about it.</p>
+        <div class="try"><b>Try:</b> describe what your hands feel like in two words.</div>
+      </a>
+      <a class="card" href="./#phase-6">
+        <div class="head"><span class="num">6</span><h3>Tracking</h3></div>
+        <div class="art"><svg viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 26c5 0 6-12 11-12s6 12 11 12 5-8 10-8" stroke-dasharray="1 0"/><circle cx="36" cy="18" r="2.5" fill="currentColor"/></svg></div>
+        <p>Follow a sensation as it shifts, softens, moves or fades. Feelings move, and you can be with them without being trapped.</p>
+        <div class="try"><b>Try:</b> watch one mild sensation and ask "what happens next?"</div>
+      </a>
+      <a class="card" href="./#phase-7">
+        <div class="head"><span class="num">7</span><h3>Your window</h3></div>
+        <div class="art"><svg viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="6" width="24" height="28" rx="3"/><path d="M8 20h24M20 6v28"/></svg></div>
+        <p>Learn your window of tolerance: the zone where you can feel and still think. Work at its edges, one small dose at a time.</p>
+        <div class="try"><b>Try:</b> rate your activation 0–10 and keep any practice at 3 or below.</div>
+      </a>
+      <a class="card" href="./#phase-8">
+        <div class="head"><span class="num">8</span><h3>Pendulation</h3></div>
+        <div class="art"><svg viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 5h24"/><path d="M20 5l-8 22"/><circle cx="11" cy="30" r="4"/><path d="M26 30a14 14 0 0 1-17 3" stroke-dasharray="2 4"/></svg></div>
+        <p>Swing your attention between something difficult and something easeful, so your body learns it can touch distress and come back.</p>
+        <div class="try"><b>Try:</b> rest in a calm spot, touch a tense spot briefly, then return.</div>
+      </a>
+    </div>
+  </section>
+
+  <section class="stage s3" aria-labelledby="st3">
+    <div class="banner"><span class="badge"><svg viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 35V18"/><path d="M20 22c0-7-5-11-12-11 0 7 5 11 12 11Z"/><path d="M20 18c0-6 4-10 11-10 0 6-4 10-11 10Z"/></svg></span><h2 id="st3">Integration: completing and connecting</h2><span class="range">Phases 9–12</span></div>
+    <p class="stage-sub">Releasing what got stuck and carrying it into life.</p>
+    <div class="cards">
+      <a class="card" href="./#phase-9">
+        <div class="head"><span class="num">9</span><h3>Boundaries</h3></div>
+        <div class="art"><svg viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="20" cy="20" r="15" stroke-dasharray="4 3"/><circle cx="20" cy="15" r="3.5"/><path d="M14 27c1-4 3-6 6-6s5 2 6 6"/></svg></div>
+        <p>Feel the edges of your body and the space you need around you. Tapping, self-holding and pushing out restore a sense of protection.</p>
+        <div class="try"><b>Try:</b> pat your arms and shoulders, saying "this is me."</div>
+      </a>
+      <a class="card" href="./#phase-10">
+        <div class="head"><span class="num">10</span><h3>Completing</h3></div>
+        <div class="art"><svg viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 8v6M20 26v6M8 20h6M26 20h6M11.5 11.5l4 4M24.5 24.5l4 4M28.5 11.5l-4 4M15.5 24.5l-4 4"/></svg></div>
+        <p>Let stuck protective responses finish through small movements, shaking or deep breaths, the way animals shake off a threat.</p>
+        <div class="try"><b>Try:</b> push slowly against a wall, then shake out your hands.</div>
+      </a>
+      <a class="card" href="./#phase-11">
+        <div class="head"><span class="num">11</span><h3>Connection</h3></div>
+        <div class="art"><svg viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="14" cy="20" r="9"/><circle cx="26" cy="20" r="9"/></svg></div>
+        <p>Nervous systems settle each other. Notice who helps you feel steady, and spend time with them (people or pets).</p>
+        <div class="try"><b>Try:</b> recall a kind face or voice and feel its effect in your chest.</div>
+      </a>
+      <a class="card" href="./#phase-12">
+        <div class="head"><span class="num">12</span><h3>Integration</h3></div>
+        <div class="art"><svg viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 35V18"/><path d="M20 22c0-7-5-11-12-11 0 7 5 11 12 11Z"/><path d="M20 18c0-6 4-10 11-10 0 6-4 10-11 10Z"/><path d="M10 35h20"/></svg></div>
+        <p>Choose your favorite tools and build a simple daily practice. Progress means recovering faster, not never feeling bad.</p>
+        <div class="try"><b>Try:</b> pick one tool each for morning, stressful moments and evening.</div>
+      </a>
+    </div>
+  </section>
+
+  <div class="notes">
+    <div>
+      <h2>How to use the phases</h2>
+      <ul>
+        <li>Go in order the first time through. Each phase builds on the ones before it.</li>
+        <li>Spend about a week per phase, or longer if you need it.</li>
+        <li>Keep coming back to grounding and resourcing. They're skills for life, not steps you finish.</li>
+        <li>Rate your activation before and after each exercise, and bring your one-page report to your therapist.</li>
+      </ul>
+    </div>
+    <div>
+      <h2>Why a ground squirrel?</h2>
+      <p>California ground squirrels live the whole cycle every day. They stand up to scan for hawks (orienting), dash to the burrow (protection), shake off when the danger passes (completing), and sploot belly-down on cool earth to rest (grounding). Their nervous systems move between alert and at ease many times a day, and that flexibility is what Groundwork practices.</p>
+    </div>
+  </div>
+
+  <div class="goal">
+    <img src="assets/emblem.png" alt="">
+    <div><b>The goal</b><p>Together, the 12 phases help your nervous system move between alert and at ease more freely, recover faster after stress, and feel more at home in your body and in your relationships.</p></div>
+    <p class="motto">Small steps.<br>Steady ground.</p>
+  </div>
+
+  <div class="cta"><a class="btn primary" href="./">Start with phase 1</a></div>
+
+  <footer>Groundwork is a self-regulation and learning tool, not therapy or a substitute for care. It is inspired by body-based trauma approaches, including Peter Levine's work, and is not affiliated with or endorsed by Somatic Experiencing International. The exercises stay with present-moment sensation and never ask you to revisit a traumatic memory. If you're in crisis in the US, call or text 988. UK &amp; Ireland: Samaritans 116 123. Elsewhere: findahelpline.com.</footer>
+</div>
+</body>
+</html>

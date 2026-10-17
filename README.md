@@ -13,7 +13,9 @@ Live: https://sherol.github.io/groundwork
 - **Progress bar** with 12 acorns.
 - **"Sploot now"** grounding button on every screen, with crisis line numbers.
 - **One-page therapist report** for one phase or the whole program, saved as an HTML file (open it and print or save as PDF) or copied as text.
+- **A Bible verse (NIV)** for each phase.
 - **Google Sheets sync** (optional).
+- **About page** (`about.html`): the 12 phases at a glance.
 
 ## Where your data is stored
 
@@ -50,7 +52,11 @@ python3 -m http.server 8000
 # open http://localhost:8000
 ```
 
-There is no build step: the site is `index.html`, `sync.js`, `config.js` and `assets/`.
+There is no build step: the site is `index.html`, `about.html`, `sync.js`, `config.js` and `assets/`.
+
+## Scripture
+
+Scripture quotations taken from The Holy Bible, New International Version® NIV®. Copyright © 1973, 1978, 1984, 2011 by Biblica, Inc.™ Used by permission. All rights reserved worldwide.
 
 ## Important
 
