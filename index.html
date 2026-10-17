@@ -231,13 +231,13 @@ select { font: inherit; padding: 8px 10px; border-radius: 8px; border: 1px solid
           <radialGradient id="nutG" cx="38%" cy="38%" r="75%"><stop offset="0" stop-color="#ffe6a6"/><stop offset=".35" stop-color="#e2a64a"/><stop offset=".75" stop-color="#b06d28"/><stop offset="1" stop-color="#7c4a1d"/></radialGradient>
           <linearGradient id="capG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#a77b4f"/><stop offset="1" stop-color="#6b4a2c"/></linearGradient>
           <pattern id="capTex" width="12" height="12" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><path d="M0 0h12M0 0v12" stroke="#4e3420" stroke-width="2" opacity=".55"/></pattern>
-          <clipPath id="capClip"><path d="M24 78c0-34 34-52 76-52s76 18 76 52c0 9-10 13-24 13H48c-14 0-24-4-24-13Z"/></clipPath>
+          <clipPath id="capClip"><path d="M10 80c0-36 40-54 90-54s90 18 90 54c0 10-12 14-28 14H38c-16 0-28-4-28-14Z"/></clipPath>
         </defs>
         <path d="M100 28c2-12 10-20 20-22" fill="none" stroke="#5a3d23" stroke-width="7" stroke-linecap="round"/>
-        <path d="M38 86h124c0 52-28 98-62 108-34-10-62-56-62-108Z" fill="url(#nutG)" stroke="#5a3d23" stroke-width="4"/>
-        <ellipse cx="70" cy="118" rx="9" ry="22" fill="#fff" opacity=".28"/>
-        <path d="M24 78c0-34 34-52 76-52s76 18 76 52c0 9-10 13-24 13H48c-14 0-24-4-24-13Z" fill="url(#capG)" stroke="#4e3420" stroke-width="4"/>
-        <rect x="20" y="20" width="160" height="75" fill="url(#capTex)" clip-path="url(#capClip)"/>
+        <path d="M24 86H176C182 146 150 194 100 196C50 194 18 146 24 86Z" fill="url(#nutG)" stroke="#5a3d23" stroke-width="4"/>
+        <ellipse cx="60" cy="122" rx="12" ry="24" fill="#fff" opacity=".28"/>
+        <path d="M10 80c0-36 40-54 90-54s90 18 90 54c0 10-12 14-28 14H38c-16 0-28-4-28-14Z" fill="url(#capG)" stroke="#4e3420" stroke-width="4"/>
+        <rect x="6" y="20" width="188" height="78" fill="url(#capTex)" clip-path="url(#capClip)"/>
       </svg>
       <div class="breath-count"><b id="breathNum">1</b><span id="breathLabel">Breathe in</span></div></div>
     </div>
@@ -593,8 +593,8 @@ window.Groundwork = {
   doneSteps, totalSteps, phaseDone,
 };
 </script>
-<script src="config.js?v=8"></script>
-<script src="sync.js?v=8"></script>
+<script src="config.js?v=9"></script>
+<script src="sync.js?v=9"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script>GroundworkSync.ready()</script>
