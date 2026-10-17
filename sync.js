@@ -40,7 +40,11 @@
   async function api(url, opts = {}) {
     const res = await fetch(url, { ...opts, headers: { Authorization: "Bearer " + token, "Content-Type": "application/json", ...(opts.headers || {}) } });
     if (res.status === 401) { token = null; write(sessionStorage, TOKEN, null); throw Object.assign(new Error("signed out"), { code: 401 }) }
-    if (!res.ok) throw Object.assign(new Error((await res.text()).slice(0, 300)), { code: res.status });
+    if (!res.ok) {
+      let msg = "";
+      try { msg = (await res.json()).error.message || "" } catch {}
+      throw Object.assign(new Error(msg), { code: res.status, api: url.includes("sheets.googleapis") ? "Google Sheets" : "Google Drive" });
+    }
     return res.status === 204 ? null : res.json();
   }
   const SHEETS = "https://sheets.googleapis.com/v4/spreadsheets";
@@ -140,7 +144,7 @@
   function stamp(msg) { status(msg + " · " + new Date().toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })) }
   function fail(e) {
     if (e.code === 401) status("Google sign-in expired. Your changes are saved here; reconnect to sync them.", true);
-    else if (e.code === 403) status("Google refused access. Check that the Google Sheets API is turned on (see README).", true);
+    else if (e.code === 403) status(`${e.api || "Google"} refused access: ${e.message || "permission denied"}`.slice(0, 300) + (/has not been used|is disabled/i.test(e.message) ? " Enable that API in Google Cloud (see README), wait a minute, then try again." : ""), true);
     else status("Couldn't reach Google Sheets. Your changes are saved here and will sync later.", true);
   }
 
