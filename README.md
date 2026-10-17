@@ -31,7 +31,7 @@ Live: https://sherol.github.io/groundwork
 
 ### 1. GitHub Pages
 
-In this repo, go to **Settings → Pages → Build and deployment → Source** and choose **GitHub Actions**. Every push to `main` then publishes the site.
+In this repo, **Settings → Pages** is set to **Deploy from a branch**: `main`, folder `/ (root)`. Every push to `main` republishes the site within a minute or two. There is no build step.
 
 ### 2. Google Cloud (for Sheets sync)
 
