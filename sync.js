@@ -1,7 +1,8 @@
 /* Groundwork ↔ Google Sheets sync.
  *
- * Uses Google Identity Services for an OAuth access token with the drive.file
- * scope, so the app can only see the spreadsheet it creates. The spreadsheet has:
+ * Signs in with Firebase Authentication (Google provider), the same way mdlife
+ * does, and uses the Google OAuth access token it returns. The token has only the
+ * drive.file scope, so the app can only see the spreadsheet it creates. The spreadsheet has:
  *   Progress  – one row per phase (readable summary)
  *   Check-ins – one row per before/after activation rating
  *   Notes     – one row per phase with notes
@@ -20,20 +21,20 @@
   const write = (st, k, v) => { try { v == null ? st.removeItem(k) : st.setItem(k, JSON.stringify(v)) } catch {} };
 
   let pref = read(localStorage, PREF) || {};
-  let token = null, tokenClient = null, pending = null, timer = null, busy = false;
+  let unavailable = false, token = null, provider = null, pending = null, timer = null, busy = false;
   const t = read(sessionStorage, TOKEN);
   if (t && t.exp > Date.now() + 60000) token = t.token;
 
   function status(text, isError) {
     const s = $("syncState"); s.textContent = text; s.classList.toggle("err", !!isError);
-    $("signIn").hidden = !!token && !!pref.sheetId;
+    $("signIn").hidden = unavailable || (!!token && !!pref.sheetId);
     $("signIn").textContent = pref.connected ? "Reconnect Google Sheets" : "Sync to Google Sheets";
     $("signOut").hidden = !pref.connected;
     $("openSheet").hidden = !pref.sheetUrl;
     if (pref.sheetUrl) $("openSheet").href = pref.sheetUrl;
   }
 
-  function clientId() { return (window.GROUNDWORK_CONFIG || {}).googleClientId }
+  function firebaseConfig() { return (window.GROUNDWORK_CONFIG || {}).firebase }
 
   /* ---------- Google API helpers ---------- */
   async function api(url, opts = {}) {
@@ -153,9 +154,21 @@
     if (pending && token) flush();
   }
 
-  function requestToken(prompt) {
-    if (!tokenClient) { status("Google sign-in is still loading. Try again in a moment.", true); return }
-    tokenClient.requestAccessToken({ prompt });
+  async function signIn() {
+    if (!provider) { status("Google sign-in is still loading. Try again in a moment.", true); return }
+    try {
+      const result = await firebase.auth().signInWithPopup(provider);
+      const access = result.credential && result.credential.accessToken;
+      if (!access) throw new Error("no access token");
+      token = access;
+      write(sessionStorage, TOKEN, { token, exp: Date.now() + 59 * 60 * 1000 });
+      connect();
+    } catch (e) {
+      if (e && (e.code === "auth/popup-closed-by-user" || e.code === "auth/cancelled-popup-request")) status("Google sign-in was cancelled.", true);
+      else if (e && e.code === "auth/unauthorized-domain") status("This site isn't on Firebase's list of authorized domains (see README).", true);
+      else if (e && e.code === "auth/popup-blocked") status("Your browser blocked the Google sign-in window. Allow pop-ups for this site and try again.", true);
+      else status("Google sign-in failed" + (e && e.code ? " (" + e.code + ")" : "") + ".", true);
+    }
   }
 
   window.GroundworkSync = {
@@ -166,24 +179,19 @@
       clearTimeout(timer); timer = setTimeout(flush, 1500);
     },
     ready() {
-      if (!clientId()) { $("signIn").hidden = true; status("Saved on this device"); return }
-      tokenClient = google.accounts.oauth2.initTokenClient({
-        client_id: clientId(), scope: SCOPE,
-        callback: resp => {
-          if (resp.error) { status("Google sign-in was cancelled.", true); return }
-          token = resp.access_token;
-          write(sessionStorage, TOKEN, { token, exp: Date.now() + (resp.expires_in - 60) * 1000 });
-          connect();
-        },
-      });
+      const cfg = firebaseConfig();
+      if (!cfg || !window.firebase) { unavailable = true; status(cfg ? "Google sign-in couldn't load. Progress is saved on this device." : "Saved on this device", !!cfg); return }
+      if (!firebase.apps.length) firebase.initializeApp(cfg);
+      provider = new firebase.auth.GoogleAuthProvider();
+      provider.addScope(SCOPE);
       if (pref.connected && token) connect();
       else status(pref.connected ? "Saved here. Reconnect Google Sheets to sync." : "Saved on this device", pref.connected);
     },
   };
 
-  $("signIn").onclick = () => requestToken(pref.connected ? "" : "consent");
+  $("signIn").onclick = signIn;
   $("signOut").onclick = () => {
-    if (token && window.google) google.accounts.oauth2.revoke(token, () => {});
+    if (window.firebase && firebase.apps.length) firebase.auth().signOut().catch(() => {});
     token = null; pref = {}; write(localStorage, PREF, null); write(sessionStorage, TOKEN, null);
     status("Disconnected. Your spreadsheet stays in Google Drive; progress is saved on this device.");
   };

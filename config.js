@@ -1,5 +1,12 @@
-/* Google OAuth client ID for Sheets sync. This is a public identifier, not a secret.
- * Leave it empty to run Groundwork without Google Sheets (progress stays in the browser). */
+/* Firebase project used for Google sign-in (the same one mdlife uses).
+ * These values are public identifiers, not secrets.
+ * Set firebase to null to run Groundwork without Google Sheets (progress stays in the browser). */
 window.GROUNDWORK_CONFIG = {
-  googleClientId: "711578848712-b28ujod636mes9cuj92n4bl2mpvdhf6k.apps.googleusercontent.com",
+  firebase: {
+    apiKey: "AIzaSyDMo-IFCYQuvg_f6xHRj9MfMe_1ZH2h7zE",
+    authDomain: "gen-lang-client-0609175245.firebaseapp.com",
+    projectId: "gen-lang-client-0609175245",
+    appId: "1:711578848712:web:f3ea92f514839edaecc4fd",
+    messagingSenderId: "711578848712",
+  },
 };

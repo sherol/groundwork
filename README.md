@@ -27,7 +27,7 @@ Live: https://sherol.github.io/groundwork
   - **_data** (hidden): the full app state, used to restore your progress on another device. Don't edit it.
 - The app asks only for the `drive.file` permission. It can see the files it created and nothing else in your Drive.
 - When the browser copy and the spreadsheet differ, the one changed most recently wins.
-- Google sign-in lasts about an hour. After that, changes keep saving in the browser; click **Reconnect Google Sheets** to sync them.
+- Google access lasts about an hour. After that, changes keep saving in the browser; click **Reconnect Google Sheets** to sync them.
 
 ## One-time setup
 
@@ -35,15 +35,14 @@ Live: https://sherol.github.io/groundwork
 
 In this repo, **Settings → Pages** is set to **Deploy from a branch**: `main`, folder `/ (root)`. Every push to `main` republishes the site within a minute or two. There is no build step.
 
-### 2. Google Cloud (for Sheets sync)
+### 2. Google sign-in (for Sheets sync)
 
-`config.js` uses the same Google Cloud project and OAuth client as `mdlife` (project `gen-lang-client-0609175245`). In the [Google Cloud console](https://console.cloud.google.com/) for that project:
+Groundwork signs in with **Firebase Authentication**, the same way `mdlife` does, using the same Firebase project (`gen-lang-client-0609175245`). The settings are in `config.js`.
 
-1. **APIs & Services → Library:** enable the **Google Sheets API** and make sure the **Google Drive API** is enabled.
-2. **APIs & Services → Credentials →** open the OAuth 2.0 web client whose ID is in `config.js`. Under **Authorized JavaScript origins**, make sure `https://sherol.github.io` is listed. Add `http://localhost:8000` too if you want to test locally.
-3. **OAuth consent screen:** if the app is in *Testing* mode, add your Google account under **Test users**.
+1. In the [Firebase console](https://console.firebase.google.com/) for that project, go to **Authentication → Settings → Authorized domains** and make sure `sherol.github.io` is listed (it already is if `mdlife` sign-in works). Add `localhost` to test locally.
+2. In the [Google Cloud console](https://console.cloud.google.com/apis/library) for the same project, enable the **Google Sheets API** and the **Google Drive API**.
 
-To run without Google Sheets, set `googleClientId` to `""` in `config.js`.
+To run without Google Sheets, set `firebase` to `null` in `config.js`.
 
 ## Run locally
 
