@@ -154,8 +154,25 @@
     if (pending && token) flush();
   }
 
+  /* Set up Firebase once. Safe to call repeatedly; returns true when sign-in is ready. */
+  function init() {
+    if (provider) return true;
+    const cfg = firebaseConfig();
+    if (!cfg) { unavailable = true; status("Saved on this device"); return false }
+    if (!window.firebase || !firebase.auth) { status("Google sign-in couldn't load. Check your connection or ad blocker, then reload the page.", true); return false }
+    try {
+      if (!firebase.apps.length) firebase.initializeApp(cfg);
+      provider = new firebase.auth.GoogleAuthProvider();
+      provider.addScope(SCOPE);
+      return true;
+    } catch (e) {
+      status("Google sign-in couldn't start" + (e && e.code ? " (" + e.code + ")" : "") + ". Reload the page and try again.", true);
+      return false;
+    }
+  }
+
   async function signIn() {
-    if (!provider) { status("Google sign-in is still loading. Try again in a moment.", true); return }
+    if (!init()) return;
     try {
       const result = await firebase.auth().signInWithPopup(provider);
       const access = result.credential && result.credential.accessToken;
@@ -179,13 +196,10 @@
       clearTimeout(timer); timer = setTimeout(flush, 1500);
     },
     ready() {
-      const cfg = firebaseConfig();
-      if (!cfg || !window.firebase) { unavailable = true; status(cfg ? "Google sign-in couldn't load. Progress is saved on this device." : "Saved on this device", !!cfg); return }
-      if (!firebase.apps.length) firebase.initializeApp(cfg);
-      provider = new firebase.auth.GoogleAuthProvider();
-      provider.addScope(SCOPE);
-      if (pref.connected && token) connect();
-      else status(pref.connected ? "Saved here. Reconnect Google Sheets to sync." : "Saved on this device", pref.connected);
+      if (init()) {
+        if (pref.connected && token) connect();
+        else status(pref.connected ? "Saved here. Reconnect Google Sheets to sync." : "Saved on this device", pref.connected);
+      }
     },
   };
 
