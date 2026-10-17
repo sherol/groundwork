@@ -28,15 +28,16 @@
   --display: "Montserrat", "Avenir Next", "Segoe UI", system-ui, sans-serif;
   --body: "Atkinson Hyperlegible", "Verdana", system-ui, sans-serif;
   --r: 14px;
+  --calm-tint: #dceaea; --grass-tint: #f4e5c2;
 }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
   --bg: #1d1c16; --surface: #26251d; --sunk: #302e24; --ink: #ece7d6; --muted: #aaa48c; --line: #3f3c30;
   --grass: #e0aa4c; --grass-soft: #44381f; --oak: #9fbf8f; --oak-soft: #2c3627; --calm: #86b9c2; --alert: #e08a6e;
-  --fur: #a48d74; --fur-dark: #6e5a46; --fur-light: #e9dfcd; --fleck: #f3ecdd; --cape: #241b13; color-scheme: dark } }
+  --fur: #a48d74; --fur-dark: #6e5a46; --fur-light: #e9dfcd; --fleck: #f3ecdd; --cape: #241b13; --calm-tint: #1f3236; --grass-tint: #3a311d; color-scheme: dark } }
 :root[data-theme="dark"] {
   --bg: #1d1c16; --surface: #26251d; --sunk: #302e24; --ink: #ece7d6; --muted: #aaa48c; --line: #3f3c30;
   --grass: #e0aa4c; --grass-soft: #44381f; --oak: #9fbf8f; --oak-soft: #2c3627; --calm: #86b9c2; --alert: #e08a6e;
-  --fur: #a48d74; --fur-dark: #6e5a46; --fur-light: #e9dfcd; --fleck: #f3ecdd; --cape: #241b13; color-scheme: dark }
+  --fur: #a48d74; --fur-dark: #6e5a46; --fur-light: #e9dfcd; --fleck: #f3ecdd; --cape: #241b13; --calm-tint: #1f3236; --grass-tint: #3a311d; color-scheme: dark }
 
 * { box-sizing: border-box }
 :root { color-scheme: light; padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px) }
@@ -131,10 +132,27 @@ textarea { width: 100%; min-height: 96px; resize: vertical; font: inherit; color
 .overlay { position: fixed; inset: 0; z-index: 30; background: rgb(20 20 14 / .55); display: grid; place-items: center; padding: 16px; overflow-y: auto }
 .sheet { background: var(--surface); color: var(--ink); border-radius: 18px; width: min(640px, 100%); padding: 24px; display: grid; gap: 14px; max-height: calc(100% - 8px); overflow-y: auto }
 .sheet h2 { font-size: 26px }
-.ground-step { font-size: 22px; line-height: 1.45; font-family: var(--display); font-weight: 500; min-height: 4.5em }
-.breath { width: 120px; height: 120px; border-radius: 50%; background: var(--oak-soft); border: 3px solid var(--oak); margin: 4px auto; animation: breathe 10s ease-in-out infinite }
-@keyframes breathe { 0%,100% { transform: scale(.75) } 40% { transform: scale(1) } 60% { transform: scale(1) } }
-@media (prefers-reduced-motion: reduce) { .breath { animation: none } .bar > i { transition: none } }
+.ground-step { font-size: 21px; line-height: 1.45; font-family: var(--display); font-weight: 500; min-height: 4.5em; margin: 0; text-align: center; text-wrap: balance }
+#groundOverlay { background: radial-gradient(120% 90% at 50% 0%, rgb(63 111 120 / .78), rgb(30 40 30 / .82) 60%, rgb(20 20 14 / .9)) }
+.ground-sheet { position: relative; overflow: hidden; background: linear-gradient(170deg, var(--calm-tint), var(--surface) 38%, var(--surface) 70%, var(--grass-tint)); text-align: center; justify-items: center }
+.ground-sheet > * { position: relative }
+.ground-sheet .row { justify-content: center; width: 100% }
+.breath-stage { position: relative; width: min(300px, 72vw); aspect-ratio: 1; display: grid; place-items: center; margin: 2px auto 4px }
+.breath-stage .ring { position: absolute; inset: 0; border-radius: 50%; border: 2px solid var(--calm); opacity: .18 }
+.breath-stage .ring.r2 { inset: 12%; opacity: .26 }
+.breath-stage .ring.r3 { inset: 24%; opacity: .34; border-style: dashed }
+.orb { position: absolute; inset: 6%; border-radius: 50%; transform: scale(.42); transition: transform 4s cubic-bezier(.45,.05,.55,.95), filter 4s ease;
+  background: radial-gradient(circle at 38% 32%, #fff6dc 0%, #f2c96b 22%, #d39a3a 45%, #5f9aa2 78%, #3f6f78 100%);
+  box-shadow: 0 0 40px 6px rgb(242 201 107 / .45), 0 0 90px 20px rgb(95 154 162 / .35), inset 0 -18px 40px rgb(30 60 66 / .35); filter: saturate(.85) brightness(.95) }
+.orb.in { transform: scale(1); filter: saturate(1.1) brightness(1.05) }
+.breath-count { position: relative; display: grid; gap: 2px; color: #fff; text-shadow: 0 1px 8px rgb(30 50 50 / .55) }
+.breath-count b { font: 800 64px/1 var(--display); font-variant-numeric: tabular-nums }
+.breath-count span { font: 700 14px/1 var(--body); letter-spacing: .14em; text-transform: uppercase }
+.breath-meta { font-size: 13px; color: var(--muted); margin: -6px 0 0 }
+.dots { display: flex; gap: 6px; justify-content: center }
+.dots i { width: 8px; height: 8px; border-radius: 50%; background: var(--line) }
+.dots i.on { background: var(--calm) }
+@media (prefers-reduced-motion: reduce) { .orb { transition: none; transform: scale(.8) } .orb.in { transform: scale(.8) } .bar > i { transition: none } }
 .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center }
 .crisis { background: var(--sunk); border-radius: 10px; padding: 12px 14px; font-size: 14px }
 .crisis b { user-select: all }
@@ -203,11 +221,17 @@ select { font: inherit; padding: 8px 10px; border-radius: 8px; border: 1px solid
 <button class="sploot-fab" id="splootBtn" type="button" aria-haspopup="dialog"><svg aria-hidden="true"><use href="#cgs"/></svg>Sploot now</button>
 
 <div class="overlay" id="groundOverlay" hidden role="dialog" aria-modal="true" aria-labelledby="groundTitle">
-  <div class="sheet">
-    <span class="eyebrow">Grounding · about 90 seconds</span>
+  <div class="sheet ground-sheet">
+    <span class="eyebrow">Sploot · about 90 seconds</span>
     <h2 id="groundTitle">Let the ground hold you</h2>
-    <div class="breath" aria-hidden="true"></div>
+    <div class="breath-stage" aria-hidden="true">
+      <span class="ring"></span><span class="ring r2"></span><span class="ring r3"></span>
+      <div class="orb" id="orb"></div>
+      <div class="breath-count"><b id="breathNum">1</b><span id="breathLabel">Breathe in</span></div>
+    </div>
+    <p class="breath-meta" id="breathMeta">In for 4, out for 6</p>
     <p class="ground-step" id="groundStep" aria-live="polite"></p>
+    <div class="dots" id="groundDots" aria-hidden="true"></div>
     <div class="row">
       <button class="btn" id="groundPrev" type="button">Back</button>
       <button class="btn primary" id="groundNext" type="button">Next</button>
@@ -453,9 +477,29 @@ $("phase").addEventListener("input", e => {
 
 /* grounding */
 let gi = 0, lastFocus = null;
-function showGround() { $("groundStep").textContent = GROUND_STEPS[gi]; $("groundPrev").disabled = gi === 0; $("groundNext").hidden = gi === GROUND_STEPS.length - 1 }
-function openGround() { lastFocus = document.activeElement; gi = 0; showGround(); $("groundOverlay").hidden = false; $("groundNext").focus() }
-function closeOverlay(id) { $(id).hidden = true; lastFocus?.focus?.() }
+function showGround() {
+  $("groundStep").textContent = GROUND_STEPS[gi]; $("groundPrev").disabled = gi === 0; $("groundNext").hidden = gi === GROUND_STEPS.length - 1;
+  $("groundDots").innerHTML = GROUND_STEPS.map((_, k) => `<i class="${k <= gi ? "on" : ""}"></i>`).join("");
+}
+
+/* Paced breathing: in for 4 counts, out for 6. The orb swells on the in-breath and settles on the out-breath. */
+const BREATH = [{ label: "Breathe in", n: 4, cls: true }, { label: "Breathe out", n: 6, cls: false }];
+let breathTimer = null, breathPhase = 0, breathCount = 1, breaths = 0;
+function breathTick() {
+  const ph = BREATH[breathPhase];
+  $("breathNum").textContent = breathCount;
+  $("breathLabel").textContent = ph.label;
+  if (breathCount === 1) { $("orb").style.transitionDuration = ph.n + "s"; $("orb").classList.toggle("in", ph.cls) }
+  if (++breathCount > ph.n) {
+    breathCount = 1; breathPhase = (breathPhase + 1) % BREATH.length;
+    if (breathPhase === 0) $("breathMeta").textContent = `${++breaths} slow breath${breaths > 1 ? "s" : ""} · in for 4, out for 6`;
+  }
+}
+function startBreath() { stopBreath(); breathPhase = 0; breathCount = 1; breaths = 0; $("breathMeta").textContent = "In for 4, out for 6"; $("orb").classList.remove("in"); requestAnimationFrame(() => { breathTick(); breathTimer = setInterval(breathTick, 1000) }) }
+function stopBreath() { clearInterval(breathTimer); breathTimer = null }
+
+function openGround() { lastFocus = document.activeElement; gi = 0; showGround(); $("groundOverlay").hidden = false; startBreath(); $("groundNext").focus() }
+function closeOverlay(id) { $(id).hidden = true; if (id === "groundOverlay") stopBreath(); lastFocus?.focus?.() }
 $("splootBtn").onclick = openGround;
 $("groundNext").onclick = () => { gi = Math.min(gi + 1, GROUND_STEPS.length - 1); showGround() };
 $("groundPrev").onclick = () => { gi = Math.max(gi - 1, 0); showGround() };
@@ -537,8 +581,8 @@ window.Groundwork = {
   doneSteps, totalSteps, phaseDone,
 };
 </script>
-<script src="config.js?v=5"></script>
-<script src="sync.js?v=5"></script>
+<script src="config.js?v=6"></script>
+<script src="sync.js?v=6"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script>GroundworkSync.ready()</script>
