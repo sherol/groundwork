@@ -1,0 +1,521 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Groundwork</title>
+<meta name="description" content="A 12-phase somatic self-regulation program with lessons, exercises, homework, progress tracking and one-page therapist reports.">
+<link rel="icon" type="image/png" href="assets/favicon.png">
+<link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;700;800&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&display=swap">
+<style>
+/* Layout: a single trail of 12 burrows (phases) on the left, the open burrow on the right; collapses to one column on phones. Mascot: the client-supplied Groundwork logo (ground squirrel with acorn on rocks). Palette: California foothills in late summer — dry oat grass, live-oak green, adobe soil. */
+:root {
+  --bg: #f3f1e6;
+  --surface: #fbfaf3;
+  --sunk: #e8e4d2;
+  --ink: #2b2a22;
+  --muted: #6a6754;
+  --line: #d6d0b8;
+  --grass: #c08a2e;      /* dry oat grass — accent */
+  --grass-soft: #f1dfb6;
+  --oak: #3f5a3a;        /* live oak — secondary */
+  --oak-soft: #dbe5d3;
+  --calm: #3f6f78;
+  --alert: #a4472f;
+  --fur: #8a7660; --fur-dark: #5e4d3c; --fur-light: #efe6d6; --fleck: #f4ecdc; --cape: #2e241b;
+  --display: "Montserrat", "Avenir Next", "Segoe UI", system-ui, sans-serif;
+  --body: "Atkinson Hyperlegible", "Verdana", system-ui, sans-serif;
+  --r: 14px;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #1d1c16; --surface: #26251d; --sunk: #302e24; --ink: #ece7d6; --muted: #aaa48c; --line: #3f3c30;
+  --grass: #e0aa4c; --grass-soft: #44381f; --oak: #9fbf8f; --oak-soft: #2c3627; --calm: #86b9c2; --alert: #e08a6e;
+  --fur: #a48d74; --fur-dark: #6e5a46; --fur-light: #e9dfcd; --fleck: #f3ecdd; --cape: #241b13; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #1d1c16; --surface: #26251d; --sunk: #302e24; --ink: #ece7d6; --muted: #aaa48c; --line: #3f3c30;
+  --grass: #e0aa4c; --grass-soft: #44381f; --oak: #9fbf8f; --oak-soft: #2c3627; --calm: #86b9c2; --alert: #e08a6e;
+  --fur: #a48d74; --fur-dark: #6e5a46; --fur-light: #e9dfcd; --fleck: #f3ecdd; --cape: #241b13; color-scheme: dark }
+
+* { box-sizing: border-box }
+:root { color-scheme: light; padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px) }
+body { margin: 0 }
+img { max-width: 100% }
+[hidden] { display: none !important }
+body { background: var(--bg); color: var(--ink); font: 16px/1.6 var(--body); }
+.wrap { max-width: 1120px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 20px 120px; }
+h1, h2, h3 { font-family: var(--display); line-height: 1.15; text-wrap: balance; margin: 0 }
+button { font: inherit; cursor: pointer }
+:focus-visible { outline: 3px solid var(--calm); outline-offset: 2px }
+.eyebrow { font: 700 12px/1 var(--body); letter-spacing: .12em; text-transform: uppercase; color: var(--muted) }
+
+/* header */
+header.top { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 20px; padding-bottom: 18px; border-bottom: 1px solid var(--line) }
+.brand { display: flex; align-items: center; gap: 12px; margin-right: auto }
+.brand svg { width: 64px; height: 64px; flex: none }
+.brand h1 { font-size: 30px; font-weight: 800; letter-spacing: .04em; text-transform: uppercase }
+.brand p { margin: 0; color: var(--muted); font-size: 14px }
+.btn { border: 1px solid var(--line); background: var(--surface); color: var(--ink); padding: 9px 14px; border-radius: 999px; font-weight: 700; font-size: 14px }
+.btn:hover { border-color: var(--muted) }
+.sync { display: flex; flex-wrap: wrap; align-items: center; gap: 8px }
+.sync-state { font-size: 13px; color: var(--muted) }
+.sync-state.err { color: var(--alert) }
+a.btn { text-decoration: none; display: inline-block }
+.btn.primary { background: var(--oak); border-color: var(--oak); color: var(--surface) }
+
+/* progress */
+.progress { display: grid; gap: 10px; padding: 20px 0 24px }
+.progress-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap }
+.progress-head strong { font-family: var(--display); font-size: 20px }
+.bar { height: 14px; border-radius: 999px; background: var(--sunk); overflow: hidden; position: relative }
+.bar > i { position: absolute; inset: 0 auto 0 0; background: linear-gradient(90deg, var(--oak), var(--grass)); border-radius: inherit; transition: width .5s ease }
+.acorns { display: grid; grid-template-columns: repeat(12, 1fr); gap: 4px }
+.acorns svg { width: 100%; max-width: 34px; height: auto; margin: 0 auto; display: block }
+
+/* layout */
+.main { display: grid; grid-template-columns: 290px minmax(0, 1fr); gap: 28px; align-items: start }
+@media (max-width: 820px) { .main { grid-template-columns: minmax(0, 1fr) } }
+nav.trail { display: grid; gap: 4px; position: sticky; top: calc(env(safe-area-inset-top, 0px) + 12px) }
+@media (max-width: 820px) { nav.trail { position: static; grid-auto-flow: column; grid-auto-columns: minmax(150px, 1fr); overflow-x: auto; padding-bottom: 6px } }
+.stop { display: grid; grid-template-columns: 34px minmax(0,1fr); gap: 10px; align-items: center; text-align: left; border: 1px solid transparent; background: transparent; color: var(--ink); padding: 8px 10px; border-radius: 12px }
+.stop:hover { background: var(--sunk) }
+.stop[aria-current="true"] { background: var(--surface); border-color: var(--line) }
+.stop .num { width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; font: 700 14px var(--display); background: var(--sunk); color: var(--muted); font-variant-numeric: tabular-nums }
+.stop.done .num { background: var(--oak); color: var(--surface) }
+.stop.part .num { background: var(--grass-soft); color: var(--ink) }
+.stop .t { font-weight: 700; font-size: 15px; line-height: 1.25 }
+.stop .s { font-size: 12px; color: var(--muted) }
+
+article.phase { display: grid; gap: 22px; min-width: 0 }
+.phase-head { display: grid; gap: 8px }
+.phase-head h2 { font-size: clamp(28px, 4vw, 40px); font-weight: 800 }
+.phase-head .skill { color: var(--muted); max-width: 62ch; margin: 0 }
+section.block { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 20px 22px; display: grid; gap: 12px; min-width: 0 }
+section.block h3 { font-size: 20px; display: flex; gap: 10px; align-items: center }
+section.block h3 .tag { font: 700 11px/1 var(--body); letter-spacing: .1em; text-transform: uppercase; padding: 5px 8px; border-radius: 6px; background: var(--oak-soft); color: var(--oak) }
+section.block p { margin: 0; max-width: 66ch }
+section.block ul, section.block ol { margin: 0; padding-left: 22px; display: grid; gap: 6px; max-width: 66ch }
+.squirrel-note { display: grid; grid-template-columns: 44px minmax(0,1fr); gap: 12px; align-items: start; background: var(--grass-soft); border-radius: 12px; padding: 12px 14px; font-size: 15px }
+.squirrel-note svg { width: 44px; height: 44px }
+.check { display: flex; gap: 10px; align-items: flex-start; padding: 8px 0; border-top: 1px dashed var(--line) }
+.check:first-of-type { border-top: 0 }
+.check input { width: 20px; height: 20px; margin-top: 3px; accent-color: var(--oak); flex: none }
+.check label { cursor: pointer }
+.check input:checked + label { color: var(--muted); text-decoration: line-through; text-decoration-color: var(--line) }
+.donebtn { justify-self: start }
+.donebtn[aria-pressed="true"] { background: var(--oak-soft); border-color: var(--oak); color: var(--oak) }
+
+.scale { display: grid; gap: 8px }
+.scale-row { display: flex; flex-wrap: wrap; gap: 6px; align-items: center }
+.scale-row span.lbl { width: 70px; font-size: 14px; color: var(--muted) }
+.pip { width: 34px; height: 34px; border-radius: 9px; border: 1px solid var(--line); background: var(--bg); color: var(--ink); font-weight: 700; font-size: 14px; font-variant-numeric: tabular-nums }
+.pip[aria-pressed="true"] { background: var(--calm); color: var(--surface); border-color: var(--calm) }
+.hint { font-size: 13px; color: var(--muted) }
+textarea { width: 100%; min-height: 96px; resize: vertical; font: inherit; color: var(--ink); background: var(--bg); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px }
+.save-state { font-size: 13px; color: var(--muted) }
+.pager { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap }
+
+.safety { font-size: 14px; color: var(--muted); border-top: 1px solid var(--line); margin-top: 36px; padding-top: 16px; max-width: 80ch }
+
+/* sploot button */
+.sploot-fab { position: fixed; right: max(16px, calc(env(safe-area-inset-right, 0px) + 16px)); bottom: calc(env(safe-area-inset-bottom, 0px) + 16px); z-index: 20; display: flex; align-items: center; gap: 8px; border: 0; background: var(--calm); color: var(--surface); padding: 12px 18px 12px 12px; border-radius: 999px; font-weight: 700; box-shadow: 0 6px 20px rgb(0 0 0 / .18) }
+.sploot-fab svg { width: 30px; height: 30px; background: var(--surface); border-radius: 50%; padding: 2px }
+
+/* overlays */
+.overlay { position: fixed; inset: 0; z-index: 30; background: rgb(20 20 14 / .55); display: grid; place-items: center; padding: 16px; overflow-y: auto }
+.sheet { background: var(--surface); color: var(--ink); border-radius: 18px; width: min(640px, 100%); padding: 24px; display: grid; gap: 14px; max-height: calc(100% - 8px); overflow-y: auto }
+.sheet h2 { font-size: 26px }
+.ground-step { font-size: 22px; line-height: 1.45; font-family: var(--display); font-weight: 500; min-height: 4.5em }
+.breath { width: 120px; height: 120px; border-radius: 50%; background: var(--oak-soft); border: 3px solid var(--oak); margin: 4px auto; animation: breathe 10s ease-in-out infinite }
+@keyframes breathe { 0%,100% { transform: scale(.75) } 40% { transform: scale(1) } 60% { transform: scale(1) } }
+@media (prefers-reduced-motion: reduce) { .breath { animation: none } .bar > i { transition: none } }
+.row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center }
+.crisis { background: var(--sunk); border-radius: 10px; padding: 12px 14px; font-size: 14px }
+.crisis b { user-select: all }
+
+/* report */
+.report-sheet { width: min(820px, 100%) }
+.report { background: #fff; color: #222; border: 1px solid var(--line); border-radius: 8px; padding: 28px 30px; font: 13px/1.45 var(--body); display: grid; gap: 12px; overflow-x: auto }
+.report h3 { font: 800 20px/1.2 var(--display); margin: 0 }
+.report h4 { font: 700 12px/1 var(--body); letter-spacing: .1em; text-transform: uppercase; color: #6b6450; margin: 6px 0 0 }
+.report table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums }
+.report td, .report th { text-align: left; padding: 4px 6px; border-bottom: 1px solid #e3ddca; vertical-align: top }
+.report th { font-size: 11px; color: #6b6450; text-transform: uppercase; letter-spacing: .06em }
+.report p { margin: 0 }
+.report .meta { display: flex; flex-wrap: wrap; gap: 4px 18px; color: #555 }
+.report .note { white-space: pre-wrap; background: #f6f3ea; border-radius: 6px; padding: 8px 10px }
+.field { display: grid; gap: 4px; font-size: 14px }
+.field input[type="text"] { font: inherit; padding: 8px 10px; border-radius: 8px; border: 1px solid var(--line); background: var(--bg); color: var(--ink) }
+select { font: inherit; padding: 8px 10px; border-radius: 8px; border: 1px solid var(--line); background: var(--bg); color: var(--ink); max-width: 100% }
+.toast { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(env(safe-area-inset-bottom, 0px) + 84px); background: var(--ink); color: var(--bg); padding: 8px 14px; border-radius: 999px; font-size: 14px; z-index: 40 }
+</style>
+
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <!-- California ground squirrel, sentinel pose: grizzled brown-grey coat with pale flecks, dark shoulder mantle, bushy tail, pale eye ring -->
+    <symbol id="cgs" viewBox="0 0 100 100"><image href="assets/emblem.png" x="0" y="0" width="100" height="100"/></symbol>
+    <symbol id="acorn" viewBox="0 0 28 28">
+      <rect x="12.8" y="0.5" width="2.6" height="5" rx="1.3" fill="currentColor" opacity=".7"/>
+      <path d="M1.5 11.5 C1.5 4.5 26.5 4.5 26.5 11.5 C26.5 13.5 1.5 13.5 1.5 11.5 Z" fill="currentColor" opacity=".72"/>
+      <path d="M3.5 12.5 H24.5 C24.5 21.5 19.5 27.5 14 27.5 C8.5 27.5 3.5 21.5 3.5 12.5 Z" fill="currentColor"/>
+      <ellipse cx="9" cy="17" rx="1.6" ry="3" fill="#fff" opacity=".25"/>
+    </symbol>
+  </defs>
+</svg>
+
+<div class="wrap">
+  <header class="top">
+    <div class="brand">
+      <svg role="img" aria-label="Groundwork logo: a California ground squirrel holding an acorn on rocks"><use href="#cgs"/></svg>
+      <div><h1>Groundwork</h1><p>A 12-phase somatic program for building a steadier nervous system</p></div>
+    </div>
+    <div class="sync" id="sync"><span class="sync-state" id="syncState">Saved on this device</span><a class="btn" id="openSheet" href="#" target="_blank" rel="noopener" hidden>Open sheet</a><button class="btn" id="signIn" type="button">Sync to Google Sheets</button><button class="btn" id="signOut" type="button" hidden>Disconnect</button></div>
+    <button class="btn" id="openReport" type="button">Therapist report</button>
+  </header>
+
+  <div class="progress" aria-live="polite">
+    <div class="progress-head"><strong id="progTitle">0 of 12 phases complete</strong><span class="hint" id="progSub">0% of all steps</span></div>
+    <div class="bar" role="progressbar" aria-label="Program progress" aria-valuemin="0" aria-valuemax="100" id="bar"><i id="barFill" style="width:0%"></i></div>
+    <div class="acorns" id="acorns" aria-hidden="true"></div>
+  </div>
+
+  <div class="main">
+    <nav class="trail" id="trail" aria-label="Phases"></nav>
+    <article class="phase" id="phase"></article>
+  </div>
+
+  <p class="safety"><b>Groundwork is a self-regulation and learning tool, not therapy or a substitute for care.</b> It is inspired by body-based trauma approaches, including Peter Levine's work, and is not affiliated with or endorsed by Somatic Experiencing International. The exercises stay with present-moment body sensation; they never ask you to revisit a traumatic memory. Go slowly, stop whenever you want, and do deeper work with a trained practitioner. In the US, call or text <b>988</b> any time you're in crisis.</p>
+  <p class="safety" style="margin-top:0;border-top:0;padding-top:0">Your data stays in this browser unless you connect Google Sheets. Then it is saved to a spreadsheet called <b>Groundwork progress</b> in your own Google Drive. Groundwork can only see files it created, never the rest of your Drive.</p>
+</div>
+
+<button class="sploot-fab" id="splootBtn" type="button" aria-haspopup="dialog"><svg aria-hidden="true"><use href="#cgs"/></svg>Sploot now</button>
+
+<div class="overlay" id="groundOverlay" hidden role="dialog" aria-modal="true" aria-labelledby="groundTitle">
+  <div class="sheet">
+    <span class="eyebrow">Grounding · about 90 seconds</span>
+    <h2 id="groundTitle">Let the ground hold you</h2>
+    <div class="breath" aria-hidden="true"></div>
+    <p class="ground-step" id="groundStep" aria-live="polite"></p>
+    <div class="row">
+      <button class="btn" id="groundPrev" type="button">Back</button>
+      <button class="btn primary" id="groundNext" type="button">Next</button>
+      <button class="btn" id="groundClose" type="button" style="margin-left:auto">I'm steadier, close</button>
+    </div>
+    <div class="crisis">If you feel unsafe or overwhelmed, reach a person now. US: call or text <b>988</b> (Suicide &amp; Crisis Lifeline). UK &amp; Ireland: Samaritans <b>116 123</b>. Emergency: <b>911</b> / <b>999</b> / <b>112</b>. Elsewhere: findahelpline.com.</div>
+  </div>
+</div>
+
+<div class="overlay" id="reportOverlay" hidden role="dialog" aria-modal="true" aria-labelledby="reportTitle">
+  <div class="sheet report-sheet">
+    <span class="eyebrow">One-page report</span>
+    <h2 id="reportTitle">Share with your therapist</h2>
+    <div class="row">
+      <label class="field" for="repName">Your name (optional)<input type="text" id="repName" autocomplete="name"></label>
+      <label class="field" for="repScope">Covering<select id="repScope"></select></label>
+      <label class="row" for="repNotes" style="font-size:14px"><input type="checkbox" id="repNotes" checked> Include my notes</label>
+    </div>
+    <div class="report" id="report"></div>
+    <div class="row">
+      <button class="btn primary" id="repSave" type="button">Save as file</button>
+      <button class="btn" id="repCopy" type="button">Copy text</button>
+      <button class="btn" id="repClose" type="button" style="margin-left:auto">Close</button>
+    </div>
+    <p class="hint" id="repHint">The saved file opens in any browser. Print it from there (or save as PDF), or attach it to an email.</p>
+  </div>
+</div>
+
+<div class="toast" id="toast" hidden></div>
+
+<script>
+const PHASES = [
+ { title: "Arriving", skill: "Learning how your nervous system responds to threat and safety.",
+   understanding: "Trauma isn't only in the story of what happened. It also lives in the body as survival energy that never got to finish: a fight that couldn't happen, an escape that was blocked, or a freeze that never thawed. Your nervous system was doing its job. This program is about gently teaching it that the danger has passed.",
+   lesson: ["Your nervous system has three broad modes: safe and connected, mobilized (fight or flight), and shut down (freeze or collapse).", "None of these is bad. Each one is your body trying to protect you.", "Healing happens in small doses. Going faster usually makes it slower.", "You are always in charge. You can pause, open your eyes, or stop at any point."],
+   exercise: { name: "Noticing where you are", steps: ["Sit or lie in a position that feels okay enough right now.", "Notice three things you can see, without hurrying.", "Notice the points where your body touches the chair, bed, or floor.", "Ask yourself: what is one thing about this moment that is okay? It can be small.", "Rest with that for a few breaths."] },
+   squirrel: "California ground squirrels spend their days switching between alert and relaxed. That switching is healthy. A nervous system that can move between states is the goal, not one that stays calm forever.",
+   homework: ["Once a day, pause and name which mode you're in: safe, mobilized, or shut down.", "Notice one moment this week when you felt even slightly at ease.", "Write down anything you'd like to ask your therapist about this phase."] },
+ { title: "Orienting", skill: "Using your senses to show your body it is here, now.",
+   understanding: "When animals sense possible danger, they stop and look around. When they find nothing threatening, their body relaxes. People who have been through trauma often skip this step and stay braced. Slow, curious orienting helps your body register that you're in the present.",
+   lesson: ["Orienting is led by the eyes, head and neck, moving slowly and following curiosity.", "Let your gaze rest on whatever draws it: a color, a texture, light.", "Notice any small signs of settling, like a deeper breath, a swallow, or softer shoulders.", "If orienting brings up alertness, that's useful information. Slow down and look at something pleasant."],
+   exercise: { name: "Slow look around", steps: ["Keep your eyes open. Let your head turn very slowly to one side.", "Let your eyes land wherever they want. Stay there a moment.", "Turn slowly toward the other side, exploring the room as if for the first time.", "Look behind you if you want to. Many bodies relax once they know what's back there.", "Pause and notice: has anything in your body changed, even slightly?"] },
+   squirrel: "A ground squirrel stands up on its hind legs, scans the field, and if all is clear, drops back down to forage. You're practicing that all-clear.",
+   homework: ["Do the slow look-around once a day, preferably in a different place each day.", "Record one small sign of settling you noticed (yawn, sigh, softer jaw, warmer hands).", "Try orienting once when you feel mildly stressed, and note what happened."] },
+ { title: "Grounding", skill: "Feeling supported by the ground, your weight and your body.",
+   understanding: "Trauma can make us feel as if we're floating, braced, or not quite in our bodies. Grounding is the felt experience of being supported, whether by the floor, a chair, or gravity itself. It gives your nervous system a stable base to return to.",
+   lesson: ["Grounding is physical: weight, pressure, contact, temperature.", "Pressing your feet into the floor and feeling it push back is a simple, powerful anchor.", "You can ground standing, sitting or lying down. Find what works for your body.", "Splooting (lying belly-down and letting gravity take you) is grounding."],
+   exercise: { name: "Feet and weight", steps: ["Place both feet on the floor. Press down gently, then release. Repeat a few times.", "Notice the floor pushing back up. You don't have to hold yourself up alone.", "Let your weight sink into the chair. Notice where you feel most supported.", "Make a low 'voo' sound on a long exhale, letting it vibrate your belly and chest.", "Rest and notice what's different."] },
+   squirrel: "On hot days ground squirrels sploot: belly flat on cool earth, legs stretched out. They hand their weight to the ground and let their body cool down. That's the feeling you're practicing.",
+   homework: ["Practice feet-and-weight twice a day, even for 30 seconds.", "Try one 'voo' breath when you notice tension.", "Find your personal grounding spot or posture and write it down."] },
+ { title: "Resourcing", skill: "Building a store of things that help you feel steadier.",
+   understanding: "Resources are anything that supports you: people, pets, places, memories, activities, qualities of your own, or areas of your body that feel okay. Before working with anything difficult, the nervous system needs something good to come back to. That's why resourcing comes before deeper work.",
+   lesson: ["External resources: a person, a pet, a place, music, nature, an object.", "Internal resources: strength, humor, curiosity, a body part that feels neutral or good.", "Resources work best when you feel them in your body, not just think about them.", "Small and simple is fine. A warm mug in your hands counts."],
+   exercise: { name: "Feeling a resource", steps: ["Choose one resource. Picture it in as much detail as you like.", "Notice what happens in your body as you hold it in mind.", "Is there warmth, softening, opening, or a feeling of being held? Where?", "Stay with that sensation for a few breaths. Let it grow if it wants to.", "If nothing changes, that's okay. Try a different resource, or simply notice something neutral."] },
+   squirrel: "Ground squirrels cache seeds for later. Your resource list is your cache: something to draw on when times get lean.",
+   homework: ["Write a list of at least five resources (people, places, things, qualities).", "Spend one minute each day feeling one resource in your body.", "Notice one resource you already use without thinking about it."] },
+ { title: "Felt sense", skill: "Noticing body sensation with curiosity rather than judgment.",
+   understanding: "The felt sense is your body's raw experience before thoughts or labels: warmth, tightness, tingling, heaviness, pulsing. Trauma recovery works through sensation because that's where survival responses are stored. Learning to notice sensation without getting swept away is a core skill.",
+   lesson: ["Sensation words: warm, cool, tight, loose, heavy, light, buzzy, still, open, closed, sharp, dull.", "Separate the sensation from the story. Notice 'tight in my chest' rather than 'I'm anxious'.", "Curiosity is calming. Ask 'what is this like?' instead of 'why is this here?'.", "Numbness and 'nothing' are sensations too."],
+   exercise: { name: "Sensation tour", steps: ["Start with your hands. What sensations are there? Temperature? Tingling?", "Move to your feet. Notice what's there without trying to change it.", "Find a place in your body that feels neutral or pleasant. Rest attention there.", "Name the sensation using one or two words from the list.", "Return to the neutral or pleasant place before finishing."] },
+   squirrel: "A squirrel's whiskers notice tiny changes in the world. You're growing whiskers for your inner world.",
+   homework: ["Do one short sensation tour each day.", "Collect your own sensation vocabulary: write five words that fit your body.", "Notice one pleasant or neutral sensation during an ordinary activity (washing hands, eating)."] },
+ { title: "Tracking", skill: "Following sensations as they shift and change.",
+   understanding: "Sensations are rarely fixed. When you stay with a sensation gently, it often changes: it moves, softens, spreads, or fades. Tracking teaches your nervous system that feelings move, and that you can be with them without being trapped by them.",
+   lesson: ["Tracking means following, not fixing.", "Ask: 'and what happens next?'", "Notice size, shape, temperature, movement and intensity.", "If a sensation grows too strong, shift your attention to a resource or to the room around you."],
+   exercise: { name: "What happens next", steps: ["Find a mild sensation, either neutral or slightly uncomfortable but nowhere near overwhelming.", "Describe it to yourself: where is it, how big, what quality?", "Wait and watch. Ask: 'and what happens next?'", "Keep following it for about a minute. Notice any change at all.", "Return to your feet on the floor before finishing."] },
+   squirrel: "Ground squirrels watch the sky for shifting shadows. They track change without panicking at every one.",
+   homework: ["Track one mild sensation for one minute each day.", "Write down one sensation that changed while you watched it.", "Rate your activation before and after tracking on the 0–10 scale."] },
+ { title: "Your window", skill: "Recognizing your window of tolerance and working in small doses.",
+   understanding: "Everyone has a range of activation where they can think, feel and stay present: the window of tolerance. Above it is overwhelm or panic. Below it is numbness or shutdown. Healing happens at the edges of the window, in tiny doses. This is called titration.",
+   lesson: ["Signs you're above the window: racing heart, flooding, panic, rage, can't think.", "Signs you're below it: numb, foggy, far away, heavy, flat, disconnected.", "Titration means working with a drop of difficulty, not the whole bucket.", "If you go outside your window, stop, orient, ground, and use a resource. That's skill, not failure."],
+   exercise: { name: "Mapping your window", steps: ["Remember a time you felt okay: present, steady enough. Notice how that feels in your body now.", "Think of something mildly irritating (a slow line, a messy desk). Notice the body response.", "Rate it 0–10. Keep it at 3 or less. If it's higher, choose something milder.", "Return to your resource and notice your body settle.", "Write down your personal signs of being above or below the window."] },
+   squirrel: "A squirrel doesn't leap across the whole canyon. It goes branch by branch. Small doses are how you get across.",
+   homework: ["Write your personal signs of being above, inside, and below your window.", "Check in twice a day: where am I in my window right now?", "When you notice you're outside your window, try one grounding tool and note what happened."] },
+ { title: "Pendulation", skill: "Moving attention between difficulty and ease.",
+   understanding: "Your nervous system naturally swings between contraction and expansion. Trauma can get it stuck in contraction. Pendulation intentionally moves attention between something difficult and something resourcing, which teaches your body that it can touch distress and come back.",
+   lesson: ["Always start and end with the resource or the neutral place.", "Touch difficulty briefly: seconds, not minutes.", "Each swing back to ease teaches your body that it can recover.", "Over time the swings get easier, and the comfortable side gets wider."],
+   exercise: { name: "Back and forth", steps: ["Find a resource or a place in your body that feels okay. Rest there.", "Briefly notice a mild area of tension or discomfort. Just touch it with attention.", "Return to the resource. Let your body settle there fully.", "Repeat the swing two or three times, staying longer with ease than with difficulty.", "Finish with the resource and orient to the room."] },
+   squirrel: "Out of the burrow to forage, back into the burrow to rest. A ground squirrel's whole day is pendulation.",
+   homework: ["Practice back-and-forth once a day with a mild difficulty.", "Notice whether coming back to ease gets quicker over the week.", "Write about one moment of daily life where you naturally pendulated."] },
+ { title: "Boundaries", skill: "Feeling the edges and protective space of your body.",
+   understanding: "Trauma often involves boundaries being crossed. The body can lose its sense of where it ends and the world begins. Rebuilding a felt sense of your edges, and of how much space you need, restores a sense of protection and choice.",
+   lesson: ["Your skin is your first boundary. Gentle touch can help you feel it.", "Your personal space is a felt boundary. It can grow or shrink.", "Saying no, even internally, is a protective action your body can feel.", "Containment, like holding yourself or being wrapped in a blanket, helps sensations feel manageable."],
+   exercise: { name: "Feeling your edges", steps: ["Gently press or pat your arms, legs and shoulders, saying 'this is me' inwardly.", "Place one hand on your forehead and one on your chest. Notice the feeling of being held.", "Imagine the space around you, about an arm's length. How big does it want to be?", "Push your palms gently out into the air, as if setting a boundary. Notice your strength.", "Rest and notice what's different."] },
+   squirrel: "Every burrow has a clear entrance and a clear edge. Inside is yours.",
+   homework: ["Do the edge-tapping practice once a day.", "Notice one moment where you wanted more space, and what your body did.", "Practice one small 'no' or preference this week and note how it felt."] },
+ { title: "Completing", skill: "Letting stuck protective responses gently finish.",
+   understanding: "When fight or flight is blocked, that energy can stay in the body as tension, bracing or restlessness. Animals in the wild shake, tremble or breathe deeply after a threat passes to let it go. You can invite the body to complete small protective movements and release some held energy, slowly and safely.",
+   lesson: ["Signs of release include trembling, shaking, warmth, tingling, yawning, tears and deep breaths.", "These are normal and usually pass. Let them happen without forcing them.", "Small movements (pushing, turning away, stepping) can complete a protective impulse.", "Stay in your window. Discharge in sips, not floods. Stop if it feels like too much."],
+   exercise: { name: "Push and settle", steps: ["Stand facing a wall. Place your palms on it at shoulder height.", "Slowly push, feeling your arms, back and legs engage. Push as much as feels good.", "Notice your strength. Then slowly release.", "Shake out your hands and arms gently, or let any trembling happen.", "Rest. Feel your feet and orient to the room."] },
+   squirrel: "After a hawk passes over, a ground squirrel often shakes itself off before returning to the day. Shaking off is natural.",
+   homework: ["Try push-and-settle once a day.", "Notice any spontaneous release (yawns, sighs, warmth) and record it.", "If something felt intense, write it down to explore with your therapist."] },
+ { title: "Connection", skill: "Settling through safe connection with others.",
+   understanding: "Nervous systems regulate each other. A calm voice, a kind face or a trusted presence can help us settle in ways that are hard to do alone. This is called co-regulation. Trauma can make connection feel risky, so here we explore it gently, at your pace.",
+   lesson: ["Co-regulation happens through faces, voices, touch and presence.", "It can come from people, pets, or even a memory of a kind person.", "Notice the difference between people who settle you and people who activate you.", "Your therapist is a co-regulation partner. Bring this work to sessions."],
+   exercise: { name: "Feeling with", steps: ["Think of someone (a person or animal) who helps you feel steady.", "Imagine their face, voice or presence. Notice your body.", "Where do you feel the effect? Chest, face, shoulders, belly?", "Let that sensation grow. Stay with it for a few breaths.", "If it's possible this week, spend real time with that person or animal and notice your body."] },
+   squirrel: "California ground squirrels live in colonies. One squirrel's alarm call warns everyone, and one squirrel's calm grazing tells everyone it's safe.",
+   homework: ["Spend time with one regulating person or pet, and notice your body during it.", "List the people who help you settle and those who tend to activate you.", "Share one thing from this program with your therapist."] },
+ { title: "Integration", skill: "Bringing it together and carrying it into daily life.",
+   understanding: "Recovery isn't a straight line. It's a widening of your window, a quicker return to steadiness, and more trust in your body. In this last phase you look back at what has changed and build a simple daily practice you can keep.",
+   lesson: ["Progress shows up as recovery speed, not never feeling bad.", "Choose two or three favorite tools from the program.", "Notice old patterns with kindness instead of judgment.", "It's always okay to revisit earlier phases. Going back is part of going forward."],
+   exercise: { name: "Your daily groundwork", steps: ["Look back over phases 1 to 11. Which tools helped most?", "Choose one for mornings, one for stressful moments, and one for evenings.", "Practice all three today, noticing how your body responds.", "Write a short note to yourself about what has changed since phase 1.", "Orient to the room and feel the ground. You've done the groundwork."] },
+   squirrel: "In spring, ground squirrels come up out of hibernation and into the sun. Emerging is gradual, and so is this.",
+   homework: ["Write your daily practice plan (morning, stressful moments, evening).", "Follow your plan for one week and note what you adjust.", "Bring your final report to your therapist and talk about next steps."] },
+];
+
+const GROUND_STEPS = [
+  "Pause. You can stop anything you were doing. Nothing else needs your attention for this minute.",
+  "Look around the room slowly. Find three things you can see. Let your eyes rest on each one.",
+  "Press your feet into the floor. Feel the floor press back. You're supported.",
+  "If you can, let your body get heavier, like a ground squirrel splooting on cool earth.",
+  "Breathe out long and slow, as if fogging a mirror, or hum a low 'voo'. Do this twice.",
+  "Place a hand on your chest or belly. Feel its warmth and weight.",
+  "Name where you are and today's date out loud or in your head.",
+  "Notice one thing that is okay right now. That's enough.",
+];
+
+/* ---------- state ---------- */
+const blank = () => ({ checks: {}, lesson: {}, exercise: {}, notes: {}, pre: {}, post: {}, log: [], current: 0, started: null, updated: null });
+let S = blank();
+let store = { save: () => {} };
+
+function totalSteps(i) { return 2 + PHASES[i].homework.length }
+function doneSteps(i) { let n = (S.lesson[i] ? 1 : 0) + (S.exercise[i] ? 1 : 0); PHASES[i].homework.forEach((_, j) => { if (S.checks[i + "." + j]) n++ }); return n }
+function phaseDone(i) { return doneSteps(i) === totalSteps(i) }
+
+function commit() {
+  S.updated = new Date().toISOString();
+  if (!S.started) S.started = S.updated;
+  store.save(S);
+  renderProgress(); renderTrail();
+}
+
+/* ---------- rendering ---------- */
+const $ = id => document.getElementById(id);
+const esc = s => String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+
+function renderProgress() {
+  let all = 0, done = 0, phases = 0;
+  PHASES.forEach((_, i) => { all += totalSteps(i); done += doneSteps(i); if (phaseDone(i)) phases++ });
+  const pct = Math.round(done / all * 100);
+  $("progTitle").textContent = phases + " of 12 phases complete";
+  $("progSub").textContent = pct + "% of all steps";
+  $("barFill").style.width = pct + "%";
+  $("bar").setAttribute("aria-valuenow", pct);
+  $("acorns").innerHTML = PHASES.map((_, i) => {
+    const c = phaseDone(i) ? "var(--grass)" : doneSteps(i) ? "var(--fur)" : "var(--line)";
+    return `<svg viewBox="0 0 28 28" style="color:${c}"><use href="#acorn"/></svg>`;
+  }).join("");
+}
+
+function renderTrail() {
+  $("trail").innerHTML = PHASES.map((p, i) => {
+    const cls = phaseDone(i) ? "done" : doneSteps(i) ? "part" : "";
+    return `<button type="button" class="stop ${cls}" data-i="${i}" aria-current="${i === S.current}"><span class="num">${phaseDone(i) ? "✓" : i + 1}</span><span><span class="t">${esc(p.title)}</span><br><span class="s">${doneSteps(i)} of ${totalSteps(i)} steps</span></span></button>`;
+  }).join("");
+}
+
+function scale(kind, i) {
+  const v = S[kind][i];
+  let h = "";
+  for (let n = 0; n <= 10; n++) h += `<button type="button" class="pip" data-scale="${kind}" data-v="${n}" aria-pressed="${v === n}" aria-label="${n}">${n}</button>`;
+  return h;
+}
+
+function renderPhase() {
+  const i = S.current, p = PHASES[i];
+  $("phase").innerHTML = `
+    <div class="phase-head"><span class="eyebrow">Phase ${i + 1} of 12</span><h2>${esc(p.title)}</h2><p class="skill">${esc(p.skill)}</p></div>
+    <section class="block"><h3><span class="tag">Understand</span>Why this matters</h3><p>${esc(p.understanding)}</p>
+      <div class="squirrel-note"><svg aria-hidden="true"><use href="#cgs"/></svg><p>${esc(p.squirrel)}</p></div></section>
+    <section class="block"><h3><span class="tag">Lesson</span>Key ideas</h3><ul>${p.lesson.map(l => `<li>${esc(l)}</li>`).join("")}</ul>
+      <button type="button" class="btn donebtn" data-mark="lesson" aria-pressed="${!!S.lesson[i]}">${S.lesson[i] ? "Lesson read ✓" : "Mark lesson as read"}</button></section>
+    <section class="block"><h3><span class="tag">Exercise</span>${esc(p.exercise.name)}</h3>
+      <p class="hint">Take it slowly. Keep your eyes open if you prefer. Stop whenever you want and tap <b>Sploot now</b> if you need to settle.</p>
+      <div class="scale"><div class="scale-row"><span class="lbl">Before</span>${scale("pre", i)}</div><span class="hint">How activated do you feel? 0 = calm, 10 = overwhelmed</span></div>
+      <ol>${p.exercise.steps.map(s => `<li>${esc(s)}</li>`).join("")}</ol>
+      <div class="scale"><div class="scale-row"><span class="lbl">After</span>${scale("post", i)}</div></div>
+      <p class="hint" id="warn" hidden></p>
+      <button type="button" class="btn donebtn" data-mark="exercise" aria-pressed="${!!S.exercise[i]}">${S.exercise[i] ? "Exercise done ✓" : "Mark exercise as done"}</button></section>
+    <section class="block"><h3><span class="tag">Homework</span>This week</h3>
+      <div>${p.homework.map((h, j) => `<div class="check"><input type="checkbox" id="hw-${i}-${j}" data-hw="${j}" ${S.checks[i + "." + j] ? "checked" : ""}><label for="hw-${i}-${j}">${esc(h)}</label></div>`).join("")}</div></section>
+    <section class="block"><h3><span class="tag">Notes</span>What you noticed</h3>
+      <label class="hint" for="note-${i}">Sensations, changes, questions for your therapist. These can be included in your report.</label>
+      <textarea id="note-${i}" data-note>${esc(S.notes[i] || "")}</textarea><span class="save-state" id="saveState">Saved automatically</span></section>
+    <div class="pager">
+      <button type="button" class="btn" data-go="${i - 1}" ${i === 0 ? "hidden" : ""}>← ${i > 0 ? esc(PHASES[i - 1].title) : ""}</button>
+      <button type="button" class="btn primary" data-go="${i + 1}" ${i === 11 ? "hidden" : ""} style="margin-left:auto">Next: ${i < 11 ? esc(PHASES[i + 1].title) : ""} →</button>
+    </div>`;
+  updateWarn();
+}
+
+function updateWarn() {
+  const i = S.current, pre = S.pre[i], post = S.post[i], w = $("warn");
+  if (!w) return;
+  let msg = "";
+  if (post != null && post >= 7) msg = "That's a lot of activation. Let's settle first: tap Sploot now, and save this phase for another day or for your therapist.";
+  else if (pre != null && post != null && post - pre >= 3) msg = "Your activation went up. That's useful to know. Ground for a minute, and next time try a smaller dose.";
+  else if (pre != null && post != null && post < pre) msg = "Your activation came down. Notice what that feels like in your body.";
+  w.hidden = !msg; w.textContent = msg;
+  w.style.color = msg && post >= pre ? "var(--alert)" : "var(--oak)";
+}
+
+/* One log row per rating session: re-rating the same phase within 15 minutes updates the last row. */
+function logCheckin(i) {
+  if (S.post[i] == null) return;
+  const now = Date.now(), last = S.log[S.log.length - 1];
+  const row = { t: new Date(now).toISOString(), phase: i, pre: S.pre[i] ?? null, post: S.post[i] };
+  if (last && last.phase === i && now - Date.parse(last.t) < 15 * 60 * 1000) S.log[S.log.length - 1] = row;
+  else S.log.push(row);
+}
+
+function go(i) { if (i < 0 || i > 11) return; S.current = i; commit(); renderPhase(); window.scrollTo({ top: 0, behavior: "smooth" }) }
+
+/* ---------- events ---------- */
+$("trail").addEventListener("click", e => { const b = e.target.closest("[data-i]"); if (b) go(+b.dataset.i) });
+$("phase").addEventListener("click", e => {
+  const i = S.current, t = e.target.closest("button"); if (!t) return;
+  if (t.dataset.mark) { S[t.dataset.mark][i] = !S[t.dataset.mark][i]; commit(); renderPhase(); }
+  else if (t.dataset.scale) { const k = t.dataset.scale, v = +t.dataset.v; S[k][i] = S[k][i] === v ? null : v; logCheckin(i); commit(); t.parentNode.querySelectorAll(".pip").forEach(p => p.setAttribute("aria-pressed", S[k][i] === +p.dataset.v)); updateWarn(); if (k === "post" && S.post[i] >= 7) openGround(); }
+  else if (t.dataset.go) go(+t.dataset.go);
+});
+$("phase").addEventListener("change", e => { if (e.target.dataset.hw != null) { S.checks[S.current + "." + e.target.dataset.hw] = e.target.checked; commit(); } });
+let noteTimer;
+$("phase").addEventListener("input", e => {
+  if (!("note" in e.target.dataset)) return;
+  S.notes[S.current] = e.target.value; $("saveState").textContent = "Saving…";
+  clearTimeout(noteTimer); noteTimer = setTimeout(() => { commit(); const s = $("saveState"); if (s) s.textContent = "Saved"; }, 700);
+});
+
+/* grounding */
+let gi = 0, lastFocus = null;
+function showGround() { $("groundStep").textContent = GROUND_STEPS[gi]; $("groundPrev").disabled = gi === 0; $("groundNext").hidden = gi === GROUND_STEPS.length - 1 }
+function openGround() { lastFocus = document.activeElement; gi = 0; showGround(); $("groundOverlay").hidden = false; $("groundNext").focus() }
+function closeOverlay(id) { $(id).hidden = true; lastFocus?.focus?.() }
+$("splootBtn").onclick = openGround;
+$("groundNext").onclick = () => { gi = Math.min(gi + 1, GROUND_STEPS.length - 1); showGround() };
+$("groundPrev").onclick = () => { gi = Math.max(gi - 1, 0); showGround() };
+$("groundClose").onclick = () => closeOverlay("groundOverlay");
+document.addEventListener("keydown", e => { if (e.key === "Escape") { if (!$("groundOverlay").hidden) closeOverlay("groundOverlay"); if (!$("reportOverlay").hidden) closeOverlay("reportOverlay"); } });
+
+/* ---------- report ---------- */
+const fmt = d => d ? new Date(d).toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" }) : "—";
+function reportData() {
+  const scope = $("repScope").value, idx = scope === "all" ? PHASES.map((_, i) => i) : [+scope];
+  return { idx, scope, name: $("repName").value.trim(), notes: $("repNotes").checked };
+}
+function reportHTML() {
+  const { idx, scope, name, notes } = reportData();
+  const rows = idx.map(i => {
+    const pre = S.pre[i], post = S.post[i];
+    const status = phaseDone(i) ? "Complete" : doneSteps(i) ? "In progress" : "Not started";
+    return `<tr><td>${i + 1}. ${esc(PHASES[i].title)}</td><td>${status}</td><td>${doneSteps(i)}/${totalSteps(i)}</td><td>${pre ?? "—"} → ${post ?? "—"}</td></tr>`;
+  }).join("");
+  const rated = idx.filter(i => S.pre[i] != null && S.post[i] != null);
+  const avgChange = rated.length ? (rated.reduce((a, i) => a + (S.post[i] - S.pre[i]), 0) / rated.length) : null;
+  const flagged = idx.filter(i => (S.post[i] ?? 0) >= 7 || (S.pre[i] != null && S.post[i] != null && S.post[i] - S.pre[i] >= 3));
+  const noteList = notes ? idx.filter(i => (S.notes[i] || "").trim()) : [];
+  const single = scope !== "all" ? PHASES[idx[0]] : null;
+  const allDone = PHASES.filter((_, i) => phaseDone(i)).length;
+  return `
+    <h3>Groundwork progress report${single ? " · Phase " + (idx[0] + 1) + ": " + esc(single.title) : ""}</h3>
+    <div class="meta"><span>${name ? "<b>" + esc(name) + "</b>" : "Name not given"}</span><span>Report date: ${fmt(new Date())}</span><span>Started: ${fmt(S.started)}</span><span>Last activity: ${fmt(S.updated)}</span><span>Phases complete: ${allDone} of 12</span></div>
+    ${single ? `<p><b>Focus:</b> ${esc(single.skill)}</p>` : ""}
+    <h4>Phase status and activation (0–10, before → after exercise)</h4>
+    <table><thead><tr><th>Phase</th><th>Status</th><th>Steps</th><th>Activation</th></tr></thead><tbody>${rows}</tbody></table>
+    <h4>Summary</h4>
+    <p>${rated.length ? `Average change in activation across ${rated.length} rated exercise${rated.length > 1 ? "s" : ""}: <b>${avgChange > 0 ? "+" : ""}${avgChange.toFixed(1)}</b> (negative means calmer after).` : "No before/after activation ratings recorded yet."}
+    ${(() => { const L = (S.log || []).filter(r => idx.includes(r.phase)); if (!L.length) return ""; const days = Math.max(1, Math.round((Date.parse(L[L.length - 1].t) - Date.parse(L[0].t)) / 864e5) + 1); return ` ${L.length} check-in${L.length > 1 ? "s" : ""} logged over ${days} day${days > 1 ? "s" : ""}.`; })()}
+    ${flagged.length ? ` Exercises that raised activation (worth discussing): ${flagged.map(i => esc(PHASES[i].title)).join(", ")}.` : ""}</p>
+    ${noteList.length ? `<h4>Client notes</h4>${noteList.map(i => `<p><b>${i + 1}. ${esc(PHASES[i].title)}</b></p><div class="note">${esc(S.notes[i].trim().slice(0, scope === "all" ? 400 : 1600))}${S.notes[i].trim().length > (scope === "all" ? 400 : 1600) ? "…" : ""}</div>`).join("")}` : ""}
+    <h4>For discussion</h4>
+    <p>What felt most settling? What raised activation? Is anything ready to explore together in session?</p>
+    <p style="color:#777;font-size:11px">Generated by Groundwork, a self-guided somatic learning tool. Self-reported data; not a clinical assessment.</p>`;
+}
+function reportText() { const d = document.createElement("div"); d.innerHTML = reportHTML(); d.querySelectorAll("tr").forEach(r => r.append(" ")); d.querySelectorAll("td,th").forEach(c => c.append(" | ")); d.querySelectorAll("h3,h4,p,tr,.meta span,.note").forEach(el => el.append("\n")); return d.textContent.replace(/\n{3,}/g, "\n\n").trim() }
+function renderReport() { $("report").innerHTML = reportHTML() }
+$("repScope").innerHTML = `<option value="all">All 12 phases</option>` + PHASES.map((p, i) => `<option value="${i}">Phase ${i + 1}: ${esc(p.title)}</option>`).join("");
+$("openReport").onclick = () => { lastFocus = document.activeElement; renderReport(); $("reportOverlay").hidden = false; $("repClose").focus() };
+$("repClose").onclick = () => closeOverlay("reportOverlay");
+["repName", "repScope", "repNotes"].forEach(id => $(id).addEventListener("input", renderReport));
+$("repScope").addEventListener("change", renderReport); $("repNotes").addEventListener("change", renderReport);
+function toast(m) { const t = $("toast"); t.textContent = m; t.hidden = false; clearTimeout(t._t); t._t = setTimeout(() => t.hidden = true, 2600) }
+$("repCopy").onclick = async () => {
+  try { await navigator.clipboard.writeText(reportText()); toast("Report copied") }
+  catch { const r = document.createRange(); r.selectNodeContents($("report")); const s = getSelection(); s.removeAllRanges(); s.addRange(r); toast("Text selected. Press Ctrl+C or ⌘C to copy") }
+};
+$("repSave").onclick = () => {
+  const css = `body{font:13px/1.45 Verdana,sans-serif;color:#222;max-width:760px;margin:24px auto;padding:0 20px}h3{font-size:20px;margin:0 0 8px}h4{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#6b6450;margin:14px 0 4px}table{width:100%;border-collapse:collapse}td,th{text-align:left;padding:4px 6px;border-bottom:1px solid #e3ddca}th{font-size:11px;color:#6b6450}.meta{display:flex;flex-wrap:wrap;gap:4px 18px;color:#555}.note{white-space:pre-wrap;background:#f6f3ea;padding:8px 10px;border-radius:6px}p{margin:4px 0}@page{size:letter;margin:.6in}`;
+  const doc = `<!doctype html><html><head><meta charset="utf-8"><title>Groundwork report</title><style>${css}</style></head><body>${reportHTML()}</body></html>`;
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([doc], { type: "text/html" }));
+  a.download = "groundwork-report-" + new Date().toISOString().slice(0, 10) + ".html";
+  document.body.append(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+  toast("Report saved");
+};
+
+
+/* ---------- storage: this browser, plus Google Sheets when connected (sync.js) ---------- */
+const LS = "groundwork-v1";
+function loadLocal() { try { const v = JSON.parse(localStorage.getItem(LS)); if (v) S = Object.assign(blank(), v) } catch {} }
+function saveLocal(s) { try { localStorage.setItem(LS, JSON.stringify(s)) } catch {} }
+function renderAll() { renderProgress(); renderTrail(); renderPhase() }
+
+loadLocal();
+store.save = s => { saveLocal(s); window.GroundworkSync?.queue(s) };
+renderAll();
+window.Groundwork = {
+  phases: PHASES,
+  get state() { return S },
+  replaceState(next) { S = Object.assign(blank(), next); saveLocal(S); renderAll() },
+  doneSteps, totalSteps, phaseDone,
+};
+</script>
+<script src="config.js"></script>
+<script src="sync.js"></script>
+<script src="https://accounts.google.com/gsi/client" async onload="GroundworkSync.ready()"></script>
+</body>
+</html>
