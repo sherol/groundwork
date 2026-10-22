@@ -2,13 +2,21 @@
 
 # Groundwork
 
-A 12-phase somatic self-regulation program, inspired by body-based trauma approaches including Peter Levine's work.
+A 12-phase somatic self-regulation program, following the twelve-phase healing trauma program in Peter Levine's work.
 
 Live: https://sherol.github.io/groundwork
 
 ## What's in it
 
-- **12 phases:** Arriving, Orienting, Grounding, Resourcing, Felt sense, Tracking, Your window, Pendulation, Boundaries, Completing, Connection, Integration. Each has an explanation, a lesson, a guided exercise, homework checkboxes and notes.
+- **Introduction:** what trauma is, what causes it, its symptoms, how it affects the body, and an overview of the program with each phase's audio track.
+- **12 phases** in four groups, following the order of Peter Levine's twelve-phase healing trauma program:
+  - **Preparation:** 1. Safety & containment, 2. Grounding & centering, 3. Building resources
+  - **Tracking:** 4. Felt sense to sensation, 5. Tracking activation, 6. Pendulation
+  - **Discharge:** 7. Healthy aggression, 8. Healthy escape, 9. Strength & resilience, 10. Uncoupling fear
+  - **Completion:** 11. Orientation & engagement, 12. Settling & integration
+
+  Each phase has an explanation, a lesson, a guided exercise with an audio track, homework checkboxes and notes.
+- **Guided audio:** one file per phase in `audio/` (see `audio/README.md` for the file names).
 - **Before/after activation ratings (0–10)** for each exercise, with gentle guidance when activation goes up.
 - **Progress bar** with 12 acorns.
 - **"Sploot now"** grounding button on every screen, with crisis line numbers.

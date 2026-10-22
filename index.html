@@ -88,6 +88,20 @@ nav.trail { display: grid; gap: 4px; position: sticky; top: calc(env(safe-area-i
 .stop.part .num { background: var(--grass-soft); color: var(--ink) }
 .stop .t { font-weight: 700; font-size: 15px; line-height: 1.25 }
 .stop .s { font-size: 12px; color: var(--muted) }
+.stop.intro .num { font-style: italic; background: var(--calm-tint); color: var(--calm) }
+nav.trail .grp { font: 700 11px/1 var(--body); letter-spacing: .12em; text-transform: uppercase; color: var(--muted); padding: 14px 10px 4px }
+@media (max-width: 820px) { nav.trail .grp { display: none } }
+.audio { display: grid; gap: 4px }
+.audio audio { width: 100%; max-width: 420px; height: 40px }
+.core4 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px }
+.core4 div { background: var(--sunk); border-radius: 12px; padding: 12px 14px; font-size: 15px }
+.core4 b { display: block; font-family: var(--display) }
+@media (max-width: 560px) { .core4 { grid-template-columns: minmax(0, 1fr) } }
+.intro-group { display: grid; gap: 6px; border-top: 1px solid var(--line); padding-top: 12px }
+.intro-group h4 { margin: 0; font: 800 15px var(--display); text-transform: uppercase; letter-spacing: .06em; color: var(--oak) }
+ol.tracks { gap: 14px }
+ol.tracks .audio { margin-top: 6px }
+.linkbtn { border: 0; background: none; padding: 0; font: 700 16px var(--body); color: var(--calm); text-decoration: underline; cursor: pointer }
 
 article.phase { display: grid; gap: 22px; min-width: 0 }
 .phase-head { display: grid; gap: 8px }
@@ -276,87 +290,94 @@ select { font: inherit; padding: 8px 10px; border-radius: 8px; border: 1px solid
 <div class="toast" id="toast" hidden></div>
 
 <script>
+/* The program follows the phase order of Peter Levine's twelve-phase healing trauma program. Each phase's guided audio is audio/phase-NN.mp3 (see audio/README.md). */
+const GROUPS = [
+ { name: "Preparation", sub: "Safety, ground and resources: the base everything else rests on." },
+ { name: "Tracking", sub: "Learning the language of sensation and the rhythm of the nervous system." },
+ { name: "Discharge", sub: "Letting thwarted survival responses complete, and finding strength." },
+ { name: "Completion", sub: "Coming back into balance: with your surroundings, with other people, and in daily life." },
+];
 const PHASES = [
- { title: "Arriving", skill: "Learning how your nervous system responds to threat and safety.",
-   understanding: "Trauma isn't only in the story of what happened. It also lives in the body as survival energy that never got to finish: a fight that couldn't happen, an escape that was blocked, or a freeze that never thawed. Your nervous system was doing its job. This program is about gently teaching it that the danger has passed.",
-   lesson: ["Your nervous system has three broad modes: safe and connected, mobilized (fight or flight), and shut down (freeze or collapse).", "None of these is bad. Each one is your body trying to protect you.", "Healing happens in small doses. Going faster usually makes it slower.", "You are always in charge. You can pause, open your eyes, or stop at any point."],
-   exercise: { name: "Noticing where you are", steps: ["Sit or lie in a position that feels okay enough right now.", "Notice three things you can see, without hurrying.", "Notice the points where your body touches the chair, bed, or floor.", "Ask yourself: what is one thing about this moment that is okay? It can be small.", "Rest with that for a few breaths."] },
-   verse: { text: "Come to me, all you who are weary and burdened, and I will give you rest.", ref: "Matthew 11:28" },
-   squirrel: "California ground squirrels spend their days switching between alert and relaxed. That switching is healthy. A nervous system that can move between states is the goal, not one that stays calm forever.",
-   homework: ["Once a day, pause and name which mode you're in: safe, mobilized, or shut down.", "Notice one moment this week when you felt even slightly at ease.", "Write down anything you'd like to ask your therapist about this phase."] },
- { title: "Orienting", skill: "Using your senses to show your body it is here, now.",
-   understanding: "When animals sense possible danger, they stop and look around. When they find nothing threatening, their body relaxes. People who have been through trauma often skip this step and stay braced. Slow, curious orienting helps your body register that you're in the present.",
-   lesson: ["Orienting is led by the eyes, head and neck, moving slowly and following curiosity.", "Let your gaze rest on whatever draws it: a color, a texture, light.", "Notice any small signs of settling, like a deeper breath, a swallow, or softer shoulders.", "If orienting brings up alertness, that's useful information. Slow down and look at something pleasant."],
-   exercise: { name: "Slow look around", steps: ["Keep your eyes open. Let your head turn very slowly to one side.", "Let your eyes land wherever they want. Stay there a moment.", "Turn slowly toward the other side, exploring the room as if for the first time.", "Look behind you if you want to. Many bodies relax once they know what's back there.", "Pause and notice: has anything in your body changed, even slightly?"] },
-   verse: { text: "Be still, and know that I am God.", ref: "Psalm 46:10" },
-   squirrel: "A ground squirrel stands up on its hind legs, scans the field, and if all is clear, drops back down to forage. You're practicing that all-clear.",
-   homework: ["Do the slow look-around once a day, preferably in a different place each day.", "Record one small sign of settling you noticed (yawn, sigh, softer jaw, warmer hands).", "Try orienting once when you feel mildly stressed, and note what happened."] },
- { title: "Grounding", skill: "Feeling supported by the ground, your weight and your body.",
-   understanding: "Trauma can make us feel as if we're floating, braced, or not quite in our bodies. Grounding is the felt experience of being supported, whether by the floor, a chair, or gravity itself. It gives your nervous system a stable base to return to.",
-   lesson: ["Grounding is physical: weight, pressure, contact, temperature.", "Pressing your feet into the floor and feeling it push back is a simple, powerful anchor.", "You can ground standing, sitting or lying down. Find what works for your body.", "Splooting (lying belly-down and letting gravity take you) is grounding."],
-   exercise: { name: "Feet and weight", steps: ["Place both feet on the floor. Press down gently, then release. Repeat a few times.", "Notice the floor pushing back up. You don't have to hold yourself up alone.", "Let your weight sink into the chair. Notice where you feel most supported.", "Make a low 'voo' sound on a long exhale, letting it vibrate your belly and chest.", "Rest and notice what's different."] },
+ { group: 0, title: "Safety & containment", skill: "Sensing your body as a container that can hold what you feel.",
+   understanding: "Trauma often leaves the body feeling unprotected and porous, as if its boundaries were breached: anything could get in, and feelings might spill out. Before working with sensation, your nervous system needs a felt sense of containment. Your skin is a boundary, and your body is a vessel strong enough to hold whatever arises. Waking up the body's edges and holding yourself in simple ways builds that sense of safety from the outside in.",
+   lesson: ["Your skin is your body's outermost boundary. Feeling it clearly tells you where you end and the world begins.", "Containment means sensation is held inside a boundary, instead of flooding you or leaking away.", "Some places may feel numb, hazy or missing. That's common. Notice them, then return to the places you can feel.", "Self-holding, with your hands resting on your own body, is a way to be your own container."],
+   exercise: { name: "Waking up your boundary", steps: ["With the palm of one hand, gently and rhythmically tap or squeeze your other hand, then work up that arm to the shoulder.", "Switch sides. Continue over your shoulders, neck, face and head, then down your torso, hips, legs and feet.", "As you go, say inwardly: 'this is my hand, this is my arm, this is my body.' Notice where your edges feel clear and where they feel faint.", "Tuck one hand under the opposite armpit and rest the other on your upper arm, like a gentle hug. Stay until something shifts, perhaps a softer breath or a sense of settling.", "Rest and notice the overall feeling of being held inside your skin."] },
+   verse: { text: "He will cover you with his feathers, and under his wings you will find refuge; his faithfulness will be your shield and rampart.", ref: "Psalm 91:4" },
+   squirrel: "A ground squirrel's burrow is its container: snug, dark and close on every side. Inside it, the squirrel can finally let its guard down.",
+   homework: ["Once a day, tap or squeeze along your body's boundary from head to feet.", "In the shower, let the water fall on different parts of your body and notice your skin's edges.", "Write down which areas feel clearly defined and which feel faint, numb or missing."] },
+ { group: 0, title: "Grounding & centering", skill: "Feeling the earth support you, and finding your body's center.",
+   understanding: "Trauma can leave us ungrounded: floating, spacey, braced, or knocked off balance. Grounding is the felt connection between your body and the earth beneath it. Centering is the felt sense of your body's middle, the lower belly where your center of gravity sits. Together they give your nervous system a stable base, and the feeling that you can stay present while sensations come and go.",
+   lesson: ["Grounding is physical: weight, pressure, contact with the floor or chair, and the pull of gravity.", "Your center of gravity is in your lower belly, a little below the navel. Breathing into it settles the whole body.", "Your legs and feet connect you to the ground. Feeling them reminds your body that it can stand, move and move away.", "Splooting (lying belly-down and letting gravity take you) is grounding too."],
+   exercise: { name: "Rooting down, finding center", steps: ["Sit with both feet flat on the floor. Press down gently, then release. Feel the floor press back.", "Notice your legs: thighs, knees, calves, feet. Let your weight travel down through them into the ground.", "Rest one hand on your lower belly. Let your breath move into your hand without forcing it.", "On a long out-breath, make a low 'voo' sound and let it vibrate your belly.", "Rest and notice your weight, your center, and the support underneath you."] },
    verse: { text: "He lifted me out of the slimy pit, out of the mud and mire; he set my feet on a rock and gave me a firm place to stand.", ref: "Psalm 40:2" },
    squirrel: "On hot days ground squirrels sploot: belly flat on cool earth, legs stretched out. They hand their weight to the ground and let their body cool down. That's the feeling you're practicing.",
-   homework: ["Practice feet-and-weight twice a day, even for 30 seconds.", "Try one 'voo' breath when you notice tension.", "Find your personal grounding spot or posture and write it down."] },
- { title: "Resourcing", skill: "Building a store of things that help you feel steadier.",
-   understanding: "Resources are anything that supports you: people, pets, places, memories, activities, qualities of your own, or areas of your body that feel okay. Before working with anything difficult, the nervous system needs something good to come back to. That's why resourcing comes before deeper work.",
-   lesson: ["External resources: a person, a pet, a place, music, nature, an object.", "Internal resources: strength, humor, curiosity, a body part that feels neutral or good.", "Resources work best when you feel them in your body, not just think about them.", "Small and simple is fine. A warm mug in your hands counts."],
+   homework: ["Practice rooting down twice a day, even for 30 seconds.", "Try a few 'voo' breaths when you notice tension, and note what changes.", "Feel your feet while walking, standing in line or washing dishes."] },
+ { group: 0, title: "Building resources", skill: "Gathering what supports you, and feeling it in your body.",
+   understanding: "Resources are anything that helps you feel supported and steadier: people, animals, places, faith, activities, good memories, your own strengths, and places in your body that feel okay. Trauma can cut us off from them, so we rebuild them on purpose before approaching anything difficult. Each resource you feel in your body becomes a counterweight to the pull of trauma, and a place to come back to when activation rises.",
+   lesson: ["External resources: people, pets, places, nature, music, a faith community, activities you enjoy.", "Internal resources: humor, determination, kindness, skills you have, a body that can breathe, move and sense.", "Body resources: areas that feel neutral, strong or comfortable, even if they're small (an earlobe counts).", "A resource works best when you feel it in your body, not only think about it."],
    exercise: { name: "Feeling a resource", steps: ["Choose one resource. Picture it in as much detail as you like.", "Notice what happens in your body as you hold it in mind.", "Is there warmth, softening, opening, or a feeling of being held? Where?", "Stay with that sensation for a few breaths. Let it grow if it wants to.", "If nothing changes, that's okay. Try a different resource, or simply notice something neutral."] },
    verse: { text: "I lift up my eyes to the mountains—where does my help come from? My help comes from the LORD, the Maker of heaven and earth.", ref: "Psalm 121:1–2" },
    squirrel: "Ground squirrels cache seeds for later. Your resource list is your cache: something to draw on when times get lean.",
-   homework: ["Write a list of at least five resources (people, places, things, qualities).", "Spend one minute each day feeling one resource in your body.", "Notice one resource you already use without thinking about it."] },
- { title: "Felt sense", skill: "Noticing body sensation with curiosity rather than judgment.",
-   understanding: "The felt sense is your body's raw experience before thoughts or labels: warmth, tightness, tingling, heaviness, pulsing. Trauma recovery works through sensation because that's where survival responses are stored. Learning to notice sensation without getting swept away is a core skill.",
-   lesson: ["Sensation words: warm, cool, tight, loose, heavy, light, buzzy, still, open, closed, sharp, dull.", "Separate the sensation from the story. Notice 'tight in my chest' rather than 'I'm anxious'.", "Curiosity is calming. Ask 'what is this like?' instead of 'why is this here?'.", "Numbness and 'nothing' are sensations too."],
-   exercise: { name: "Sensation tour", steps: ["Start with your hands. What sensations are there? Temperature? Tingling?", "Move to your feet. Notice what's there without trying to change it.", "Find a place in your body that feels neutral or pleasant. Rest attention there.", "Name the sensation using one or two words from the list.", "Return to the neutral or pleasant place before finishing."] },
+   homework: ["Write a list of at least five resources: external, internal and in your body.", "Spend one minute each day feeling one resource in your body.", "Notice one resource you already lean on without thinking about it."] },
+ { group: 1, title: "Felt sense to sensation", skill: "Moving from the felt sense to specific physical sensations.",
+   understanding: "The felt sense is your body's overall experience of this moment: the whole of how you are, before words. Within it are specific physical sensations such as temperature, pressure, tingling and pulsing. Sensation is the language the nervous system speaks, and it's where survival responses can be felt and gently changed. Learning to move from the broad felt sense to precise sensations, with curiosity instead of judgment, is the core skill of this work.",
+   lesson: ["The felt sense is the overall impression: 'I feel settled', 'something's off', 'I feel heavy today'.", "Sensations are its building blocks: warm, cool, tight, loose, heavy, light, tingly, pulsing, still, hollow, dense.", "A sensation is different from an emotion or an interpretation. 'Tight in my chest' is a sensation; 'I'm anxious' is an interpretation.", "Numbness, blankness and 'nothing' are sensations too. Notice them with the same curiosity."],
+   exercise: { name: "Zooming in", steps: ["Sit comfortably and ask: overall, how am I right now? Let a word or image come.", "Ask: where in my body do I feel that most?", "Zoom in on that place. Describe the sensation: its temperature, size, shape, density, pressure or movement.", "Name it with one or two words from the lesson list, or your own.", "Move your attention to a place that feels neutral or pleasant. Rest there, then look around the room."] },
    verse: { text: "I praise you because I am fearfully and wonderfully made; your works are wonderful, I know that full well.", ref: "Psalm 139:14" },
    squirrel: "A squirrel's whiskers notice tiny changes in the world. You're growing whiskers for your inner world.",
-   homework: ["Do one short sensation tour each day.", "Collect your own sensation vocabulary: write five words that fit your body.", "Notice one pleasant or neutral sensation during an ordinary activity (washing hands, eating)."] },
- { title: "Tracking", skill: "Following sensations as they shift and change.",
-   understanding: "Sensations are rarely fixed. When you stay with a sensation gently, it often changes: it moves, softens, spreads, or fades. Tracking teaches your nervous system that feelings move, and that you can be with them without being trapped by them.",
-   lesson: ["Tracking means following, not fixing.", "Ask: 'and what happens next?'", "Notice size, shape, temperature, movement and intensity.", "If a sensation grows too strong, shift your attention to a resource or to the room around you."],
-   exercise: { name: "What happens next", steps: ["Find a mild sensation, either neutral or slightly uncomfortable but nowhere near overwhelming.", "Describe it to yourself: where is it, how big, what quality?", "Wait and watch. Ask: 'and what happens next?'", "Keep following it for about a minute. Notice any change at all.", "Return to your feet on the floor before finishing."] },
+   homework: ["Do the zooming-in exercise once a day.", "Collect your own sensation vocabulary: write five words that fit your body.", "Notice one pleasant or neutral sensation during an ordinary activity (washing hands, eating)."] },
+ { group: 1, title: "Tracking activation", skill: "Following sensations, images, thoughts and feelings as activation rises and settles.",
+   understanding: "Activation is the charge your nervous system builds when something feels threatening or challenging: a faster heart, quicker breath, heat, tension, a rush of energy. It isn't bad; it's survival energy. Tracking means following your inner experience moment by moment as it shifts. Experience moves through several channels: sensations, images, movements and impulses, emotions, and thoughts or meanings. Tracked in small doses (titration), activation rises, peaks and settles on its own, and the body learns it can ride the wave.",
+   lesson: ["Signs of activation: faster heart and breath, heat, tension, restlessness. Signs of settling: a deeper breath, warmth, tingling, a sigh, a yawn, softening.", "Track one channel at a time: a sensation, an image, an impulse to move, an emotion, a thought.", "Work with a drop at a time. Keep activation mild, around 3 out of 10 or less.", "Ask 'and what happens next?' rather than 'why?'. If activation climbs, return to a resource, the ground, or the room."],
+   exercise: { name: "Rising and settling", steps: ["Bring to mind something mildly stirring, about 2 or 3 out of 10: a slightly stressful email, a busy day ahead.", "Notice where the activation shows up in your body.", "Notice any image, impulse to move, emotion or thought that comes with it. Just name each one.", "Let go of the topic and follow only the sensation. Keep asking 'and what happens next?' until it begins to ease.", "Watch for signs of settling: a deeper breath, warmth, a sigh. Finish by feeling your feet and looking around the room."] },
    verse: { text: "Because of the LORD’s great love we are not consumed, for his compassions never fail. They are new every morning; great is your faithfulness.", ref: "Lamentations 3:22–23" },
    squirrel: "Ground squirrels watch the sky for shifting shadows. They track change without panicking at every one.",
-   homework: ["Track one mild sensation for one minute each day.", "Write down one sensation that changed while you watched it.", "Rate your activation before and after tracking on the 0–10 scale."] },
- { title: "Your window", skill: "Recognizing your window of tolerance and working in small doses.",
-   understanding: "Everyone has a range of activation where they can think, feel and stay present: the window of tolerance. Above it is overwhelm or panic. Below it is numbness or shutdown. Healing happens at the edges of the window, in tiny doses. This is called titration.",
-   lesson: ["Signs you're above the window: racing heart, flooding, panic, rage, can't think.", "Signs you're below it: numb, foggy, far away, heavy, flat, disconnected.", "Titration means working with a drop of difficulty, not the whole bucket.", "If you go outside your window, stop, orient, ground, and use a resource. That's skill, not failure."],
-   exercise: { name: "Mapping your window", steps: ["Remember a time you felt okay: present, steady enough. Notice how that feels in your body now.", "Think of something mildly irritating (a slow line, a messy desk). Notice the body response.", "Rate it 0–10. Keep it at 3 or less. If it's higher, choose something milder.", "Return to your resource and notice your body settle.", "Write down your personal signs of being above or below the window."] },
-   verse: { text: "Therefore do not worry about tomorrow, for tomorrow will worry about itself. Each day has enough trouble of its own.", ref: "Matthew 6:34" },
-   squirrel: "A squirrel doesn't leap across the whole canyon. It goes branch by branch. Small doses are how you get across.",
-   homework: ["Write your personal signs of being above, inside, and below your window.", "Check in twice a day: where am I in my window right now?", "When you notice you're outside your window, try one grounding tool and note what happened."] },
- { title: "Pendulation", skill: "Moving attention between difficulty and ease.",
-   understanding: "Your nervous system naturally swings between contraction and expansion. Trauma can get it stuck in contraction. Pendulation intentionally moves attention between something difficult and something resourcing, which teaches your body that it can touch distress and come back.",
-   lesson: ["Always start and end with the resource or the neutral place.", "Touch difficulty briefly: seconds, not minutes.", "Each swing back to ease teaches your body that it can recover.", "Over time the swings get easier, and the comfortable side gets wider."],
-   exercise: { name: "Back and forth", steps: ["Find a resource or a place in your body that feels okay. Rest there.", "Briefly notice a mild area of tension or discomfort. Just touch it with attention.", "Return to the resource. Let your body settle there fully.", "Repeat the swing two or three times, staying longer with ease than with difficulty.", "Finish with the resource and orient to the room."] },
+   homework: ["Once a day, track a mild activation from its start until it settles.", "Write down your personal signs of activation and your signs of settling.", "Rate your activation before and after on the 0–10 scale."] },
+ { group: 1, title: "Pendulation", skill: "Sensing your body's natural rhythm of contraction and expansion.",
+   understanding: "Every living thing pulses between contraction and expansion: a heart beats, lungs fill and empty, a cell draws in and reaches out. Trauma interrupts this rhythm, and the body can feel locked in contraction, as if the discomfort will never end. Pendulation is the body's innate swing between the two. Moving your attention gently between a contracted place and a place of ease helps the rhythm restart, and teaches your body that contraction is always followed by expansion.",
+   lesson: ["Contraction feels tight, small, closed, cold or held. Expansion feels open, spacious, warm, flowing or soft.", "Begin and end in expansion: a resource, or an island of ease in your body.", "Touch the contracted place only briefly: seconds, not minutes.", "Each swing back to ease builds confidence that you can feel difficult things and return."],
+   exercise: { name: "Back and forth", steps: ["Find a resource or a place in your body that feels okay. Rest there and let it expand.", "Briefly notice a mild area of tightness or discomfort. Just touch it with attention.", "Return to the place of ease. Let your body settle there fully.", "Repeat the swing two or three times, staying longer with ease than with difficulty.", "Notice any natural rhythm of opening and closing. Finish in ease and orient to the room."] },
    verse: { text: "A time to weep and a time to laugh, a time to mourn and a time to dance.", ref: "Ecclesiastes 3:4" },
    squirrel: "Out of the burrow to forage, back into the burrow to rest. A ground squirrel's whole day is pendulation.",
-   homework: ["Practice back-and-forth once a day with a mild difficulty.", "Notice whether coming back to ease gets quicker over the week.", "Write about one moment of daily life where you naturally pendulated."] },
- { title: "Boundaries", skill: "Feeling the edges and protective space of your body.",
-   understanding: "Trauma often involves boundaries being crossed. The body can lose its sense of where it ends and the world begins. Rebuilding a felt sense of your edges, and of how much space you need, restores a sense of protection and choice.",
-   lesson: ["Your skin is your first boundary. Gentle touch can help you feel it.", "Your personal space is a felt boundary. It can grow or shrink.", "Saying no, even internally, is a protective action your body can feel.", "Containment, like holding yourself or being wrapped in a blanket, helps sensations feel manageable."],
-   exercise: { name: "Feeling your edges", steps: ["Gently press or pat your arms, legs and shoulders, saying 'this is me' inwardly.", "Place one hand on your forehead and one on your chest. Notice the feeling of being held.", "Imagine the space around you, about an arm's length. How big does it want to be?", "Push your palms gently out into the air, as if setting a boundary. Notice your strength.", "Rest and notice what's different."] },
-   verse: { text: "Above all else, guard your heart, for everything you do flows from it.", ref: "Proverbs 4:23" },
-   squirrel: "Every burrow has a clear entrance and a clear edge. Inside is yours.",
-   homework: ["Do the edge-tapping practice once a day.", "Notice one moment where you wanted more space, and what your body did.", "Practice one small 'no' or preference this week and note how it felt."] },
- { title: "Completing", skill: "Letting stuck protective responses gently finish.",
-   understanding: "When fight or flight is blocked, that energy can stay in the body as tension, bracing or restlessness. Animals in the wild shake, tremble or breathe deeply after a threat passes to let it go. You can invite the body to complete small protective movements and release some held energy, slowly and safely.",
-   lesson: ["Signs of release include trembling, shaking, warmth, tingling, yawning, tears and deep breaths.", "These are normal and usually pass. Let them happen without forcing them.", "Small movements (pushing, turning away, stepping) can complete a protective impulse.", "Stay in your window. Discharge in sips, not floods. Stop if it feels like too much."],
-   exercise: { name: "Push and settle", steps: ["Stand facing a wall. Place your palms on it at shoulder height.", "Slowly push, feeling your arms, back and legs engage. Push as much as feels good.", "Notice your strength. Then slowly release.", "Shake out your hands and arms gently, or let any trembling happen.", "Rest. Feel your feet and orient to the room."] },
-   verse: { text: "We have escaped like a bird from the fowler’s snare; the snare has been broken, and we have escaped.", ref: "Psalm 124:7" },
-   squirrel: "After a hawk passes over, a ground squirrel often shakes itself off before returning to the day. Shaking off is natural.",
-   homework: ["Try push-and-settle once a day.", "Notice any spontaneous release (yawns, sighs, warmth) and record it.", "If something felt intense, write it down to explore with your therapist."] },
- { title: "Connection", skill: "Settling through safe connection with others.",
-   understanding: "Nervous systems regulate each other. A calm voice, a kind face or a trusted presence can help us settle in ways that are hard to do alone. This is called co-regulation. Trauma can make connection feel risky, so here we explore it gently, at your pace.",
-   lesson: ["Co-regulation happens through faces, voices, touch and presence.", "It can come from people, pets, or even a memory of a kind person.", "Notice the difference between people who settle you and people who activate you.", "Your therapist is a co-regulation partner. Bring this work to sessions."],
-   exercise: { name: "Feeling with", steps: ["Think of someone (a person or animal) who helps you feel steady.", "Imagine their face, voice or presence. Notice your body.", "Where do you feel the effect? Chest, face, shoulders, belly?", "Let that sensation grow. Stay with it for a few breaths.", "If it's possible this week, spend real time with that person or animal and notice your body."] },
+   homework: ["Practice back-and-forth once a day with a mild contraction.", "Notice whether the swing back to ease gets quicker over the week.", "Write about one moment in daily life when you noticed yourself contract and then expand again."] },
+ { group: 2, title: "Healthy aggression", skill: "Reclaiming the protective power of the fight response, without violence.",
+   understanding: "When threatened, the body first tries to fight or flee. If you couldn't fight back, because you were small, outmatched, held down, or it wasn't safe, the impulse to defend yourself can stay held in the body as a clenched jaw, tight shoulders, fists, irritability or sudden rage. Healthy aggression is the life-affirming energy that lets us protect ourselves, set limits and stand up for what matters. Violence and explosive anger tend to erupt when that energy has been thwarted and built up. Completing defensive movements slowly, in small doses, lets the charge discharge and turn into strength.",
+   lesson: ["Healthy aggression is protective: the 'no!' that keeps you safe, the energy to stand your ground.", "Rage and violence often come from fight energy that was blocked and built up, not from healthy aggression.", "Signs of fight energy: clenched jaw, tight shoulders, heat in the face, fists, an urge to push or strike.", "Move slowly. Slow motion lets you feel the strength without being swept away by the charge."],
+   exercise: { name: "Pushing away, in slow motion", steps: ["Stand facing a wall, or sit facing a firm cushion. Feel your feet on the floor.", "Notice any tension in your jaw, shoulders, arms or hands. Let it be there.", "Place your palms on the wall and push very slowly. Feel strength rise from your legs, through your back, into your arms.", "If it feels right, add a firm 'no' or 'back off', out loud or inwardly. Notice the sense of power.", "Slowly release. Let any warmth, trembling or tingling move through. Rest and orient to the room."] },
+   verse: { text: "“In your anger do not sin”: Do not let the sun go down while you are still angry.", ref: "Ephesians 4:26" },
+   squirrel: "California ground squirrels stand up to rattlesnakes. They flag their tails and kick sand until the snake moves off: protective aggression, used only as much as needed.",
+   homework: ["Practice the slow-motion push once a day for a minute or two.", "Notice where fight energy shows up in your body and write it down.", "Say one small, clear 'no' this week and notice how your body feels afterward."] },
+ { group: 2, title: "Healthy escape", skill: "Freeing the flight response, so your body knows it can get away.",
+   understanding: "Flight is the body's other active defense: the urge to run, turn away or get out. When escape was impossible (trapped, restrained, in a crash, during a medical procedure), the running energy can stay locked in the legs and body. Flight energy with nowhere to go often shows up as anxiety and panic: restlessness, a racing heart, shallow breath and dread. Feeling your legs' capacity to run, and letting the impulse complete through gentle movement, helps anxiety return to its original form: purposeful, healthy escape.",
+   lesson: ["Flight is a life-saving response. Moving away from danger is wisdom, not weakness.", "Anxiety and panic can be flight energy without a way out: restless legs, racing heart, shallow breath, an urge to bolt.", "Feeling the strength in your legs reminds your body that it can get away now.", "Imagining running, or enacting it slowly, is enough. The nervous system responds to felt movement, not to distance covered."],
+   exercise: { name: "Legs that can carry you", steps: ["Sit with your feet on the floor. Feel the muscles of your feet, calves and thighs.", "Slowly lift one heel, then the other, as if starting to walk. Alternate a few times.", "Imagine running along a safe, open path: a field, a beach, a trail. Feel the impulse in your legs.", "Imagine arriving somewhere completely safe. Notice your breath and heartbeat as you arrive.", "Let your legs rest. Notice any warmth, tingling or settling, then feel the ground."] },
+   verse: { text: "I said, “Oh, that I had the wings of a dove! I would fly away and be at rest.”", ref: "Psalm 55:6" },
+   squirrel: "When a hawk's shadow passes, a ground squirrel doesn't deliberate. It runs for the burrow, and once it's safe, it settles. Flight that finishes leaves no anxiety behind.",
+   homework: ["Do the leg exercise once a day.", "When anxiety shows up, notice whether your legs want to move, and write it down.", "Take a short walk and feel your legs' ability to carry you away and bring you back."] },
+ { group: 2, title: "Strength & resilience", skill: "Coming out of collapse and defeat into strength and resilience.",
+   understanding: "When neither fighting nor fleeing is possible, the body's last defense is immobility: freezing or collapsing, going limp, numb or far away. It's an involuntary biological response, not a failure. If the body doesn't fully come out of it, it can leave a lingering sense of helplessness, defeat, shame, heaviness and exhaustion. The way out is gradual: sensing the energy held under the freeze, letting it discharge through trembling, warmth or deep breaths, and rediscovering your body's uprightness and strength. Each small completion builds resilience.",
+   lesson: ["Freeze and collapse are the body's protective last resort. There's nothing shameful in them.", "Helplessness, defeat, heaviness and numbness can be traces of an immobility response that didn't fully resolve.", "Coming out of freeze is gradual. Trembling, shaking, warmth and spontaneous breaths are signs of discharge.", "Resilience is felt in the body: a lengthening spine, strong legs, steady breath, a sense of 'I can'."],
+   exercise: { name: "Rising from collapse", steps: ["Sit and let your body slump a little, as if deflated. Notice how it feels, for a few seconds only.", "Slowly, one vertebra at a time, let your spine lengthen until you're sitting upright.", "Feel your feet, your back and the strength in your core. Let your head float up.", "Notice any sense of strength, dignity or aliveness. Where is it in your body?", "If trembling or warmth arises, let it move through. Rest and orient to the room."] },
+   verse: { text: "But those who hope in the LORD will renew their strength. They will soar on wings like eagles; they will run and not grow weary, they will walk and not be faint.", ref: "Isaiah 40:31" },
+   squirrel: "In winter, ground squirrels go deeply still, their bodies slowed almost to nothing. In spring they shiver themselves warm and climb back up into the light. Coming back to life is built in.",
+   homework: ["Practice rising from collapse once a day.", "Notice moments of heaviness, defeat or shutdown, and what helps you come back.", "Write down one strength you've shown in coming through hard times."] },
+ { group: 2, title: "Uncoupling fear", skill: "Separating fear from the freeze, so stillness can resolve on its own.",
+   understanding: "On its own, immobility is time-limited: an animal freezes, then shakes it off and returns to life within minutes. In people, fear often becomes coupled with the immobility. We're frightened by the paralysis itself and by the intense sensations underneath it, and that fear deepens and prolongs the freeze. The two feed each other in a loop. Uncoupling means feeling the physical sensations of immobility (heaviness, stillness, numbness, cold) as plain sensations, in small doses, while staying anchored in the present and in your resources. Without fear attached, the body's natural exit can happen: trembling, warmth, a deeper breath, and movement returning.",
+   lesson: ["Immobility by itself is temporary. Your body is built to come out of it.", "Fear of the freeze, and of the sensations beneath it, keeps it going. Fear and immobility feed each other.", "Separate the two: notice stillness, heaviness or numbness as sensation, apart from any sense of danger.", "This is delicate work. Keep doses tiny. If fear grows, stop, orient and tap Sploot now, and consider exploring it with a practitioner."],
+   exercise: { name: "Stillness without fear", steps: ["Feel your feet and look around the room. Remind yourself: I'm here, now, and I can move whenever I want.", "Bring attention to a mild place of heaviness, stillness, numbness or cold in your body.", "Describe it purely as sensation: its weight, temperature, density. If fear appears, notice it as something separate, a wave on top.", "Gently move a finger or toe to show your body it's free to move. Then return to the sensation briefly.", "Let any trembling, warmth or deeper breath come. Finish with a resource and orient to the room."] },
+   verse: { text: "So do not fear, for I am with you; do not be dismayed, for I am your God. I will strengthen you and help you and uphold you with my righteous right hand.", ref: "Isaiah 41:10" },
+   squirrel: "A ground squirrel that freezes as a hawk passes over isn't panicking. When the shadow is gone, it simply moves again. Stillness without fear passes on its own.",
+   homework: ["Practice stillness without fear once a day, with a mild sensation.", "Notice the difference between being still by choice and feeling stuck, and write about it.", "When you catch yourself freezing during the day, wiggle your fingers and toes."] },
+ { group: 3, title: "Orientation & engagement", skill: "Moving from your inner world out to your surroundings and to other people.",
+   understanding: "When a threat has passed, an animal comes out of its defenses and orients: it lifts its head, takes in its surroundings, and rejoins its group. Completion asks the same of us: shifting attention from inner sensation out to the environment, and from there into social engagement, the face-to-face connection through eyes, voice and expression that tells the nervous system it's safe among others. Nervous systems regulate each other, so connection with safe people is both a sign of recovery and a way to deepen it.",
+   lesson: ["Orienting is led by the eyes, head and neck, moving slowly and following curiosity.", "Practice shifting from inside (sensation) to outside (sights, sounds, people) and back again.", "Social engagement happens through faces, voices, eye contact and presence. Even the memory of a kind face can help.", "Notice who helps you settle and who tends to activate you. Both are useful to know."],
+   exercise: { name: "From inside to outside", steps: ["Close your eyes or lower your gaze. Notice one sensation inside your body.", "Open your eyes slowly. Let your head turn and your gaze explore the room, resting on whatever draws it.", "Listen to the sounds around you, near and far.", "Bring to mind, or look at, a person or animal who helps you feel steady. Notice your face, eyes and chest.", "Move your attention between inside and outside a few times. Finish by looking around the room."] },
    verse: { text: "Two are better than one, because they have a good return for their labor: If either of them falls down, one can help the other up.", ref: "Ecclesiastes 4:9–10" },
    squirrel: "California ground squirrels live in colonies. One squirrel's alarm call warns everyone, and one squirrel's calm grazing tells everyone it's safe.",
-   homework: ["Spend time with one regulating person or pet, and notice your body during it.", "List the people who help you settle and those who tend to activate you.", "Share one thing from this program with your therapist."] },
- { title: "Integration", skill: "Bringing it together and carrying it into daily life.",
-   understanding: "Recovery isn't a straight line. It's a widening of your window, a quicker return to steadiness, and more trust in your body. In this last phase you look back at what has changed and build a simple daily practice you can keep.",
-   lesson: ["Progress shows up as recovery speed, not never feeling bad.", "Choose two or three favorite tools from the program.", "Notice old patterns with kindness instead of judgment.", "It's always okay to revisit earlier phases. Going back is part of going forward."],
+   homework: ["Do the inside-to-outside exercise once a day, in different places.", "Spend time with one regulating person or pet, and notice your body during it.", "List the people who help you settle and those who tend to activate you."] },
+ { group: 3, title: "Settling & integration", skill: "Letting your system settle into a new balance, and carrying it into daily life.",
+   understanding: "As discharge completes, the nervous system returns toward equilibrium: breath deepens, muscles soften, warmth spreads, and there's a feeling of relaxed alertness. Settling is the body's natural end to the cycle of activation. Integration means letting those changes take root, through rest, time and repetition, and weaving the skills into ordinary life. Recovery isn't a straight line. It's a widening capacity, a quicker return to balance, and more trust in your body.",
+   lesson: ["Signs of settling: slower breath, warmth, a restful heaviness, a sense of being here.", "Give changes time. Rest and sleep after practice help your nervous system integrate them.", "Progress shows up as recovering faster, not as never feeling bad.", "It's always okay to revisit earlier phases. Going back is part of going forward."],
    exercise: { name: "Your daily groundwork", steps: ["Look back over phases 1 to 11. Which tools helped most?", "Choose one for mornings, one for stressful moments, and one for evenings.", "Practice all three today, noticing how your body responds.", "Write a short note to yourself about what has changed since phase 1.", "Orient to the room and feel the ground. You've done the groundwork."] },
    verse: { text: "See, I am doing a new thing! Now it springs up; do you not perceive it? I am making a way in the wilderness and streams in the wasteland.", ref: "Isaiah 43:19" },
    squirrel: "In spring, ground squirrels come up out of hibernation and into the sun. Emerging is gradual, and so is this.",
@@ -375,7 +396,30 @@ const GROUND_STEPS = [
 ];
 
 /* ---------- state ---------- */
-const blank = () => ({ checks: {}, lesson: {}, exercise: {}, notes: {}, pre: {}, post: {}, log: [], current: 0, started: null, updated: null });
+const blank = () => ({ v: 2, checks: {}, lesson: {}, exercise: {}, notes: {}, pre: {}, post: {}, log: [], current: -1, started: null, updated: null });
+
+/* Version 1 had a different phase list. Map each old phase to the new phase covering the same ground, keeping notes, ratings and
+   check-ins. Lesson, exercise and homework ticks carry over only where that content is unchanged. */
+const V1_TO_V2 = [0, 10, 1, 2, 3, 4, 4, 5, 0, 6, 10, 11];
+const V1_TITLES = ["Arriving", "Orienting", "Grounding", "Resourcing", "Felt sense", "Tracking", "Your window", "Pendulation", "Boundaries", "Completing", "Connection", "Integration"];
+function migrate(s) {
+  if (!s || s.v >= 2) return s;
+  const out = { ...s, v: 2, checks: {}, lesson: {}, exercise: {}, notes: {}, pre: {}, post: {} };
+  const notes = {};
+  V1_TO_V2.forEach((n, o) => {
+    const note = (s.notes?.[o] || "").trim();
+    if (note) (notes[n] ||= []).push([V1_TITLES[o], note]);
+    for (const k of ["pre", "post"]) if (s[k]?.[o] != null && out[k][n] == null) out[k][n] = s[k][o];
+    if (o === 11) {
+      out.lesson[n] = s.lesson?.[o]; out.exercise[n] = s.exercise?.[o];
+      for (let j = 0; j < 3; j++) if (s.checks?.[o + "." + j]) out.checks[n + "." + j] = true;
+    }
+  });
+  for (const n in notes) out.notes[n] = notes[n].map(([t, x]) => `(From the earlier "${t}" phase)\n${x}`).join("\n\n");
+  out.log = (s.log || []).map(r => ({ ...r, phase: V1_TO_V2[r.phase] ?? 0 }));
+  out.current = s.current > 0 ? V1_TO_V2[s.current] : -1;
+  return out;
+}
 let S = blank();
 let store = { save: () => {} };
 
@@ -409,9 +453,9 @@ function renderProgress() {
 }
 
 function renderTrail() {
-  $("trail").innerHTML = PHASES.map((p, i) => {
+  $("trail").innerHTML = `<button type="button" class="stop intro" data-i="-1" aria-current="${S.current === -1}"><span class="num">i</span><span><span class="t">Introduction</span><br><span class="s">Understanding trauma</span></span></button>` + PHASES.map((p, i) => {
     const cls = phaseDone(i) ? "done" : doneSteps(i) ? "part" : "";
-    return `<button type="button" class="stop ${cls}" data-i="${i}" aria-current="${i === S.current}"><span class="num">${phaseDone(i) ? "✓" : i + 1}</span><span><span class="t">${esc(p.title)}</span><br><span class="s">${doneSteps(i)} of ${totalSteps(i)} steps</span></span></button>`;
+    return (i === 0 || PHASES[i - 1].group !== p.group ? `<span class="grp">${esc(GROUPS[p.group].name)}</span>` : "") + `<button type="button" class="stop ${cls}" data-i="${i}" aria-current="${i === S.current}"><span class="num">${phaseDone(i) ? "✓" : i + 1}</span><span><span class="t">${esc(p.title)}</span><br><span class="s">${doneSteps(i)} of ${totalSteps(i)} steps</span></span></button>`;
   }).join("");
 }
 
@@ -423,15 +467,17 @@ function scale(kind, i) {
 }
 
 function renderPhase() {
+  if (S.current < 0) return renderIntro();
   const i = S.current, p = PHASES[i];
   $("phase").innerHTML = `
-    <div class="phase-head"><span class="eyebrow">Phase ${i + 1} of 12</span><h2>${esc(p.title)}</h2><p class="skill">${esc(p.skill)}</p></div>
+    <div class="phase-head"><span class="eyebrow">Phase ${i + 1} of 12 · ${esc(GROUPS[p.group].name)}</span><h2>${esc(p.title)}</h2><p class="skill">${esc(p.skill)}</p></div>
     <section class="block"><h3><span class="tag">Understand</span>Why this matters</h3><p>${esc(p.understanding)}</p>
       <div class="squirrel-note"><svg aria-hidden="true"><use href="#cgs"/></svg><p>${esc(p.squirrel)}</p></div></section>
     <figure class="verse"><blockquote>${esc(p.verse.text)}</blockquote><figcaption>${esc(p.verse.ref)} <span>NIV</span></figcaption></figure>
     <section class="block"><h3><span class="tag">Lesson</span>Key ideas</h3><ul>${p.lesson.map(l => `<li>${esc(l)}</li>`).join("")}</ul>
       <button type="button" class="btn donebtn" data-mark="lesson" aria-pressed="${!!S.lesson[i]}">${S.lesson[i] ? "Lesson read ✓" : "Mark lesson as read"}</button></section>
     <section class="block"><h3><span class="tag">Exercise</span>${esc(p.exercise.name)}</h3>
+      ${audioHTML(i)}
       <p class="hint">Take it slowly. Keep your eyes open if you prefer. Stop whenever you want and tap <b>Sploot now</b> if you need to settle.</p>
       <div class="scale"><div class="scale-row"><span class="lbl">Before</span>${scale("pre", i)}</div><span class="hint">How activated do you feel? 0 = calm, 10 = overwhelmed</span></div>
       <ol>${p.exercise.steps.map(s => `<li>${esc(s)}</li>`).join("")}</ol>
@@ -444,10 +490,48 @@ function renderPhase() {
       <label class="hint" for="note-${i}">Sensations, changes, questions for your therapist. These can be included in your report.</label>
       <textarea id="note-${i}" data-note>${esc(S.notes[i] || "")}</textarea><span class="save-state" id="saveState">Saved automatically</span></section>
     <div class="pager">
-      <button type="button" class="btn" data-go="${i - 1}" ${i === 0 ? "hidden" : ""}>← ${i > 0 ? esc(PHASES[i - 1].title) : ""}</button>
+      <button type="button" class="btn" data-go="${i - 1}">← ${i > 0 ? esc(PHASES[i - 1].title) : "Introduction"}</button>
       <button type="button" class="btn primary" data-go="${i + 1}" ${i === 11 ? "hidden" : ""} style="margin-left:auto">Next: ${i < 11 ? esc(PHASES[i + 1].title) : ""} →</button>
     </div>`;
   updateWarn();
+}
+
+/* Introduction: what trauma is and how the program works. Shown before phase 1 (S.current === -1). */
+const audioSrc = i => `audio/phase-${String(i + 1).padStart(2, "0")}.mp3`;
+function audioHTML(i) {
+  return `<div class="audio"><span class="hint">Guided audio · Track ${i + 1}</span><audio controls preload="metadata" src="${audioSrc(i)}"></audio></div>`;
+}
+function renderIntro() {
+  $("phase").innerHTML = `
+    <div class="phase-head"><span class="eyebrow">Introduction</span><h2>Understanding trauma</h2><p class="skill">What trauma is, where it comes from, how it lives in the body, and how the 12 phases work with it.</p></div>
+    <section class="block"><h3><span class="tag">1</span>What trauma is</h3>
+      <p>Trauma isn't defined by the event itself. It's defined by what happens in your nervous system afterwards. When something is too much, too fast or too soon for you to handle, your body mobilizes a huge surge of survival energy to fight or to flee. If that response can't complete, because you couldn't fight back or get away, the energy stays bound up in the nervous system.</p>
+      <p>Wild animals face threats constantly, yet rarely stay traumatized. After danger passes they tremble, shake and breathe deeply, discharging the energy and returning to normal life. People have the same capacity, but our thinking brain, our fear and our circumstances often interrupt it. The good news: trauma is common, and it's also very treatable. Your body has a built-in capacity to heal.</p>
+      <div class="squirrel-note"><svg aria-hidden="true"><use href="#cgs"/></svg><p>Your nervous system has three broad modes: safe and connected, mobilized (fight or flight), and shut down (freeze or collapse). None of them is bad. Each one is your body trying to protect you.</p></div></section>
+    <section class="block"><h3><span class="tag">2</span>What causes trauma</h3>
+      <p>Trauma can follow obvious catastrophes, but it often comes from events we think of as ordinary. What matters isn't how serious the event looks from outside, but whether it overwhelmed you and left you unable to protect yourself.</p>
+      <ul><li><b>Overwhelming events:</b> violence, assault, abuse, war, natural disasters, witnessing harm to others.</li>
+        <li><b>Everyday events:</b> car accidents, falls and sports injuries, surgery and medical or dental procedures (especially in childhood or under anesthesia), serious illness or high fever, long periods of being immobilized in casts or braces.</li>
+        <li><b>Loss and disconnection:</b> sudden loss of a loved one, neglect, abandonment, ongoing stress or fear.</li>
+        <li><b>Early life:</b> difficult births and early separations.</li></ul>
+      <p>The same event can overwhelm one person and not another. Age, health, support, earlier experiences and the resources you had at the time all play a part.</p></section>
+    <section class="block"><h3><span class="tag">3</span>Symptoms</h3>
+      <p>The earliest signs of trauma tend to cluster around four core reactions:</p>
+      <div class="core4">
+        <div><b>Hyperarousal</b>Racing heart, sweating, rapid breath, startling easily, racing thoughts, trouble sleeping.</div>
+        <div><b>Constriction</b>Tight muscles and breath, narrowed attention, constantly scanning for danger.</div>
+        <div><b>Dissociation</b>Spacing out, numbness, feeling outside your body or unreal, losing time.</div>
+        <div><b>Helplessness</b>Feeling frozen, collapsed, stuck or unable to act, even when you want to.</div></div>
+      <p>Over time, other symptoms can develop: anxiety and panic, phobias, flashbacks and nightmares, sensitivity to light and sound, mood swings, irritability or rage, avoidance, shame, depression, difficulty with intimacy, chronic fatigue, chronic pain, headaches, and digestive or immune problems. They can appear long after the event, and they can come and go. Having some of these doesn't by itself mean you've been traumatized. A practitioner can help you make sense of them.</p></section>
+    <section class="block"><h3><span class="tag">4</span>How trauma affects the body</h3>
+      <p>Faced with threat, the body moves through a sequence: it orients toward the danger, mobilizes to fight or flee, and if neither is possible, freezes. The freeze, or immobility response, is an ancient and involuntary survival reflex, not a weakness. Muscles may go rigid or limp, feeling dulls, and time may seem to slow.</p>
+      <p>When the body can't complete this sequence and come out of the freeze, it stays primed for danger, as if the gas and the brake were pressed at the same time: high activation underneath, held in check by shutdown on top. The body keeps responding as though the threat were still happening, long after it's over. That ongoing charge is what produces many of the symptoms above.</p>
+      <p>Healing doesn't require reliving the memory. It works with body sensation in the present, in small doses, so the incomplete responses can finish and the bound energy can discharge. Step by step, the nervous system recovers its natural rhythm between activation and rest.</p></section>
+    <section class="block"><h3><span class="tag">5</span>The 12-phase program</h3>
+      <p>The phases build on each other, so go in order the first time through. Each phase has a lesson, a guided exercise with its own audio track, homework and a place for notes. Spend about a week on each one, or longer if you need it.</p>
+      ${GROUPS.map((g, gi) => `<div class="intro-group"><h4>${esc(g.name)}</h4><p class="hint">${esc(g.sub)}</p><ol class="tracks">${PHASES.map((p, i) => p.group !== gi ? "" : `<li value="${i + 1}"><button type="button" class="linkbtn" data-go="${i}">${esc(p.title)}</button><span class="hint"> · ${esc(p.skill)}</span>${audioHTML(i)}</li>`).join("")}</ol></div>`).join("")}
+      <p class="hint">Go slowly and stop whenever you want. If anything feels like too much, tap <b>Sploot now</b>, and do deeper work with a trained practitioner.</p></section>
+    <div class="pager"><button type="button" class="btn primary" data-go="0" style="margin-left:auto">Start: ${esc(PHASES[0].title)} →</button></div>`;
 }
 
 function updateWarn() {
@@ -470,9 +554,10 @@ function logCheckin(i) {
   else S.log.push(row);
 }
 
-function go(i) { if (i < 0 || i > 11) return; S.current = i; commit(); renderPhase(); window.scrollTo({ top: 0, behavior: "smooth" }) }
+function go(i) { if (i < -1 || i > 11) return; S.current = i; commit(); renderPhase(); window.scrollTo({ top: 0, behavior: "smooth" }) }
 
 /* ---------- events ---------- */
+document.addEventListener("error", e => { if (e.target.tagName === "AUDIO") { e.target.hidden = true; e.target.previousElementSibling.textContent += " · not added yet" } }, true);
 $("trail").addEventListener("click", e => { const b = e.target.closest("[data-i]"); if (b) go(+b.dataset.i) });
 $("phase").addEventListener("click", e => {
   const i = S.current, t = e.target.closest("button"); if (!t) return;
@@ -610,18 +695,18 @@ $("repSave").onclick = () => {
 
 /* ---------- storage: this browser, plus Google Sheets when connected (sync.js) ---------- */
 const LS = "groundwork-v1";
-function loadLocal() { try { const v = JSON.parse(localStorage.getItem(LS)); if (v) S = Object.assign(blank(), v) } catch {} }
+function loadLocal() { try { const v = JSON.parse(localStorage.getItem(LS)); if (v) S = Object.assign(blank(), migrate(v)) } catch {} }
 function saveLocal(s) { try { localStorage.setItem(LS, JSON.stringify(s)) } catch {} }
 function renderAll() { renderProgress(); renderTrail(); renderPhase() }
 
 loadLocal();
-{ const m = /^#phase-(\d+)$/.exec(location.hash); if (m && +m[1] >= 1 && +m[1] <= 12) S.current = +m[1] - 1 }
+{ const m = /^#phase-(\d+)$/.exec(location.hash); if (m && +m[1] >= 1 && +m[1] <= 12) S.current = +m[1] - 1; else if (location.hash === "#intro") S.current = -1 }
 store.save = s => { saveLocal(s); window.GroundworkSync?.queue(s) };
 renderAll();
 window.Groundwork = {
   phases: PHASES,
   get state() { return S },
-  replaceState(next) { S = Object.assign(blank(), next); saveLocal(S); renderAll() },
+  replaceState(next) { S = Object.assign(blank(), migrate(next)); saveLocal(S); renderAll() },
   doneSteps, totalSteps, phaseDone,
 };
 </script>
