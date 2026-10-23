@@ -36,7 +36,8 @@ Live: https://sherol.github.io/groundwork
   - **Notes:** your notes per phase
   - **_data** (hidden): the full app state, used to restore your progress on another device. Don't edit it.
 - The app asks only for the `drive.file` permission. It can see the files it created and nothing else in your Drive.
-- When you connect, if the browser copy and the spreadsheet differ, the one changed most recently wins. After that, each change is written to the spreadsheet a moment later.
+- When you connect, if the browser copy and the spreadsheet differ, the one changed most recently wins. Anything you change while it's connecting is kept either way. After that, each change is written to the spreadsheet a moment later. Moving between phases doesn't count as a change: it's remembered on this device and goes along with your next real change.
+- If the spreadsheet is deleted while you're connected, Groundwork says so and sets it up again (finding another Groundwork spreadsheet in your Drive, or making a new one) and syncs again.
 - Google access lasts about an hour (the token is kept in `sessionStorage` for that tab). After that, changes keep saving in the browser; click **Reconnect Google Sheets** to sync them.
 - **Disconnect** stops syncing on this device. The spreadsheet stays in your Drive.
 

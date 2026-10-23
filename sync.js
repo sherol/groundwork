@@ -163,7 +163,12 @@
     busy = true; const s = pending; pending = null;
     status("Saving to Google Sheets…");
     try { await push(s); stamp("Synced to Google Sheets") }
-    catch (e) { pending = pending || s; fail(e) }
+    catch (e) {
+      // The spreadsheet was deleted, or this app can no longer reach it: find it again or make a new one, the same way connecting
+      // does. Connecting writes the current state, so nothing stays queued.
+      if (e.code === 404) { busy = false; pref.sheetId = null; return connect("Your Groundwork spreadsheet couldn't be found (it may have been deleted). Setting it up again…") }
+      pending = pending || s; fail(e);
+    }
     busy = false;
     if (pending && token) flush();
   }
