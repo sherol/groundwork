@@ -567,7 +567,9 @@ function logCheckin(i) {
   else S.log.push(row);
 }
 
-function go(i) { if (i < -1 || i > 11) return; S.current = i; commit(); renderPhase(); window.scrollTo({ top: 0, behavior: "smooth" }) }
+/* Moving between phases is saved on this device but isn't a change to progress: it doesn't touch "last changed" or write to Google Sheets
+   by itself. The open phase rides along with the next real save. */
+function go(i) { if (i < -1 || i > 11) return; S.current = i; saveLocal(S); renderTrail(); renderPhase(); window.scrollTo({ top: 0, behavior: "smooth" }) }
 
 /* ---------- events ---------- */
 document.addEventListener("error", e => { if (e.target.tagName === "AUDIO") { e.target.hidden = true; e.target.previousElementSibling.textContent += " · not added yet" } }, true);
@@ -721,6 +723,20 @@ const LS = "groundwork-v1";
 function loadLocal() { try { const v = JSON.parse(localStorage.getItem(LS)); if (v) S = Object.assign(blank(), migrate(v)) } catch {} }
 function saveLocal(s) { try { localStorage.setItem(LS, JSON.stringify(s)) } catch {} }
 function renderAll() { renderProgress(); renderTrail(); renderPhase() }
+function carryEdits(next, base) {
+  const J = JSON.stringify;
+  let edited = false;
+  for (const k of ["checks", "lesson", "exercise", "notes", "pre", "post"])
+    for (const j of new Set([...Object.keys(S[k]), ...Object.keys(base[k] || {})]))
+      if (J(S[k][j]) !== J(base[k]?.[j])) { next[k][j] = S[k][j]; edited = true }
+  const had = new Set((base.log || []).map(r => J(r))), has = new Set(S.log.map(r => J(r)));
+  const added = S.log.filter(r => !had.has(J(r)));
+  if (added.length) { next.log = next.log.filter(r => !had.has(J(r)) || has.has(J(r))).concat(added); edited = true }
+  if (edited || S.current !== base.current) next.current = S.current; // stay on the phase being worked on
+  if (edited && (S.updated || "") > (next.updated || "")) next.updated = S.updated;
+  if (S.started && (!next.started || S.started < next.started)) next.started = S.started;
+  return edited;
+}
 
 loadLocal();
 { const m = /^#phase-(\d+)$/.exec(location.hash); if (m && +m[1] >= 1 && +m[1] <= 12) S.current = +m[1] - 1; else if (location.hash === "#intro") S.current = -1 }
@@ -729,7 +745,14 @@ renderAll();
 window.Groundwork = {
   phases: PHASES,
   get state() { return S },
-  replaceState(next) { S = Object.assign(blank(), migrate(next)); saveLocal(S); renderAll() },
+  /* Load another copy (from Google Sheets). With `base`, a snapshot of this copy taken earlier, anything changed here since then is
+     kept on top of `next`. Returns true when that included progress, not just the open phase. */
+  replaceState(next, base) {
+    next = Object.assign(blank(), migrate(next));
+    const edited = base ? carryEdits(next, base) : false;
+    S = next; saveLocal(S); renderAll();
+    return edited;
+  },
   doneSteps, totalSteps, phaseDone,
 };
 </script>

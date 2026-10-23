@@ -123,22 +123,32 @@
   }
 
   /* ---------- connect, merge, save queue ---------- */
-  async function connect() {
-    status("Connecting to Google Sheets…");
+  async function connect(note) {
+    status(note || "Connecting to Google Sheets…");
+    // Saves wait until connecting is done. `base` is this device's copy as connecting starts: it decides which copy is newer, and
+    // anything changed here while connecting is kept on top of the spreadsheet's copy instead of being overwritten by it.
+    busy = true;
+    const base = JSON.parse(JSON.stringify(window.Groundwork.state));
+    let ok = false;
     try {
       const sheet = await findOrCreateSheet();
       pref = { connected: true, sheetId: sheet.spreadsheetId, sheetUrl: sheet.spreadsheetUrl };
       write(localStorage, PREF, pref);
-      const remote = await readRemote(pref.sheetId), local = window.Groundwork.state;
+      const remote = await readRemote(pref.sheetId);
+      const done = note ? "Set up the spreadsheet again and synced" : "Synced to Google Sheets";
       // Whichever copy was changed most recently wins.
-      if (remote && (!local.updated || (remote.updated || "") > local.updated)) {
-        window.Groundwork.replaceState(remote);
-        stamp("Loaded from Google Sheets");
+      if (remote && (!base.updated || (remote.updated || "") > base.updated)) {
+        if (window.Groundwork.replaceState(remote, base)) { await push(window.Groundwork.state); stamp(done) }
+        else stamp("Loaded from Google Sheets");
       } else {
-        await push(local);
-        stamp("Synced to Google Sheets");
+        await push(window.Groundwork.state);
+        stamp(done);
       }
+      ok = true;
     } catch (e) { fail(e) }
+    busy = false;
+    // Anything saved since the copy above was written goes out now.
+    if (ok && pending && token) { pending = window.Groundwork.state; flush() }
   }
 
   function stamp(msg) { status(msg + " · " + new Date().toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })) }
