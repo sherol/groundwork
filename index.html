@@ -417,7 +417,11 @@ function migrate(s) {
   });
   for (const n in notes) out.notes[n] = notes[n].map(([t, x]) => `(From the earlier "${t}" phase)\n${x}`).join("\n\n");
   out.log = (s.log || []).map(r => ({ ...r, phase: V1_TO_V2[r.phase] ?? 0 }));
-  out.current = s.current > 0 ? V1_TO_V2[s.current] : -1;
+  // Version 1 opened on phase 1 by default, so position 0 only means "new" when nothing has been done yet.
+  const some = (o, f) => Object.values(o || {}).some(f);
+  const progress = some(s.checks, Boolean) || some(s.lesson, Boolean) || some(s.exercise, Boolean) || some(s.notes, n => (n || "").trim())
+    || some(s.pre, v => v != null) || some(s.post, v => v != null) || (s.log || []).length > 0;
+  out.current = s.current > 0 ? V1_TO_V2[s.current] ?? 0 : progress ? V1_TO_V2[0] : -1;
   return out;
 }
 let S = blank();
@@ -468,7 +472,14 @@ function scale(kind, i) {
   return h;
 }
 
+/* Keep the address in step with the open phase (without adding history entries), so a reload stays where you are. */
+function showInUrl() {
+  const h = S.current < 0 ? "#intro" : "#phase-" + (S.current + 1);
+  if (location.hash !== h) try { history.replaceState(history.state, "", h) } catch {}
+}
+
 function renderPhase() {
+  showInUrl();
   if (S.current < 0) return renderIntro();
   const i = S.current, p = PHASES[i];
   $("phase").innerHTML = `
@@ -598,13 +609,23 @@ function breathTick() {
 function startBreath() { stopBreath(); breathPhase = 0; breathCount = 1; breaths = 0; $("breathMeta").textContent = "In for 4, out for 6"; $("orb").classList.remove("in"); requestAnimationFrame(() => { breathTick(); breathTimer = setInterval(breathTick, 1000) }) }
 function stopBreath() { clearInterval(breathTimer); breathTimer = null }
 
-function openGround() { lastFocus = document.activeElement; gi = 0; showGround(); $("groundOverlay").hidden = false; startBreath(); $("groundNext").focus() }
-function closeOverlay(id) { $(id).hidden = true; if (id === "groundOverlay") stopBreath(); lastFocus?.focus?.() }
+/* While a dialog is open the page behind it is inert, and Tab cycles within the dialog. */
+function setModal(on) { document.querySelector(".wrap").inert = on; $("splootBtn").inert = on }
+function openGround() { lastFocus = document.activeElement; gi = 0; showGround(); $("groundOverlay").hidden = false; setModal(true); startBreath(); $("groundNext").focus() }
+function closeOverlay(id) { $(id).hidden = true; setModal(false); if (id === "groundOverlay") stopBreath(); lastFocus?.focus?.() }
 $("splootBtn").onclick = openGround;
 $("groundNext").onclick = () => { gi = Math.min(gi + 1, GROUND_STEPS.length - 1); showGround() };
 $("groundPrev").onclick = () => { gi = Math.max(gi - 1, 0); showGround() };
 $("groundClose").onclick = () => closeOverlay("groundOverlay");
 document.addEventListener("keydown", e => { if (e.key === "Escape") { if (!$("groundOverlay").hidden) closeOverlay("groundOverlay"); if (!$("reportOverlay").hidden) closeOverlay("reportOverlay"); } });
+document.addEventListener("keydown", e => {
+  const o = e.key === "Tab" && ["groundOverlay", "reportOverlay"].map($).find(o => !o.hidden); if (!o) return;
+  const f = [...o.querySelectorAll("button, input, select, textarea, a[href]")].filter(el => !el.disabled && el.getClientRects().length);
+  const first = f[0], last = f[f.length - 1];
+  if (!o.contains(document.activeElement)) { e.preventDefault(); (e.shiftKey ? last : first).focus() }
+  else if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus() }
+  else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus() }
+});
 
 /* ---------- report ---------- */
 const fmt = d => d ? new Date(d).toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" }) : "—";
@@ -666,7 +687,7 @@ async function copyText(text, okMsg) {
 }
 function renderReport() { $("report").innerHTML = reportHTML() }
 $("repScope").innerHTML = `<option value="all">All 12 phases</option>` + PHASES.map((p, i) => `<option value="${i}">Phase ${i + 1}: ${esc(p.title)}</option>`).join("");
-$("openReport").onclick = () => { lastFocus = document.activeElement; renderReport(); $("reportOverlay").hidden = false; $("repClose").focus() };
+$("openReport").onclick = () => { lastFocus = document.activeElement; renderReport(); $("reportOverlay").hidden = false; setModal(true); $("repClose").focus() };
 $("repClose").onclick = () => closeOverlay("reportOverlay");
 ["repName", "repScope", "repNotes"].forEach(id => $(id).addEventListener("input", renderReport));
 $("repScope").addEventListener("change", renderReport); $("repNotes").addEventListener("change", renderReport);

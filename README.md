@@ -24,7 +24,7 @@ Live: https://sherol.github.io/groundwork
 - **A Bible verse (NIV)** for each phase.
 - **Google Sheets sync** (optional).
 - **About page** (`about.html`): the 12 phases at a glance, each linking straight into the program.
-- **Links:** `index.html#intro` opens the introduction and `index.html#phase-1` … `#phase-12` open a phase.
+- **Links:** `index.html#intro` opens the introduction and `index.html#phase-1` … `#phase-12` open a phase. The address follows you as you move between phases, so reloading stays where you are.
 
 ## Where your data is stored
 
