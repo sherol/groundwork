@@ -24,7 +24,7 @@
   --oak-soft: #dbe5d3;
   --calm: #3f6f78;
   --alert: #a4472f;
-  --fur: #8a7660; --fur-dark: #5e4d3c; --fur-light: #efe6d6; --fleck: #f4ecdc; --cape: #2e241b;
+  --fur: #8a7660;
   --display: "Montserrat", "Avenir Next", "Segoe UI", system-ui, sans-serif;
   --body: "Atkinson Hyperlegible", "Verdana", system-ui, sans-serif;
   --r: 14px;
@@ -33,11 +33,11 @@
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
   --bg: #1d1c16; --surface: #26251d; --sunk: #302e24; --ink: #ece7d6; --muted: #aaa48c; --line: #3f3c30;
   --grass: #e0aa4c; --grass-soft: #44381f; --oak: #9fbf8f; --oak-soft: #2c3627; --calm: #86b9c2; --alert: #e08a6e;
-  --fur: #a48d74; --fur-dark: #6e5a46; --fur-light: #e9dfcd; --fleck: #f3ecdd; --cape: #241b13; --calm-tint: #1f3236; --grass-tint: #3a311d; color-scheme: dark } }
+  --fur: #a48d74; --calm-tint: #1f3236; --grass-tint: #3a311d; color-scheme: dark } }
 :root[data-theme="dark"] {
   --bg: #1d1c16; --surface: #26251d; --sunk: #302e24; --ink: #ece7d6; --muted: #aaa48c; --line: #3f3c30;
   --grass: #e0aa4c; --grass-soft: #44381f; --oak: #9fbf8f; --oak-soft: #2c3627; --calm: #86b9c2; --alert: #e08a6e;
-  --fur: #a48d74; --fur-dark: #6e5a46; --fur-light: #e9dfcd; --fleck: #f3ecdd; --cape: #241b13; --calm-tint: #1f3236; --grass-tint: #3a311d; color-scheme: dark }
+  --fur: #a48d74; --calm-tint: #1f3236; --grass-tint: #3a311d; color-scheme: dark }
 
 * { box-sizing: border-box }
 :root { color-scheme: light; padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px) }
@@ -192,7 +192,7 @@ select { font: inherit; padding: 8px 10px; border-radius: 8px; border: 1px solid
 <body>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
   <defs>
-    <!-- California ground squirrel, sentinel pose: grizzled brown-grey coat with pale flecks, dark shoulder mantle, bushy tail, pale eye ring -->
+    <!-- Groundwork emblem (assets/emblem.png): a California ground squirrel holding an acorn on rocks -->
     <symbol id="cgs" viewBox="0 0 100 100"><image href="assets/emblem.png" x="0" y="0" width="100" height="100"/></symbol>
     <symbol id="acorn" viewBox="0 0 28 28">
       <rect x="12.8" y="0.5" width="2.6" height="5" rx="1.3" fill="currentColor" opacity=".7"/>
@@ -287,7 +287,7 @@ select { font: inherit; padding: 8px 10px; border-radius: 8px; border: 1px solid
   </div>
 </div>
 
-<div class="toast" id="toast" hidden></div>
+<div class="toast" id="toast" role="status" hidden></div>
 
 <script>
 /* The program follows the phase order of Peter Levine's twelve-phase healing trauma program. Each phase's guided audio is audio/phase-NN.mp3 (see audio/README.md). */
@@ -417,7 +417,11 @@ function migrate(s) {
   });
   for (const n in notes) out.notes[n] = notes[n].map(([t, x]) => `(From the earlier "${t}" phase)\n${x}`).join("\n\n");
   out.log = (s.log || []).map(r => ({ ...r, phase: V1_TO_V2[r.phase] ?? 0 }));
-  out.current = s.current > 0 ? V1_TO_V2[s.current] : -1;
+  // Version 1 opened on phase 1 by default, so position 0 only means "new" when nothing has been done yet.
+  const some = (o, f) => Object.values(o || {}).some(f);
+  const progress = some(s.checks, Boolean) || some(s.lesson, Boolean) || some(s.exercise, Boolean) || some(s.notes, n => (n || "").trim())
+    || some(s.pre, v => v != null) || some(s.post, v => v != null) || (s.log || []).length > 0;
+  out.current = s.current > 0 ? V1_TO_V2[s.current] ?? 0 : progress ? V1_TO_V2[0] : -1;
   return out;
 }
 let S = blank();
@@ -442,8 +446,10 @@ function renderProgress() {
   let all = 0, done = 0, phases = 0;
   PHASES.forEach((_, i) => { all += totalSteps(i); done += doneSteps(i); if (phaseDone(i)) phases++ });
   const pct = Math.round(done / all * 100);
-  $("progTitle").textContent = phases + " of 12 phases complete";
-  $("progSub").textContent = pct + "% of all steps";
+  // Only touch the text when it changes, so the aria-live region isn't re-announced on every save.
+  const setText = (id, t) => { if ($(id).textContent !== t) $(id).textContent = t };
+  setText("progTitle", phases + " of 12 phases complete");
+  setText("progSub", pct + "% of all steps");
   $("barFill").style.width = pct + "%";
   $("bar").setAttribute("aria-valuenow", pct);
   $("acorns").innerHTML = PHASES.map((_, i) => {
@@ -466,7 +472,14 @@ function scale(kind, i) {
   return h;
 }
 
+/* Keep the address in step with the open phase (without adding history entries), so a reload stays where you are. */
+function showInUrl() {
+  const h = S.current < 0 ? "#intro" : "#phase-" + (S.current + 1);
+  if (location.hash !== h) try { history.replaceState(history.state, "", h) } catch {}
+}
+
 function renderPhase() {
+  showInUrl();
   if (S.current < 0) return renderIntro();
   const i = S.current, p = PHASES[i];
   $("phase").innerHTML = `
@@ -479,9 +492,9 @@ function renderPhase() {
     <section class="block"><h3><span class="tag">Exercise</span>${esc(p.exercise.name)}</h3>
       ${audioHTML(i)}
       <p class="hint">Take it slowly. Keep your eyes open if you prefer. Stop whenever you want and tap <b>Sploot now</b> if you need to settle.</p>
-      <div class="scale"><div class="scale-row"><span class="lbl">Before</span>${scale("pre", i)}</div><span class="hint">How activated do you feel? 0 = calm, 10 = overwhelmed</span></div>
+      <div class="scale"><div class="scale-row" role="group" aria-label="Activation before the exercise, 0 to 10"><span class="lbl">Before</span>${scale("pre", i)}</div><span class="hint">How activated do you feel? 0 = calm, 10 = overwhelmed</span></div>
       <ol>${p.exercise.steps.map(s => `<li>${esc(s)}</li>`).join("")}</ol>
-      <div class="scale"><div class="scale-row"><span class="lbl">After</span>${scale("post", i)}</div></div>
+      <div class="scale"><div class="scale-row" role="group" aria-label="Activation after the exercise, 0 to 10"><span class="lbl">After</span>${scale("post", i)}</div></div>
       <p class="hint" id="warn" hidden></p>
       <button type="button" class="btn donebtn" data-mark="exercise" aria-pressed="${!!S.exercise[i]}">${S.exercise[i] ? "Exercise done ✓" : "Mark exercise as done"}</button></section>
     <section class="block"><h3><span class="tag">Homework</span>This week</h3>
@@ -554,7 +567,9 @@ function logCheckin(i) {
   else S.log.push(row);
 }
 
-function go(i) { if (i < -1 || i > 11) return; S.current = i; commit(); renderPhase(); window.scrollTo({ top: 0, behavior: "smooth" }) }
+/* Moving between phases is saved on this device but isn't a change to progress: it doesn't touch "last changed" or write to Google Sheets
+   by itself. The open phase rides along with the next real save. */
+function go(i) { if (i < -1 || i > 11) return; S.current = i; saveLocal(S); renderTrail(); renderPhase(); window.scrollTo({ top: 0, behavior: "smooth" }) }
 
 /* ---------- events ---------- */
 document.addEventListener("error", e => { if (e.target.tagName === "AUDIO") { e.target.hidden = true; e.target.previousElementSibling.textContent += " · not added yet" } }, true);
@@ -596,13 +611,23 @@ function breathTick() {
 function startBreath() { stopBreath(); breathPhase = 0; breathCount = 1; breaths = 0; $("breathMeta").textContent = "In for 4, out for 6"; $("orb").classList.remove("in"); requestAnimationFrame(() => { breathTick(); breathTimer = setInterval(breathTick, 1000) }) }
 function stopBreath() { clearInterval(breathTimer); breathTimer = null }
 
-function openGround() { lastFocus = document.activeElement; gi = 0; showGround(); $("groundOverlay").hidden = false; startBreath(); $("groundNext").focus() }
-function closeOverlay(id) { $(id).hidden = true; if (id === "groundOverlay") stopBreath(); lastFocus?.focus?.() }
+/* While a dialog is open the page behind it is inert, and Tab cycles within the dialog. */
+function setModal(on) { document.querySelector(".wrap").inert = on; $("splootBtn").inert = on }
+function openGround() { lastFocus = document.activeElement; gi = 0; showGround(); $("groundOverlay").hidden = false; setModal(true); startBreath(); $("groundNext").focus() }
+function closeOverlay(id) { $(id).hidden = true; setModal(false); if (id === "groundOverlay") stopBreath(); lastFocus?.focus?.() }
 $("splootBtn").onclick = openGround;
 $("groundNext").onclick = () => { gi = Math.min(gi + 1, GROUND_STEPS.length - 1); showGround() };
 $("groundPrev").onclick = () => { gi = Math.max(gi - 1, 0); showGround() };
 $("groundClose").onclick = () => closeOverlay("groundOverlay");
 document.addEventListener("keydown", e => { if (e.key === "Escape") { if (!$("groundOverlay").hidden) closeOverlay("groundOverlay"); if (!$("reportOverlay").hidden) closeOverlay("reportOverlay"); } });
+document.addEventListener("keydown", e => {
+  const o = e.key === "Tab" && ["groundOverlay", "reportOverlay"].map($).find(o => !o.hidden); if (!o) return;
+  const f = [...o.querySelectorAll("button, input, select, textarea, a[href]")].filter(el => !el.disabled && el.getClientRects().length);
+  const first = f[0], last = f[f.length - 1];
+  if (!o.contains(document.activeElement)) { e.preventDefault(); (e.shiftKey ? last : first).focus() }
+  else if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus() }
+  else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus() }
+});
 
 /* ---------- report ---------- */
 const fmt = d => d ? new Date(d).toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" }) : "—";
@@ -615,7 +640,7 @@ function reportHTML() {
   const rows = idx.map(i => {
     const pre = S.pre[i], post = S.post[i];
     const status = phaseDone(i) ? "Complete" : doneSteps(i) ? "In progress" : "Not started";
-    return `<tr><td>${i + 1}. ${esc(PHASES[i].title)}</td><td>${status}</td><td>${doneSteps(i)}/${totalSteps(i)}</td><td>${pre ?? "—"} → ${post ?? "—"}</td></tr>`;
+    return `<tr><td>${i + 1}. ${esc(PHASES[i].title)}</td><td>${status}</td><td>${doneSteps(i)}/${totalSteps(i)}</td><td>${esc(pre ?? "—")} → ${esc(post ?? "—")}</td></tr>`;
   }).join("");
   const rated = idx.filter(i => S.pre[i] != null && S.post[i] != null);
   const avgChange = rated.length ? (rated.reduce((a, i) => a + (S.post[i] - S.pre[i]), 0) / rated.length) : null;
@@ -664,7 +689,7 @@ async function copyText(text, okMsg) {
 }
 function renderReport() { $("report").innerHTML = reportHTML() }
 $("repScope").innerHTML = `<option value="all">All 12 phases</option>` + PHASES.map((p, i) => `<option value="${i}">Phase ${i + 1}: ${esc(p.title)}</option>`).join("");
-$("openReport").onclick = () => { lastFocus = document.activeElement; renderReport(); $("reportOverlay").hidden = false; $("repClose").focus() };
+$("openReport").onclick = () => { lastFocus = document.activeElement; renderReport(); $("reportOverlay").hidden = false; setModal(true); $("repClose").focus() };
 $("repClose").onclick = () => closeOverlay("reportOverlay");
 ["repName", "repScope", "repNotes"].forEach(id => $(id).addEventListener("input", renderReport));
 $("repScope").addEventListener("change", renderReport); $("repNotes").addEventListener("change", renderReport);
@@ -698,6 +723,20 @@ const LS = "groundwork-v1";
 function loadLocal() { try { const v = JSON.parse(localStorage.getItem(LS)); if (v) S = Object.assign(blank(), migrate(v)) } catch {} }
 function saveLocal(s) { try { localStorage.setItem(LS, JSON.stringify(s)) } catch {} }
 function renderAll() { renderProgress(); renderTrail(); renderPhase() }
+function carryEdits(next, base) {
+  const J = JSON.stringify;
+  let edited = false;
+  for (const k of ["checks", "lesson", "exercise", "notes", "pre", "post"])
+    for (const j of new Set([...Object.keys(S[k]), ...Object.keys(base[k] || {})]))
+      if (J(S[k][j]) !== J(base[k]?.[j])) { next[k][j] = S[k][j]; edited = true }
+  const had = new Set((base.log || []).map(r => J(r))), has = new Set(S.log.map(r => J(r)));
+  const added = S.log.filter(r => !had.has(J(r)));
+  if (added.length) { next.log = next.log.filter(r => !had.has(J(r)) || has.has(J(r))).concat(added); edited = true }
+  if (edited || S.current !== base.current) next.current = S.current; // stay on the phase being worked on
+  if (edited && (S.updated || "") > (next.updated || "")) next.updated = S.updated;
+  if (S.started && (!next.started || S.started < next.started)) next.started = S.started;
+  return edited;
+}
 
 loadLocal();
 { const m = /^#phase-(\d+)$/.exec(location.hash); if (m && +m[1] >= 1 && +m[1] <= 12) S.current = +m[1] - 1; else if (location.hash === "#intro") S.current = -1 }
@@ -706,7 +745,14 @@ renderAll();
 window.Groundwork = {
   phases: PHASES,
   get state() { return S },
-  replaceState(next) { S = Object.assign(blank(), migrate(next)); saveLocal(S); renderAll() },
+  /* Load another copy (from Google Sheets). With `base`, a snapshot of this copy taken earlier, anything changed here since then is
+     kept on top of `next`. Returns true when that included progress, not just the open phase. */
+  replaceState(next, base) {
+    next = Object.assign(blank(), migrate(next));
+    const edited = base ? carryEdits(next, base) : false;
+    S = next; saveLocal(S); renderAll();
+    return edited;
+  },
   doneSteps, totalSteps, phaseDone,
 };
 </script>

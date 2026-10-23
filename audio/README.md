@@ -17,6 +17,6 @@ Put one audio file per phase here. The app looks for these names:
 | 11. Orientation & engagement | `phase-11.mp3` |
 | 12. Settling & integration | `phase-12.mp3` |
 
-Until a file is added, its phase shows "The audio for this phase hasn't been added yet."
+Until a file is added, its player is hidden and the label reads "Guided audio · Track N · not added yet". The same tracks are listed in the Introduction.
 
 This repository and its GitHub Pages site are public. Only add recordings you have the right to publish, such as ones you recorded yourself.

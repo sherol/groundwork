@@ -123,22 +123,32 @@
   }
 
   /* ---------- connect, merge, save queue ---------- */
-  async function connect() {
-    status("Connecting to Google Sheets…");
+  async function connect(note) {
+    status(note || "Connecting to Google Sheets…");
+    // Saves wait until connecting is done. `base` is this device's copy as connecting starts: it decides which copy is newer, and
+    // anything changed here while connecting is kept on top of the spreadsheet's copy instead of being overwritten by it.
+    busy = true;
+    const base = JSON.parse(JSON.stringify(window.Groundwork.state));
+    let ok = false;
     try {
       const sheet = await findOrCreateSheet();
       pref = { connected: true, sheetId: sheet.spreadsheetId, sheetUrl: sheet.spreadsheetUrl };
       write(localStorage, PREF, pref);
-      const remote = await readRemote(pref.sheetId), local = window.Groundwork.state;
+      const remote = await readRemote(pref.sheetId);
+      const done = note ? "Set up the spreadsheet again and synced" : "Synced to Google Sheets";
       // Whichever copy was changed most recently wins.
-      if (remote && (!local.updated || (remote.updated || "") > local.updated)) {
-        window.Groundwork.replaceState(remote);
-        stamp("Loaded from Google Sheets");
+      if (remote && (!base.updated || (remote.updated || "") > base.updated)) {
+        if (window.Groundwork.replaceState(remote, base)) { await push(window.Groundwork.state); stamp(done) }
+        else stamp("Loaded from Google Sheets");
       } else {
-        await push(local);
-        stamp("Synced to Google Sheets");
+        await push(window.Groundwork.state);
+        stamp(done);
       }
+      ok = true;
     } catch (e) { fail(e) }
+    busy = false;
+    // Anything saved since the copy above was written goes out now.
+    if (ok && pending && token) { pending = window.Groundwork.state; flush() }
   }
 
   function stamp(msg) { status(msg + " · " + new Date().toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })) }
@@ -153,7 +163,12 @@
     busy = true; const s = pending; pending = null;
     status("Saving to Google Sheets…");
     try { await push(s); stamp("Synced to Google Sheets") }
-    catch (e) { pending = pending || s; fail(e) }
+    catch (e) {
+      // The spreadsheet was deleted, or this app can no longer reach it: find it again or make a new one, the same way connecting
+      // does. Connecting writes the current state, so nothing stays queued.
+      if (e.code === 404) { busy = false; pref.sheetId = null; return connect("Your Groundwork spreadsheet couldn't be found (it may have been deleted). Setting it up again…") }
+      pending = pending || s; fail(e);
+    }
     busy = false;
     if (pending && token) flush();
   }
