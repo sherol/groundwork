@@ -27,7 +27,7 @@ Live: https://sherol.github.io/groundwork
   - **Completion:** 11. Orientation & engagement, 12. Settling & integration
 
   Each phase has an explanation, a lesson, a guided exercise with an audio track, homework checkboxes and notes.
-- **Guided audio:** every phase links to Peter Levine's guided recordings at Sounds True (https://www.soundstrue.com/pages/healingtrauma). A phase also plays `audio/phase-NN.mp3` if one is added (see `audio/README.md`).
+- **Guided audio player** in each phase's exercise: play/pause, back and forward 15 seconds, a seek bar, speed (0.75×–1.5×) and Start over. It plays `audio/phase-NN.mp3` if one is added (see `audio/README.md`), otherwise it streams that phase's recording from Peter Levine's guided recordings at Sounds True (https://www.soundstrue.com/pages/healingtrauma). Where you stopped in each track, and your speed, are remembered on this device (`localStorage` key `groundwork-audio`, not synced). Phone lock-screen and headphone controls work too. If the recording can't load, the player says so and links to it on Sounds True.
 
 ## Source
 

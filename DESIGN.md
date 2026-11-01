@@ -37,7 +37,7 @@ A self-guided, body-based program for steadying the nervous system after trauma,
   - Signs in with Firebase Auth (the same Firebase project as mdlife) with the `drive.file` scope, so the app can see only the spreadsheet it creates.
   - The spreadsheet "Groundwork progress" has tabs for Progress, Check-ins and Notes, plus a hidden `_data` tab that holds the full state for restoring on another device.
   - When the two copies differ, the one changed most recently wins. Edits made while connecting are kept. If the spreadsheet is deleted, the app finds or creates a new one.
-- **Audio:** `audio/phase-01.mp3` to `phase-12.mp3`. A phase without a file shows "on Sounds True" and links straight to its matching recording ("Healing Trauma N" on soundstrue.com/pages/healingtrauma; recording N = phase N).
+- **Audio:** each phase's exercise has a custom player (play/pause, ±15 s, seek, speed, resume position). It plays `audio/phase-01.mp3` to `phase-12.mp3` when present, otherwise streams the matching Sounds True recording ("Healing Trauma N"; recording N = phase N). Positions are kept in `localStorage` (`groundwork-audio`), not synced.
 - **Deep links:** `#intro` and `#phase-N`. The address follows the open phase.
 
 ## Design principles

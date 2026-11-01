@@ -92,7 +92,22 @@ nav.trail { display: grid; gap: 4px; position: sticky; top: calc(env(safe-area-i
 nav.trail .grp { font: 700 11px/1 var(--body); letter-spacing: .12em; text-transform: uppercase; color: var(--muted); padding: 14px 10px 4px }
 @media (max-width: 820px) { nav.trail .grp { display: none } }
 .audio { display: grid; gap: 4px }
-.audio audio { width: 100%; max-width: 420px; height: 40px }
+/* Guided-audio player in each phase's exercise */
+.player { display: grid; gap: 10px; background: var(--calm-tint); border-radius: 12px; padding: 14px 16px; max-width: 560px }
+.player-top { display: flex; align-items: center; gap: 12px }
+.player-top .meta { display: grid; min-width: 0 }
+.player-top .meta b { font-family: var(--display); font-size: 16px; line-height: 1.25 }
+.player-top .meta span { font-size: 13px; color: var(--muted) }
+.pbtn { flex: none; width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--line); background: var(--surface); color: var(--calm); display: grid; place-items: center; padding: 0; font: 700 12px var(--body) }
+.pbtn.play { width: 56px; height: 56px; background: var(--calm); border-color: var(--calm); color: var(--surface) }
+.pbtn svg { width: 22px; height: 22px }
+.pbtn.play svg { width: 26px; height: 26px }
+.pbtn:disabled { opacity: .5; cursor: default }
+.seek { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 10px; align-items: center; font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums }
+.seek input { width: 100%; accent-color: var(--calm) }
+.player-ctrls { display: flex; flex-wrap: wrap; align-items: center; gap: 8px }
+.player-ctrls select { padding: 4px 8px; font-size: 13px; margin-left: auto }
+.player-msg { font-size: 13px; color: var(--muted); margin: 0 }
 .src-link { font-size: 14px; font-weight: 700; color: var(--calm) }
 .cite { font-size: 14px; color: var(--muted) }
 .cite a { color: var(--calm) }
@@ -483,6 +498,9 @@ function showInUrl() {
 }
 
 function renderPhase() {
+  // Re-rendering the same phase (ticking "lesson read", say) keeps the player, so the recording doesn't stop.
+  const keep = S.current >= 0 && $("player")?.dataset.phase === String(S.current) ? $("player") : null;
+  if (!keep) stopPlayer();
   showInUrl();
   if (S.current < 0) return renderIntro();
   const i = S.current, p = PHASES[i];
@@ -494,7 +512,7 @@ function renderPhase() {
     <section class="block"><h3><span class="tag">Lesson</span>Key ideas</h3><ul>${p.lesson.map(l => `<li>${esc(l)}</li>`).join("")}</ul>
       <button type="button" class="btn donebtn" data-mark="lesson" aria-pressed="${!!S.lesson[i]}">${S.lesson[i] ? "Lesson read ✓" : "Mark lesson as read"}</button></section>
     <section class="block"><h3><span class="tag">Exercise</span>${esc(p.exercise.name)}</h3>
-      ${audioHTML(i)}
+      ${playerHTML(i)}
       <p class="hint">Take it slowly. Keep your eyes open if you prefer. Stop whenever you want and tap <b>Sploot now</b> if you need to settle.</p>
       <div class="scale"><div class="scale-row" role="group" aria-label="Activation before the exercise, 0 to 10"><span class="lbl">Before</span>${scale("pre", i)}</div><span class="hint">How activated do you feel? 0 = calm, 10 = overwhelmed</span></div>
       <ol>${p.exercise.steps.map(s => `<li>${esc(s)}</li>`).join("")}</ol>
@@ -510,6 +528,7 @@ function renderPhase() {
       <button type="button" class="btn" data-go="${i - 1}">← ${i > 0 ? esc(PHASES[i - 1].title) : "Introduction"}</button>
       <button type="button" class="btn primary" data-go="${i + 1}" ${i === 11 ? "hidden" : ""} style="margin-left:auto">Next: ${i < 11 ? esc(PHASES[i + 1].title) : ""} →</button>
     </div>`;
+  if (keep) $("player").replaceWith(keep); else initPlayer(i);
   updateWarn();
 }
 
@@ -520,9 +539,84 @@ const nn = i => String(i + 1).padStart(2, "0");
 const audioSrc = i => `audio/phase-${nn(i)}.mp3`;
 /* Sounds True's page lists the 12 recordings as "Healing Trauma 1" to "Healing Trauma 12", in program order, so recording N goes with phase N. Linked, not hosted. */
 const trackURL = i => `https://d1qsxla1p9s5sy.cloudfront.net/kindleproject/PeterLevine-HealingTrauma-${nn(i)}.mp3`;
-function audioHTML(i, link = true) {
-  return `<div class="audio"><span class="hint">Guided audio · Track ${i + 1}</span><audio controls preload="metadata" src="${audioSrc(i)}"></audio><a class="src-link" href="${trackURL(i)}" target="_blank" rel="noopener">${link ? `Listen to Peter Levine's recording for this phase: Healing Trauma ${i + 1} (Sounds True) ↗` : `Healing Trauma ${i + 1} ↗`}</a></div>`;
+/* Introduction track list: a link to each phase's recording. */
+function audioHTML(i) {
+  return `<div class="audio"><a class="src-link" href="${trackURL(i)}" target="_blank" rel="noopener">Healing Trauma ${i + 1} ↗</a></div>`;
 }
+
+/* ---------- guided-audio player ----------
+   Plays audio/phase-NN.mp3 when it has been added, otherwise streams the phase's Sounds True recording (the browser tries the
+   sources in order). Where you stopped in each track is remembered on this device (not synced: it changes every few seconds). */
+const AUDIO_POS = "groundwork-audio";
+const audioPos = () => { try { return JSON.parse(localStorage.getItem(AUDIO_POS)) || {} } catch { return {} } };
+const ICON = {
+  play: `<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5.5v13a1 1 0 0 0 1.5.86l10.5-6.5a1 1 0 0 0 0-1.72L9.5 4.64A1 1 0 0 0 8 5.5Z"/></svg>`,
+  pause: `<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="6" y="5" width="4.5" height="14" rx="1"/><rect x="13.5" y="5" width="4.5" height="14" rx="1"/></svg>`,
+};
+const mmss = t => !isFinite(t) ? "--:--" : `${Math.floor(t / 60)}:${String(Math.floor(t % 60)).padStart(2, "0")}`;
+function playerHTML(i) {
+  return `<div class="player" id="player" data-phase="${i}">
+    <audio id="pAudio" preload="metadata"><source src="${audioSrc(i)}" type="audio/mpeg"><source src="${trackURL(i)}" type="audio/mpeg"></audio>
+    <div class="player-top">
+      <button type="button" class="pbtn play" id="pPlay" aria-label="Play">${ICON.play}</button>
+      <div class="meta"><b>Healing Trauma ${i + 1}</b><span>Guided audio for this phase · Peter A. Levine (Sounds True)</span></div>
+    </div>
+    <div class="seek"><span id="pCur">0:00</span><input type="range" id="pSeek" min="0" max="0" step="1" value="0" aria-label="Position in recording"><span id="pDur">--:--</span></div>
+    <div class="player-ctrls">
+      <button type="button" class="pbtn" id="pBack" aria-label="Back 15 seconds">−15</button>
+      <button type="button" class="pbtn" id="pFwd" aria-label="Forward 15 seconds">+15</button>
+      <button type="button" class="btn" id="pRestart" style="padding:6px 12px;font-size:13px">Start over</button>
+      <label class="hint" for="pRate" style="margin-left:auto">Speed</label>
+      <select id="pRate" style="margin-left:0"><option value="0.75">0.75×</option><option value="1" selected>1×</option><option value="1.25">1.25×</option><option value="1.5">1.5×</option></select>
+    </div>
+    <p class="player-msg" id="pMsg" role="status"></p>
+    <a class="src-link" href="${trackURL(i)}" target="_blank" rel="noopener">Open the recording on Sounds True ↗</a>
+  </div>`;
+}
+let player = null;
+function stopPlayer() { if (player) { player.pause(); player = null } }
+function initPlayer(i) {
+  const a = $("pAudio"); if (!a) return;
+  player = a;
+  const play = $("pPlay"), seek = $("pSeek"), msg = $("pMsg");
+  let dragging = false, lastSave = 0;
+  const savePos = () => { const p = audioPos(); if (a.currentTime > 5 && !(a.duration && a.duration - a.currentTime < 10)) p[i] = Math.floor(a.currentTime); else delete p[i]; try { localStorage.setItem(AUDIO_POS, JSON.stringify(p)) } catch {} };
+  const setPlaying = on => { play.innerHTML = on ? ICON.pause : ICON.play; play.setAttribute("aria-label", on ? "Pause" : "Play") };
+  try { const r = +localStorage.getItem(AUDIO_POS + "-rate"); if (r) { a.playbackRate = r; $("pRate").value = String(r) } } catch {}
+  a.addEventListener("loadedmetadata", () => {
+    seek.max = Math.floor(a.duration) || 0; $("pDur").textContent = mmss(a.duration);
+    const at = audioPos()[i];
+    if (at && at < a.duration - 10) { a.currentTime = at; msg.textContent = `Picking up where you left off, at ${mmss(at)}.` }
+  });
+  a.addEventListener("timeupdate", () => {
+    if (!dragging) seek.value = Math.floor(a.currentTime);
+    $("pCur").textContent = mmss(a.currentTime);
+    if (Date.now() - lastSave > 5000) { lastSave = Date.now(); savePos() }
+  });
+  a.addEventListener("play", () => { setPlaying(true); msg.textContent = "" });
+  a.addEventListener("pause", () => { setPlaying(false); savePos() });
+  a.addEventListener("waiting", () => { msg.textContent = "Loading…" });
+  a.addEventListener("playing", () => { msg.textContent = "" });
+  a.addEventListener("ended", () => { setPlaying(false); savePos(); msg.textContent = "Finished. Take a moment to notice how your body feels, then rate your activation below." });
+  // The last <source> failing means neither the local file nor the Sounds True stream could be played.
+  a.querySelector("source:last-of-type").addEventListener("error", () => { msg.textContent = "Couldn't load the recording here. Open it on Sounds True instead (link below)."; play.disabled = true });
+  play.onclick = () => { if (a.paused) a.play().catch(() => { msg.textContent = "Couldn't start playback. Try again, or open it on Sounds True." }); else a.pause() };
+  $("pBack").onclick = () => { a.currentTime = Math.max(0, a.currentTime - 15) };
+  $("pFwd").onclick = () => { a.currentTime = Math.min(a.duration || 0, a.currentTime + 15) };
+  $("pRestart").onclick = () => { a.currentTime = 0; msg.textContent = "" };
+  $("pRate").onchange = e => { a.playbackRate = +e.target.value; try { localStorage.setItem(AUDIO_POS + "-rate", e.target.value) } catch {} };
+  seek.addEventListener("input", () => { dragging = true; $("pCur").textContent = mmss(+seek.value) });
+  seek.addEventListener("change", () => { a.currentTime = +seek.value; dragging = false });
+  // Lock-screen and headphone controls.
+  if ("mediaSession" in navigator) {
+    a.addEventListener("play", () => {
+      navigator.mediaSession.metadata = new MediaMetadata({ title: `Healing Trauma ${i + 1}: ${PHASES[i].title}`, artist: "Peter A. Levine", album: "Groundwork", artwork: [{ src: "assets/apple-touch-icon.png", sizes: "180x180", type: "image/png" }] });
+      navigator.mediaSession.setActionHandler("seekbackward", () => $("pBack")?.click());
+      navigator.mediaSession.setActionHandler("seekforward", () => $("pFwd")?.click());
+    });
+  }
+}
+window.addEventListener("pagehide", () => player && player.dispatchEvent(new Event("pause")));
 function renderIntro() {
   $("phase").innerHTML = `
     <div class="phase-head"><span class="eyebrow">Introduction</span><h2>Understanding trauma</h2><p class="skill">What trauma is, where it comes from, how it lives in the body, and how the 12 phases work with it.</p></div>
@@ -552,7 +646,7 @@ function renderIntro() {
     <section class="block"><h3><span class="tag">5</span>The 12-phase program</h3>
       <p>The phases build on each other, so go in order the first time through. Each phase has a lesson, a guided exercise with its own audio track, homework and a place for notes. Spend about a week on each one, or longer if you need it.</p>
       <p class="cite">The guided recordings for this program are Peter Levine's own, from Peter A. Levine, <i>Healing Trauma: A Pioneering Program for Restoring the Wisdom of Your Body</i> (Boulder, CO: Sounds True, 2008). They're published by Sounds True: <a href="${SOURCE_URL}" target="_blank" rel="noopener">soundstrue.com/pages/healingtrauma</a>.</p>
-      ${GROUPS.map((g, gi) => `<div class="intro-group"><h4>${esc(g.name)}</h4><p class="hint">${esc(g.sub)}</p><ol class="tracks">${PHASES.map((p, i) => p.group !== gi ? "" : `<li value="${i + 1}"><button type="button" class="linkbtn" data-go="${i}">${esc(p.title)}</button><span class="hint"> · ${esc(p.skill)}</span>${audioHTML(i, false)}</li>`).join("")}</ol></div>`).join("")}
+      ${GROUPS.map((g, gi) => `<div class="intro-group"><h4>${esc(g.name)}</h4><p class="hint">${esc(g.sub)}</p><ol class="tracks">${PHASES.map((p, i) => p.group !== gi ? "" : `<li value="${i + 1}"><button type="button" class="linkbtn" data-go="${i}">${esc(p.title)}</button><span class="hint"> · ${esc(p.skill)}</span>${audioHTML(i)}</li>`).join("")}</ol></div>`).join("")}
       <p class="hint">Go slowly and stop whenever you want. If anything feels like too much, tap <b>Sploot now</b>, and do deeper work with a trained practitioner.</p></section>
     <div class="pager"><button type="button" class="btn primary" data-go="0" style="margin-left:auto">Start: ${esc(PHASES[0].title)} →</button></div>`;
 }
@@ -582,7 +676,6 @@ function logCheckin(i) {
 function go(i) { if (i < -1 || i > 11) return; S.current = i; saveLocal(S); renderTrail(); renderPhase(); window.scrollTo({ top: 0, behavior: "smooth" }) }
 
 /* ---------- events ---------- */
-document.addEventListener("error", e => { if (e.target.tagName === "AUDIO") { e.target.hidden = true; e.target.previousElementSibling.textContent += " · on Sounds True" } }, true);
 $("trail").addEventListener("click", e => { const b = e.target.closest("[data-i]"); if (b) go(+b.dataset.i) });
 $("phase").addEventListener("click", e => {
   const i = S.current, t = e.target.closest("button"); if (!t) return;
