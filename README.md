@@ -7,7 +7,7 @@ Self-guided tools for a steadier body and mind. The start page (`index.html`) of
 1. **Somatic Experiencing Method** (`somatic.html`): a 12-phase somatic self-regulation program, following the twelve-phase healing trauma program in Peter Levine's work. Described in detail below.
 2. **Thought Records & Cognitive Distortions** (`thoughts.html`): how thoughts shape feelings, the seven-column thought record, 12 common thinking traps with examples and questions to ask, and a thought-record form with saved records.
 3. **DBT Skills** (`dbt.html`): the four DBT modules (mindfulness, distress tolerance, emotion regulation, interpersonal effectiveness) in plain language, a "What do I need right now?" skill finder, and a daily diary card.
-4. **Integrative Eating** (`eating.html`): calm, mindful meals and gut health: pre-meal breathing (with a guided 1-minute 4-7-8 breath), a tour of digestion, building fiber slowly, weekly homework, an optional baking-soda-test log (several mornings at once; a result from the list, including "No baking soda", and/or the minutes it took), a fiber estimator and a daily food, fiber and symptom log.
+4. **Integrative Eating** (`eating.html`): calm, mindful meals and gut health: pre-meal breathing (with a guided 1-minute 4-7-8 breath), a tour of digestion, building fiber slowly, weekly homework, an optional baking-soda-test log (one morning at a time: a result from the list, including "No baking soda", and/or the minutes it took), a fiber estimator and a daily food, fiber and symptom log.
 
 Everything saves in the browser first. **Sync to Google Sheets** (on every page) keeps all four sections in one spreadsheet (see below). Saved entries can also be copied as Markdown or saved as a printable HTML file.
 
