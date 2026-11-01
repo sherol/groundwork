@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>DBT Skills · Groundwork</title>
+<meta name="description" content="Dialectical Behavior Therapy skills in plain language: mindfulness, distress tolerance, emotion regulation and interpersonal effectiveness, with a skill finder and daily diary card.">
+<link rel="icon" type="image/png" href="assets/favicon.png">
+<link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;700;800&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&display=swap">
+<link rel="stylesheet" href="assets/tools.css?v=1">
+<style>
+.finder { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px }
+.finder button { text-align: left; border: 1px solid var(--line); background: var(--bg); color: var(--ink); border-radius: 12px; padding: 12px 14px; font-weight: 700 }
+.finder button[aria-pressed="true"] { background: var(--c-soft); border-color: var(--c) }
+.module-nav { display: flex; gap: 8px; flex-wrap: wrap }
+</style>
+</head>
+<body class="t3">
+<div class="wrap">
+  <nav class="top" aria-label="Site">
+    <a class="home" href="./"><img src="assets/emblem.png" alt="">Groundwork</a>
+    <div class="links"><a class="btn" href="./">All tools</a></div>
+  </nav>
+
+  <header class="page-head">
+    <span class="eyebrow">Tool 3 · Emotions</span>
+    <h1>DBT Skills</h1>
+    <p class="lede">Dialectical Behavior Therapy (DBT) teaches practical skills for staying present, getting through a crisis without making it worse, steadying strong emotions, and asking for what you need.</p>
+    <p>"Dialectical" means holding two things at once: <b>I accept myself as I am, and I'm working to change.</b> Both are true.</p>
+  </header>
+
+  <div class="tabs" role="tablist" aria-label="Sections">
+    <button type="button" role="tab" aria-controls="finder" id="tab-finder">What do I need?</button>
+    <button type="button" role="tab" aria-controls="skills" id="tab-skills">The four modules</button>
+    <button type="button" role="tab" aria-controls="card" id="tab-card">Diary card</button>
+    <button type="button" role="tab" aria-controls="saved" id="tab-saved">Saved (<span id="count">0</span>)</button>
+  </div>
+
+  <div id="finder" role="tabpanel" aria-labelledby="tab-finder" class="stack">
+    <section class="block">
+      <h2>What's happening right now?</h2>
+      <p>Choose the one that fits best, and you'll get the skills to try first.</p>
+      <div class="finder" id="finderBtns"></div>
+      <div id="finderOut" class="stack"></div>
+    </section>
+    <figure class="callout" style="margin:0;border-left:4px solid var(--grass);background:var(--grass-soft);border-radius:0 var(--r) var(--r) 0;padding:18px 22px">
+      <blockquote style="margin:0;font:500 18px/1.5 var(--display);font-style:italic;max-width:60ch">My dear brothers and sisters, take note of this: Everyone should be quick to listen, slow to speak and slow to become angry.</blockquote>
+      <figcaption style="font-weight:700;font-size:14px;color:var(--muted);margin-top:6px">James 1:19 <span style="font-weight:400">NIV</span></figcaption>
+    </figure>
+  </div>
+
+  <div id="skills" role="tabpanel" aria-labelledby="tab-skills" class="stack" hidden>
+    <div class="module-nav" id="moduleNav"></div>
+    <div id="modules" class="stack"></div>
+  </div>
+
+  <div id="card" role="tabpanel" aria-labelledby="tab-card" class="stack" hidden>
+    <form id="form" class="stack">
+      <section class="block">
+        <h2><span class="tag">Today</span>Diary card</h2>
+        <p class="hint">A quick end-of-day check-in. Rate each emotion at its strongest today, 0 (none) to 5 (extreme). The urge and effectiveness sliders are recorded only if you move them.</p>
+        <label class="field"><span>Date</span><input type="date" name="date"></label>
+        <div class="grid2">
+          <label class="field"><span>Sadness</span><div class="range"><input type="range" data-keep name="sad" min="0" max="5" value="0"><output></output></div></label>
+          <label class="field"><span>Anxiety or fear</span><div class="range"><input type="range" data-keep name="fear" min="0" max="5" value="0"><output></output></div></label>
+          <label class="field"><span>Anger</span><div class="range"><input type="range" data-keep name="anger" min="0" max="5" value="0"><output></output></div></label>
+          <label class="field"><span>Shame or guilt</span><div class="range"><input type="range" data-keep name="shame" min="0" max="5" value="0"><output></output></div></label>
+          <label class="field"><span>Joy</span><div class="range"><input type="range" data-keep name="joy" min="0" max="5" value="0"><output></output></div></label>
+          <label class="field"><span>Overall distress</span><div class="range"><input type="range" data-keep name="distress" min="0" max="5" value="0"><output></output></div></label>
+        </div>
+      </section>
+      <section class="block">
+        <h2><span class="tag">Urges</span>Urges and actions</h2>
+        <label class="field"><span>Urges I noticed</span><small>For example: to avoid, isolate, snap at someone, overeat, use a substance, hurt myself.</small><input type="text" name="urges"></label>
+        <label class="field"><span>Strongest urge</span><div class="range"><input type="range" name="urgeLevel" min="0" max="5" value="0"><output></output></div></label>
+        <label class="field"><span>Did I act on it?</span><select name="acted"><option value="">—</option><option>No, I used skills instead</option><option>Partly</option><option>Yes</option></select></label>
+      </section>
+      <section class="block">
+        <h2><span class="tag">Skills</span>Skills I used</h2>
+        <div class="field"><span>Skills used</span><div class="checks" id="skillChecks"></div></div>
+        <div class="field"><span>PLEASE: caring for my body</span><div class="checks">
+          <label class="chip"><input type="checkbox" name="please" value="Treated illness / took meds as prescribed">Treated illness / meds</label>
+          <label class="chip"><input type="checkbox" name="please" value="Balanced eating">Balanced eating</label>
+          <label class="chip"><input type="checkbox" name="please" value="Avoided mood-altering substances">Avoided mood-altering substances</label>
+          <label class="chip"><input type="checkbox" name="please" value="Balanced sleep">Balanced sleep</label>
+          <label class="chip"><input type="checkbox" name="please" value="Exercise / movement">Exercise / movement</label>
+        </div></div>
+        <label class="field"><span>Skill effectiveness</span><small>How much did the skills help? 0 = not at all, 5 = a lot.</small><div class="range"><input type="range" name="helped" min="0" max="5" value="0"><output></output></div></label>
+        <label class="field"><span>What happened, and what helped</span><textarea name="notes"></textarea></label>
+      </section>
+      <div class="row"><button type="submit" class="btn primary">Save diary card</button><span class="hint">Saved in this browser only.</span></div>
+    </form>
+  </div>
+
+  <div id="saved" role="tabpanel" aria-labelledby="tab-saved" class="stack" hidden>
+    <div class="row"><button type="button" class="btn" id="copyMd">Copy all as Markdown</button><button type="button" class="btn" id="saveFile">Save as file (to print or share)</button></div>
+    <div class="entries" id="list"></div>
+  </div>
+
+  <footer class="safety">
+    <p><b>Groundwork is a self-help and learning tool, not therapy.</b> DBT was developed by Marsha M. Linehan; see her <i>DBT Skills Training Manual</i> (2nd ed., Guilford Press, 2015). The skills here are summarized in our own words. Groundwork isn't affiliated with or endorsed by Dr. Linehan or Behavioral Tech. DBT works best in a program with a trained therapist.</p>
+    <p>Your diary cards stay in this browser on this device. They aren't synced to Google Sheets.</p>
+    <p>Scripture quotations taken from The Holy Bible, New International Version® NIV®. Copyright © 1973, 1978, 1984, 2011 by Biblica, Inc.™ Used by permission. All rights reserved worldwide.</p>
+    <p>If you're having urges to hurt yourself or you're in crisis: in the US, call or text <b>988</b>. UK &amp; Ireland: Samaritans <b>116 123</b>. Emergency: <b>911</b> / <b>999</b> / <b>112</b>. Elsewhere: findahelpline.com.</p>
+  </footer>
+</div>
+
+<a class="sploot-fab" href="somatic.html?sploot"><img src="assets/emblem.png" alt="">Sploot now</a>
+
+<script src="assets/tools.js?v=1"></script>
+<script>
+/* Each skill: id, name, short "what", and steps as [letter or label, text] pairs. */
+const MODULES = [
+  { id: "mindfulness", name: "Mindfulness", sub: "The core of every other skill: being here, now, on purpose, without judging.", skills: [
+    { id: "wise", name: "Wise mind", what: "The place where your reasonable mind (facts, logic) and your emotion mind (feelings, urges) overlap. Wise mind knows what's true and what matters.",
+      steps: [["Notice", "Ask: am I in emotion mind, reasonable mind, or both?"], ["Drop in", "Breathe in and silently say \"wise\", breathe out and say \"mind\". Let your attention settle low in your body."], ["Ask", "\"What does wise mind say?\" Wait for an answer rather than forcing one."]] },
+    { id: "what", name: "\"What\" skills: Observe, Describe, Participate", what: "What you do to be mindful.",
+      steps: [["Observe", "Notice sensations, thoughts and feelings without pushing them away or holding on. Like watching clouds pass."], ["Describe", "Put words to what you notice: \"a thought that I'll fail\", \"tightness in my throat\". Facts, not opinions."], ["Participate", "Throw yourself fully into what you're doing, without self-consciousness."]] },
+    { id: "how", name: "\"How\" skills: Non-judgmentally, One-mindfully, Effectively", what: "How you do it.",
+      steps: [["Non-judgmentally", "Describe the facts and let go of good/bad and should/shouldn't."], ["One-mindfully", "Do one thing at a time. When your mind wanders, gently bring it back."], ["Effectively", "Do what works in this situation, rather than what's \"fair\" or \"right\"."]] },
+  ]},
+  { id: "distress", name: "Distress tolerance", sub: "Getting through a crisis without making it worse, and accepting what you can't change.", skills: [
+    { id: "stop", name: "STOP", what: "For the moment an urge hits, before you act on it.",
+      steps: [["S", "Stop. Freeze. Don't react yet."], ["T", "Take a step back. Breathe. Give yourself a moment."], ["O", "Observe what's happening inside you and around you."], ["P", "Proceed mindfully. Ask wise mind what will make things better, not worse."]] },
+    { id: "tipp", name: "TIPP", what: "Changes your body chemistry fast, when emotion is so high you can't think. (Check with your doctor first if you have a heart condition or eating disorder.)",
+      steps: [["T", "Temperature: cool your face with cold water or an ice pack for 30 seconds while holding your breath. This triggers the dive reflex and slows your heart."], ["I", "Intense exercise: 10–20 minutes of anything that gets your heart up, like running, fast stairs or jumping jacks."], ["P", "Paced breathing: breathe out longer than you breathe in, around 5–6 breaths a minute (try in for 4, out for 6)."], ["P", "Paired muscle relaxation: tense a muscle group as you breathe in, then let it go as you breathe out, noticing the difference."]] },
+    { id: "accepts", name: "Distract with ACCEPTS", what: "Takes your mind off the pain until the wave passes.",
+      steps: [["A", "Activities: do something absorbing."], ["C", "Contributing: help someone else."], ["C", "Comparisons: remember coping through something hard before."], ["E", "Emotions: create a different feeling (a funny video, uplifting music)."], ["P", "Pushing away: put the problem on a shelf for now."], ["T", "Thoughts: fill your mind with something else (count, puzzle, read)."], ["S", "Sensations: a strong safe sensation, like holding ice or a hot shower."]] },
+    { id: "improve", name: "IMPROVE the moment", what: "Makes a painful moment more bearable.",
+      steps: [["I", "Imagery: picture a safe, calm place."], ["M", "Meaning: find some purpose or value in the pain."], ["P", "Prayer: open yourself to God or something greater, or ask for strength to bear it."], ["R", "Relaxation: relax your muscles, breathe deeply."], ["O", "One thing in the moment: put all your attention on what you're doing right now."], ["V", "Vacation: take a brief break, even five minutes."], ["E", "Encouragement: talk to yourself as a coach would: \"I can do this. This won't last forever.\""]] },
+    { id: "soothe", name: "Self-soothe with the five senses", what: "Comfort yourself kindly through each sense.",
+      steps: [["Sight", "Look at something beautiful: nature, a photo, candlelight."], ["Sound", "Calming music, birdsong, a familiar voice."], ["Smell", "A favorite scent, coffee, fresh air."], ["Taste", "Slowly savor something you enjoy, like tea."], ["Touch", "A soft blanket, a warm bath, petting an animal."]] },
+    { id: "proscons", name: "Pros and cons", what: "For when you're tempted to act on an urge.",
+      steps: [["1", "List the pros and cons of acting on the urge."], ["2", "List the pros and cons of resisting it."], ["3", "Think about the short term and the long term. Which choice does wise mind pick?"]] },
+    { id: "accept", name: "Radical acceptance", what: "Accepting reality as it is, completely, with mind, body and spirit, when you can't change it. Acceptance isn't approval. It's stopping the fight with what already is, so the pain doesn't turn into suffering.",
+      steps: [["Notice", "Notice you're fighting reality (\"this shouldn't be happening\")."], ["Remind", "Remind yourself this is what is, and it has causes."], ["Body", "Practice with your body: relax your face into a half-smile, open your hands palms up."], ["Turn", "Turn the mind: when you find yourself rejecting reality again, turn back toward acceptance. You may need to do it many times."], ["Willingness", "Choose willingness (doing what's needed) over willfulness (refusing, giving up, or insisting)."]] },
+  ]},
+  { id: "emotion", name: "Emotion regulation", sub: "Understanding emotions, changing the ones you want to change, and becoming less vulnerable to them.", skills: [
+    { id: "name", name: "Name the emotion", what: "Emotions are easier to manage once you know which one you're feeling.",
+      steps: [["Event", "What prompted it?"], ["Interpretation", "What did I tell myself about it?"], ["Body", "What did I feel in my body? (heat, tightness, heaviness)"], ["Urge", "What did I want to do?"], ["Name", "Name it: sad, afraid, angry, ashamed, jealous, guilty, happy, loving…"]] },
+    { id: "facts", name: "Check the facts", what: "Asks whether your emotion, and how strong it is, fit the actual facts.",
+      steps: [["1", "What's the event? Describe only what you could see and hear."], ["2", "What am I assuming? Are there other explanations?"], ["3", "Am I expecting a threat? How likely is it really?"], ["4", "What's the catastrophe, and could I cope with it?"], ["5", "Does my emotion, and its intensity, fit the facts?"]] },
+    { id: "opposite", name: "Opposite action", what: "When an emotion doesn't fit the facts (or acting on it won't help), act opposite to its urge, all the way, until the emotion changes.",
+      steps: [["Fear", "Approach what you're afraid of, gradually, instead of avoiding it."], ["Sadness", "Get active and connect, instead of withdrawing."], ["Anger", "Gently step away and be kind, instead of attacking."], ["Shame", "Share it with someone safe, instead of hiding."], ["All the way", "Change your posture, voice and face along with the action."]] },
+    { id: "problem", name: "Problem solving", what: "When the emotion does fit the facts, change the situation.",
+      steps: [["1", "Describe the problem."], ["2", "Brainstorm many solutions."], ["3", "Pick one likely to work, and try it."], ["4", "Check how it went, and adjust."]] },
+    { id: "abc", name: "ABC", what: "Builds a life with less vulnerability to painful emotions.",
+      steps: [["A", "Accumulate positives: do one pleasant thing every day, and build toward a life that fits your values."], ["B", "Build mastery: do one thing a day that makes you feel capable."], ["C", "Cope ahead: rehearse in your mind how you'll handle a hard situation coming up."]] },
+    { id: "please", name: "PLEASE", what: "Takes care of the body, so the mind is steadier.",
+      steps: [["PL", "Treat physical illness: see a doctor, take medicines as prescribed."], ["E", "Balanced eating: not too much or too little, regular meals."], ["A", "Avoid mood-altering substances."], ["S", "Balanced sleep: enough, and on a regular schedule."], ["E", "Exercise: some movement every day."]] },
+  ]},
+  { id: "interpersonal", name: "Interpersonal effectiveness", sub: "Asking for what you need, saying no, keeping relationships, and keeping your self-respect.", skills: [
+    { id: "dearman", name: "DEAR MAN", what: "For getting what you want or need: asking, or saying no.",
+      steps: [["D", "Describe the situation, just the facts."], ["E", "Express your feelings and opinions with \"I\" statements."], ["A", "Assert: ask clearly for what you want, or say no clearly."], ["R", "Reinforce: explain how it helps them too, or thank them afterward."], ["M", "stay Mindful: keep to your point, like a broken record if needed."], ["A", "Appear confident: steady voice, eye contact, upright posture."], ["N", "Negotiate: be willing to give to get. \"What would work for you?\""]] },
+    { id: "give", name: "GIVE", what: "For keeping the relationship strong while you ask.",
+      steps: [["G", "be Gentle: no attacks, threats or judging."], ["I", "act Interested: listen, don't interrupt."], ["V", "Validate: show you understand their side (\"I can see this is a busy week for you\")."], ["E", "use an Easy manner: a little warmth or humor, a light touch."]] },
+    { id: "fast", name: "FAST", what: "For keeping your self-respect.",
+      steps: [["F", "be Fair, to yourself and to the other person."], ["A", "no Apologies for having a need, an opinion or for saying no (only when you've actually done wrong)."], ["S", "Stick to your values."], ["T", "be Truthful: no lying, exaggerating or acting helpless."]] },
+  ]},
+];
+const ALL = MODULES.flatMap(m => m.skills.map(s => ({ ...s, module: m.name })));
+const byId = id => ALL.find(s => s.id === id);
+const skillHTML = s => `<div class="skill" id="skill-${s.id}"><h3>${GW.esc(s.name)}</h3><p>${GW.esc(s.what)}</p><dl>${s.steps.map(([k, v]) => `<dt>${GW.esc(k)}</dt><dd>${GW.esc(v)}</dd>`).join("")}</dl></div>`;
+
+GW.$("moduleNav").innerHTML = MODULES.map((m, i) => `<a class="btn small" href="#mod-${m.id}" data-mod="${m.id}">${i + 1}. ${GW.esc(m.name)}</a>`).join("");
+GW.$("modules").innerHTML = MODULES.map((m, i) => `<section class="block" id="mod-${m.id}"><h2><span class="tag">Module ${i + 1}</span>${GW.esc(m.name)}</h2><p class="hint">${GW.esc(m.sub)}</p>${m.skills.map(skillHTML).join("")}</section>`).join("");
+GW.$("moduleNav").addEventListener("click", e => { const a = e.target.closest("[data-mod]"); if (!a) return; e.preventDefault(); GW.$("mod-" + a.dataset.mod).scrollIntoView({ behavior: "smooth" }) });
+
+const NEEDS = [
+  { q: "I'm overwhelmed. Emotion is through the roof.", ids: ["stop", "tipp"], note: "Bring your body down first. You can think it through once you're below about 7 out of 10.", sploot: true },
+  { q: "I have an urge to do something I'll regret.", ids: ["stop", "proscons", "accepts"] },
+  { q: "I need to get through the next few hours.", ids: ["accepts", "improve", "soothe"] },
+  { q: "Something painful happened that I can't change.", ids: ["accept", "improve"] },
+  { q: "I'm stuck in a feeling and not sure it fits.", ids: ["name", "facts", "opposite"] },
+  { q: "The feeling fits, and something needs to change.", ids: ["facts", "problem", "dearman"] },
+  { q: "I need to ask for something, or say no.", ids: ["dearman", "fast"] },
+  { q: "I want to protect a relationship in a hard conversation.", ids: ["give", "dearman"] },
+  { q: "I keep feeling fragile and easily set off.", ids: ["please", "abc"] },
+  { q: "My mind is scattered, or I'm on autopilot.", ids: ["wise", "what", "how"] },
+];
+GW.$("finderBtns").innerHTML = NEEDS.map((n, i) => `<button type="button" data-need="${i}" aria-pressed="false">${GW.esc(n.q)}</button>`).join("");
+GW.$("finderBtns").addEventListener("click", e => {
+  const b = e.target.closest("[data-need]"); if (!b) return;
+  GW.$("finderBtns").querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", x === b));
+  const n = NEEDS[+b.dataset.need];
+  GW.$("finderOut").innerHTML = (n.note ? `<div class="callout">${GW.esc(n.note)}${n.sploot ? ` <a href="somatic.html?sploot">Open Sploot now</a> for paced breathing.` : ""}</div>` : "")
+    + n.ids.map(id => { const s = byId(id); return `<div class="tile" style="background:var(--surface);border:1px solid var(--line)"><span class="eyebrow">${GW.esc(s.module)}</span>${skillHTML(s)}</div>` }).join("");
+  GW.$("finderOut").scrollIntoView({ behavior: "smooth", block: "nearest" });
+});
+
+GW.$("skillChecks").innerHTML = ALL.filter(s => s.id !== "please").map(s => `<label class="chip"><input type="checkbox" name="skills" value="${GW.esc(s.name)}">${GW.esc(s.name.replace(/ \(.*\)$/, "").replace(/^"(\w+)" skills:.*/, "$1 skills"))}</label>`).join("");
+
+GW.tabs(document.querySelector(".tabs"), "groundwork-dbt-tab");
+const J = GW.journal({
+  key: "groundwork-dbt", name: "Groundwork DBT diary cards",
+  form: GW.$("form"), list: GW.$("list"), count: GW.$("count"),
+  title: e => `${GW.fmtDate(e.date || e.t)}${e.distress !== "" && e.distress != null ? " · distress " + e.distress + "/5" : ""}${e.skills?.length ? " · " + e.skills.length + " skill" + (e.skills.length > 1 ? "s" : "") + " used" : ""}`,
+});
+GW.$("copyMd").onclick = J.copyMarkdown;
+GW.$("saveFile").onclick = J.saveFile;
+GW.$("form").addEventListener("submit", () => document.querySelector('[aria-controls="saved"]').click());
+</script>
+</body>
+</html>

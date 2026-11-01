@@ -2,7 +2,18 @@
 
 # Groundwork
 
-A 12-phase somatic self-regulation program, following the twelve-phase healing trauma program in Peter Levine's work.
+Self-guided tools for a steadier body and mind. The start page (`index.html`) offers four:
+
+1. **Somatic Experiencing Method** (`somatic.html`): a 12-phase somatic self-regulation program, following the twelve-phase healing trauma program in Peter Levine's work. Described in detail below.
+2. **Thought Records & Cognitive Distortions** (`thoughts.html`): how thoughts shape feelings, the seven-column thought record, 12 common thinking traps with examples and questions to ask, and a thought-record form with saved records.
+3. **DBT Skills** (`dbt.html`): the four DBT modules (mindfulness, distress tolerance, emotion regulation, interpersonal effectiveness) in plain language, a "What do I need right now?" skill finder, and a daily diary card.
+4. **Integrative Eating** (`eating.html`): calm, mindful meals and gut health: pre-meal breathing (with a guided 1-minute 4-7-8 breath), a tour of digestion, building fiber slowly, weekly homework, an optional baking-soda-test log, a fiber estimator and a daily food, fiber and symptom log.
+
+The three new tools save to this browser only (`localStorage` keys `groundwork-thoughts`, `groundwork-dbt`, `groundwork-eating`, `groundwork-eating-bst`, `groundwork-eating-week`). Saved entries can be copied as Markdown or saved as a printable HTML file. They aren't synced to Google Sheets. Every page has a **Sploot now** button that opens the grounding sequence (`somatic.html?sploot`).
+
+Old links such as `index.html#intro` and `index.html#phase-3` redirect to the same place in `somatic.html`.
+
+## Somatic Experiencing Method
 
 Live: https://sherol.github.io/groundwork
 
@@ -28,7 +39,7 @@ The program follows Peter A. Levine, *Healing Trauma: A Pioneering Program for R
 - **A Bible verse (NIV)** for each phase.
 - **Google Sheets sync** (optional).
 - **About page** (`about.html`): the 12 phases at a glance, each linking straight into the program.
-- **Links:** `index.html#intro` opens the introduction and `index.html#phase-1` … `#phase-12` open a phase. The address follows you as you move between phases, so reloading stays where you are.
+- **Links:** `somatic.html#intro` opens the introduction and `somatic.html#phase-1` … `#phase-12` open a phase. The address follows you as you move between phases, so reloading stays where you are.
 
 ## Where your data is stored
 
@@ -73,7 +84,12 @@ There is no build step. Sign-in only works on an authorized domain, so add `loca
 
 | Path | What it is |
 | --- | --- |
-| `index.html` | The app: content for the introduction and 12 phases, rendering, state, Sploot now and the therapist report, all inline |
+| `index.html` | Start page: the four tools |
+| `somatic.html` | The 12-phase program: content for the introduction and 12 phases, rendering, state, Sploot now and the therapist report, all inline |
+| `thoughts.html` | Thought records and cognitive distortions |
+| `dbt.html` | DBT skills, skill finder and diary card |
+| `eating.html` | Integrative eating and gut health |
+| `assets/tools.css`, `assets/tools.js` | Shared styles and helpers (tabs, saved entries, export) for the start page and the three new tools |
 | `about.html` | The 12 phases at a glance |
 | `config.js` | Firebase settings for Google sign-in |
 | `sync.js` | Google Sheets sync |

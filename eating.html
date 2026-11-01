@@ -1,0 +1,297 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Integrative Eating · Groundwork</title>
+<meta name="description" content="Integrative eating and gut health: calm, mindful meals, how digestion works, building fiber slowly, and a daily food, fiber and symptom log.">
+<link rel="icon" type="image/png" href="assets/favicon.png">
+<link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;700;800&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&display=swap">
+<link rel="stylesheet" href="assets/tools.css?v=1">
+<style>
+.affirm { text-align: center; font: 800 clamp(20px, 3vw, 26px)/1.3 var(--display); color: var(--c); padding: 18px; background: var(--c-soft); border-radius: var(--r); margin: 0 }
+.breath { display: grid; justify-items: center; gap: 8px; text-align: center; padding: 8px 0 }
+.breath .count { font: 800 56px/1 var(--display); font-variant-numeric: tabular-nums; color: var(--c) }
+.breath .label { font: 700 15px/1 var(--body); letter-spacing: .14em; text-transform: uppercase; color: var(--muted) }
+.foods { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 8px }
+.food { display: grid; grid-template-columns: minmax(0, 1fr) auto auto auto; gap: 6px; align-items: center; background: var(--sunk); border-radius: 10px; padding: 6px 8px 6px 12px; font-size: 14px }
+.food small { color: var(--muted) }
+.food button { width: 30px; height: 30px; border-radius: 50%; border: 1px solid var(--line); background: var(--surface); color: var(--ink); font-weight: 700; padding: 0 }
+.food output { min-width: 1.4em; text-align: center; font-weight: 700; font-variant-numeric: tabular-nums }
+.total { font: 800 22px var(--display); color: var(--c) }
+table.ramp { border-collapse: collapse; font-size: 15px; max-width: 520px }
+table.ramp td, table.ramp th { text-align: left; padding: 4px 10px 4px 0; border-bottom: 1px solid var(--line) }
+</style>
+</head>
+<body class="t4">
+<div class="wrap">
+  <nav class="top" aria-label="Site">
+    <a class="home" href="./"><img src="assets/emblem.png" alt="">Groundwork</a>
+    <div class="links"><a class="btn" href="./">All tools</a></div>
+  </nav>
+
+  <header class="page-head">
+    <span class="eyebrow">Tool 4 · Gut</span>
+    <h1>Integrative Eating</h1>
+    <p class="lede">Your gut is complex and amazing, and when it's out of balance the answer is usually more than a single pill. Calm meals, slow chewing, steady fiber and careful noticing all add up.</p>
+    <p>Be the private investigator: observe yourself and keep a log. What makes you feel 10% better, or 10% worse? Progress over perfection.</p>
+  </header>
+
+  <div class="tabs" role="tablist" aria-label="Sections">
+    <button type="button" role="tab" aria-controls="learn" id="tab-learn">Learn</button>
+    <button type="button" role="tab" aria-controls="week" id="tab-week">This week</button>
+    <button type="button" role="tab" aria-controls="log" id="tab-log">Daily log</button>
+    <button type="button" role="tab" aria-controls="saved" id="tab-saved">Saved (<span id="count">0</span>)</button>
+  </div>
+
+  <!-- ============ LEARN ============ -->
+  <div id="learn" role="tabpanel" aria-labelledby="tab-learn" class="stack">
+    <p class="affirm">My body wants to heal. My body is on my side. My body is amazing!</p>
+
+    <section class="block">
+      <h2><span class="tag">1</span>Key ideas</h2>
+      <ul>
+        <li><b>Investigate.</b> The gut is complex, and each person's is different. Notice what makes a 10% better day.</li>
+        <li><b>Self-compassion.</b> Your digestive system is doing the best it can with what it's been given.</li>
+        <li><b>It's connected.</b> Gut flares can come with whole-body symptoms: anxiety, joint pain, muscle aches, fatigue, migraines.</li>
+        <li><b>Acceptance.</b> Meeting the present moment as it is, without resistance, opens a path to healing.</li>
+      </ul>
+    </section>
+
+    <section class="block">
+      <h2><span class="tag">2</span>A calm conductor at every meal</h2>
+      <p>There are more nerves in your gut than in your entire spinal cord. Digestion runs best in "rest and digest" mode, so your nervous system (the software) needs to be online for your gut (the hardware) to do its job. The symphony plays far better with a calm conductor.</p>
+      <ul>
+        <li><b>Breathe first:</b> take 2–4 slow belly breaths before every meal and snack. The 4-7-8 breath is great for digestion too.</li>
+        <li><b>Sit down, fork down, phone down.</b> How relaxed can you get in one minute?</li>
+        <li><b>Chew fully.</b> Chewing signals the rest of your gut to release its juices, and sets digestion up for success.</li>
+        <li><b>Bonus:</b> try closing your eyes and chewing calmly. What do you notice?</li>
+      </ul>
+      <div class="row"><button type="button" class="btn primary" data-tab="week">Try the 1-minute pre-meal breath</button></div>
+    </section>
+
+    <section class="block">
+      <h2><span class="tag">3</span>A tour of digestion</h2>
+      <p>Watch: <a href="https://youtu.be/Og5xAdC8EUI" target="_blank" rel="noopener">How your digestive system works (TED-Ed) ↗</a>. To go deeper: <a href="https://www.youtube.com/watch?v=X3TAROotFfM" target="_blank" rel="noopener">a more detailed walkthrough ↗</a>.</p>
+      <div class="grid2">
+        <div class="tile"><b>Saliva</b>You make 1–1.5 liters a day, so drink enough water.</div>
+        <div class="tile"><b>Mouth</b>Chewing well signals your stomach, pancreas and gallbladder to get ready.</div>
+        <div class="tile"><b>Esophagus</b>The lower esophageal sphincter keeps stomach acid from coming up. It works best with an active vagus nerve (breathing, relaxing), a strong diaphragm and the right acid levels. Common reflux (GERD) triggers: caffeine, alcohol, high-fat meals, peppermint, chocolate, smoking and nicotine, and stress. With a hiatal hernia, raising the head of the bed can help.</div>
+        <div class="tile"><b>Stomach</b>For some people, too <i>little</i> stomach acid is behind reflux-like symptoms. Aging, stress, trauma and illness can all lower it. Low acid can lead to poor nutrient absorption and problems further down: bloating, recurring SIBO, diarrhea and an unbalanced microbiome.</div>
+      </div>
+    </section>
+
+    <section class="block">
+      <h2><span class="tag">4</span>Fiber: food for your good bacteria</h2>
+      <p>Fiber feeds the "good" bacteria in your gut, and much of health starts there. Large studies link more fiber with:</p>
+      <div class="grid2">
+        <div class="tile"><b>Longer life</b>About 10% lower risk of death from any cause for each extra 10 g a day.</div>
+        <div class="tile"><b>Heart and metabolism</b>Around 30 g a day is linked with about 25% less cardiovascular death, steadier blood sugar after meals, less diabetes and fatty liver, and easier weight management.</div>
+        <div class="tile"><b>Lower cancer risk</b>Up to 40% less colon cancer at 30 g a day, and lower risk of several other cancers.</div>
+        <div class="tile"><b>Immunity</b>Most of the immune system lives in the gut: fewer colds, and less autoimmune and Crohn's disease. Fiber also binds some pesticides from food so they're carried out.</div>
+        <div class="tile"><b>Gut lining</b>Fiber raises short-chain fatty acids such as butyrate, which feed the gut lining. A healthy lining is like cheesecloth: good things through, bad things kept out. Inflammation widens the holes ("leaky gut"), which can show up as food sensitivities, joint pain and brain fog.</div>
+        <div class="tile"><b>Bowel balance</b>Less diverticulitis, and steadier IBS, diarrhea and constipation.</div>
+      </div>
+      <p><b>Goal: 25 g a day.</b> (Our ancestors ate 50–100 g.) Measure it for one week. You need about 7–8 servings of "healthy things" a day. Food is the best source when you can; if high-fiber foods don't agree with you yet, a fiber supplement can "train" your gut.</p>
+      <p class="hint">Tip: tell an AI chatbot everything you ate today, and ask how much fiber that was. Or use the fiber estimator on the Daily log tab.</p>
+      <h3>Start very, very slowly</h3>
+      <p>A sensitive gut needs time to get used to fiber. If you get bloated, cut back or split the dose, but don't stop completely.</p>
+      <table class="ramp"><thead><tr><th>Week</th><th>Supplement amount (in 12 oz water)</th></tr></thead><tbody>
+        <tr><td>1</td><td>⅛ teaspoon a day</td></tr><tr><td>2</td><td>¼ teaspoon</td></tr><tr><td>3</td><td>⅜ teaspoon</td></tr><tr><td>Each week after</td><td>add ⅛ teaspoon, as tolerated, up to 1–2 tablespoons a day</td></tr></tbody></table>
+      <div class="grid3">
+        <div class="tile"><b>Acacia fiber</b>Gentle and low-FODMAP. A good first choice for sensitive, IBS-prone guts.</div>
+        <div class="tile"><b>Partially hydrolyzed guar gum (PHGG)</b>Also low-FODMAP and good for IBS.</div>
+        <div class="tile"><b>Psyllium husk</b>Great for constipation if you tolerate it, but more likely to cause gas and bloating.</div>
+      </div>
+      <p class="hint">For diarrhea, use a little less water; for constipation, a little more (about 12 oz per tablespoon). Talk with your doctor before starting any supplement, especially if you have kidney or liver disease or take blood thinners.</p>
+    </section>
+
+    <section class="block">
+      <h2><span class="tag">5</span>Group wisdom: what helps</h2>
+      <p>Ideas shared by people in the class. Try one at a time and notice what changes.</p>
+      <ul id="wisdom"></ul>
+    </section>
+
+    <section class="block">
+      <h2><span class="tag">6</span>Coming up</h2>
+      <p>The integrative gut-health series continues with these topics. They'll be added here as they're covered.</p>
+      <ol start="2">
+        <li><b>Acid, enzymes and bloating:</b> SIBO, food eliminations, and the brain–gut connection.</li>
+        <li><b>Powders and pills</b> in gut care, and vagus nerve exercises.</li>
+        <li><b>The microbiome,</b> alternative therapies, and wrap-up.</li>
+      </ol>
+    </section>
+
+    <figure class="callout" style="margin:0;border-left:4px solid var(--grass);background:var(--grass-soft);border-radius:0 var(--r) var(--r) 0;padding:18px 22px">
+      <blockquote style="margin:0;font:500 18px/1.5 var(--display);font-style:italic;max-width:60ch">So whether you eat or drink or whatever you do, do it all for the glory of God.</blockquote>
+      <figcaption style="font-weight:700;font-size:14px;color:var(--muted);margin-top:6px">1 Corinthians 10:31 <span style="font-weight:400">NIV</span></figcaption>
+    </figure>
+  </div>
+
+  <!-- ============ THIS WEEK ============ -->
+  <div id="week" role="tabpanel" aria-labelledby="tab-week" class="stack" hidden>
+    <section class="block">
+      <h2><span class="tag">Practice</span>1-minute pre-meal breath</h2>
+      <p>Before you eat: sit down, put your fork and phone down, and follow along. Three rounds of 4-7-8 breathing take about a minute.</p>
+      <div class="breath" aria-live="polite"><span class="count" id="bCount">·</span><span class="label" id="bLabel">Ready when you are</span><span class="hint" id="bRound"></span></div>
+      <div class="row" style="justify-content:center"><button type="button" class="btn primary" id="bStart">Start</button><button type="button" class="btn" id="bStop" hidden>Stop</button></div>
+      <p class="hint">Breathe in through your nose for 4, hold for 7, breathe out slowly through your mouth for 8. If holding is uncomfortable, shorten the counts and keep the out-breath longest. Then take your first bite slowly, and chew fully.</p>
+    </section>
+
+    <section class="block" id="homework">
+      <h2><span class="tag">Homework</span>This week</h2>
+      <div class="check"><input type="checkbox" id="hw1" data-key="breathe"><label for="hw1"><b>Breathe before every meal, then chew fully.</b> 2–4 slow belly breaths. Sit down, fork down, phone down.</label></div>
+      <div class="check"><input type="checkbox" id="hw2" data-key="fiber"><label for="hw2"><b>Start a fiber sprinkle,</b> only if it feels right for you: ⅛ teaspoon of acacia or PHGG a day (psyllium if constipated).</label></div>
+      <div class="check"><input type="checkbox" id="hw3" data-key="measure"><label for="hw3"><b>Measure your fiber for one week.</b> Aim for 25 g a day over time.</label></div>
+      <div class="check"><input type="checkbox" id="hw4" data-key="log"><label for="hw4"><b>Keep a log.</b> What makes you feel 10% better, or 10% worse? Use the Daily log tab, a paper journal, or an app such as Bearable.</label></div>
+      <div class="check"><input type="checkbox" id="hw5" data-key="bst"><label for="hw5"><b>Baking soda test, 3 mornings,</b> if your clinician asked you to (instructions below). Send them your times.</label></div>
+      <div class="check"><input type="checkbox" id="hw6" data-key="video"><label for="hw6"><b>Watch the digestion video</b> all the way through at least once.</label></div>
+    </section>
+
+    <section class="block">
+      <h2><span class="tag">Optional</span>Baking soda stomach acid test</h2>
+      <p class="callout">Only do this if your clinician has asked you to. If you take a PPI (such as omeprazole/Prilosec), don't do it unless your doctor has said you can safely stop for 2 weeks. If you take Pepcid or Tums, try skipping the dose the night before.</p>
+      <ol>
+        <li>First thing in the morning, before eating or drinking, mix ¼ teaspoon of <b>fresh</b> baking soda into 4 oz of cold water.</li>
+        <li>Drink it and start a timer. Note how long it takes to burp. Stop timing at 5 minutes.</li>
+        <li>Repeat for 3 mornings in a row.</li>
+      </ol>
+      <p>In theory, burping within 1–2 minutes suggests enough stomach acid; burping after 3 minutes, or not at all, may suggest low acid, which your clinician may want to look into.</p>
+      <form id="bstForm" class="grid3" style="align-items:end">
+        <label class="field"><span>Date</span><input type="date" name="date"></label>
+        <label class="field"><span>Time to burp</span><select name="time" required><option value="">Choose…</option><option>Under 1 minute</option><option>1–2 minutes</option><option>2–3 minutes</option><option>3–5 minutes</option><option>No burp within 5 minutes</option></select></label>
+        <div class="row"><button type="submit" class="btn primary">Save result</button></div>
+      </form>
+      <div class="entries" id="bstList"></div>
+      <div class="row"><button type="button" class="btn" id="bstCopy">Copy results for a message to my clinician</button></div>
+    </section>
+  </div>
+
+  <!-- ============ DAILY LOG ============ -->
+  <div id="log" role="tabpanel" aria-labelledby="tab-log" class="stack" hidden>
+    <section class="block">
+      <h2><span class="tag">Estimate</span>Fiber estimator</h2>
+      <p class="hint">Tap + for each serving you ate today. These are rough averages; packaged foods list fiber on the label.</p>
+      <div class="foods" id="foods"></div>
+      <div class="row"><span>Estimated total: <span class="total" id="fiberTotal">0 g</span></span><button type="button" class="btn primary" id="useFiber">Put in today's log</button><button type="button" class="btn" id="resetFiber">Reset</button></div>
+    </section>
+
+    <form id="form" class="stack">
+      <section class="block">
+        <h2><span class="tag">Today</span>Food and habits</h2>
+        <label class="field"><span>Date</span><input type="date" name="date"></label>
+        <label class="field"><span>What I ate and drank</span><textarea name="food"></textarea></label>
+        <div class="field"><span>Belly breaths before</span><div class="checks">
+          <label class="chip"><input type="checkbox" name="breaths" value="Breakfast">Breakfast</label>
+          <label class="chip"><input type="checkbox" name="breaths" value="Lunch">Lunch</label>
+          <label class="chip"><input type="checkbox" name="breaths" value="Dinner">Dinner</label>
+          <label class="chip"><input type="checkbox" name="breaths" value="Snacks">Snacks</label>
+        </div></div>
+        <div class="field"><span>Habits</span><div class="checks">
+          <label class="chip"><input type="checkbox" name="habits" value="Chewed fully">Chewed fully</label>
+          <label class="chip"><input type="checkbox" name="habits" value="Ate sitting down, no phone">Sat down, no phone</label>
+          <label class="chip"><input type="checkbox" name="habits" value="Warm water or tea in the morning">Warm water or tea in the morning</label>
+          <label class="chip"><input type="checkbox" name="habits" value="Walk after a meal">Walk after a meal</label>
+          <label class="chip"><input type="checkbox" name="habits" value="Smaller, earlier dinner">Smaller, earlier dinner</label>
+          <label class="chip"><input type="checkbox" name="habits" value="4–5 hours between meals">4–5 hours between meals</label>
+          <label class="chip"><input type="checkbox" name="habits" value="Enough water">Enough water</label>
+          <label class="chip"><input type="checkbox" name="habits" value="Breathwork or meditation">Breathwork or meditation</label>
+        </div></div>
+        <div class="grid2">
+          <label class="field"><span>Fiber (grams, estimated)</span><input type="number" name="fiber" id="fiberInput" min="0" max="150" inputmode="numeric"></label>
+          <label class="field"><span>Fiber supplement and amount</span><input type="text" name="supplement" placeholder="e.g. acacia, ⅛ tsp"></label>
+        </div>
+      </section>
+      <section class="block">
+        <h2><span class="tag">Body</span>Symptoms and mood</h2>
+        <div class="field"><span>Symptoms</span><div class="checks" id="symptomChecks"></div></div>
+        <label class="field"><span>Gut symptoms overall</span><small>0 = none, 10 = severe.</small><div class="range"><input type="range" name="symptoms" min="0" max="10" value="0" data-unit="/10"><output></output></div></label>
+        <label class="field"><span>Stress</span><div class="range"><input type="range" name="stress" min="0" max="10" value="0" data-unit="/10"><output></output></div></label>
+        <label class="field"><span>Sleep</span><input type="text" name="sleep" placeholder="hours, quality"></label>
+      </section>
+      <section class="block">
+        <h2><span class="tag">Investigate</span>10% better, 10% worse</h2>
+        <div class="grid2">
+          <label class="field"><span>What made me feel 10% better</span><textarea name="better"></textarea></label>
+          <label class="field"><span>What made me feel 10% worse</span><textarea name="worse"></textarea></label>
+        </div>
+        <label class="field"><span>Questions for my clinician</span><textarea name="questions"></textarea></label>
+      </section>
+      <div class="row"><button type="submit" class="btn primary">Save today's log</button><span class="hint">Saved in this browser only. Sliders you don't move aren't recorded.</span></div>
+    </form>
+  </div>
+
+  <div id="saved" role="tabpanel" aria-labelledby="tab-saved" class="stack" hidden>
+    <div class="row"><button type="button" class="btn" id="copyMd">Copy all as Markdown</button><button type="button" class="btn" id="saveFile">Save as file (to print or share)</button></div>
+    <div class="entries" id="list"></div>
+  </div>
+
+  <footer class="safety">
+    <p><b>Groundwork is a learning and self-care tool, not medical advice.</b> This section is based on notes from an integrative gut-health group class. Check with your doctor before changing your diet, starting a supplement or doing a home test, especially if you have kidney or liver disease or take blood thinners.</p>
+    <p>Your log stays in this browser on this device. It isn't synced to Google Sheets.</p>
+    <p>Scripture quotations taken from The Holy Bible, New International Version® NIV®. Copyright © 1973, 1978, 1984, 2011 by Biblica, Inc.™ Used by permission. All rights reserved worldwide.</p>
+  </footer>
+</div>
+
+<a class="sploot-fab" href="somatic.html?sploot"><img src="assets/emblem.png" alt="">Sploot now</a>
+
+<script src="assets/tools.js?v=1"></script>
+<script>
+const WISDOM = ["Warm water or tea in the morning", "A gentle walk after meals", "A smaller, earlier dinner", "Good sleep habits", "Less screen time", "Meditation and breathwork", "Slowing down and chewing well", "A low-FODMAP elimination trial, with guidance", "Less stress", "Medication when it's needed", "4–5 hours between meals and snacks, so the gut's cleaning wave (the migrating motor complex) can run"];
+GW.$("wisdom").innerHTML = WISDOM.map(w => `<li>${GW.esc(w)}</li>`).join("");
+
+const SYMPTOMS = ["Bloating", "Gas", "Cramping", "Reflux or heartburn", "Loose stools", "Constipation", "Nausea", "Fatigue", "Anxiety", "Joint or muscle aches", "Headache or migraine", "Brain fog"];
+GW.$("symptomChecks").innerHTML = SYMPTOMS.map(s => `<label class="chip"><input type="checkbox" name="symptomList" value="${GW.esc(s)}">${GW.esc(s)}</label>`).join("");
+
+/* ---- tabs and journals ---- */
+GW.tabs(document.querySelector(".tabs"), "groundwork-eating-tab");
+const J = GW.journal({
+  key: "groundwork-eating", name: "Groundwork integrative eating log",
+  form: GW.$("form"), list: GW.$("list"), count: GW.$("count"),
+  title: e => `${GW.fmtDate(e.date || e.t)}${e.fiber ? " · " + e.fiber + " g fiber" : ""}${e.symptoms !== "" && e.symptoms != null ? " · symptoms " + e.symptoms + "/10" : ""}`,
+});
+GW.$("copyMd").onclick = J.copyMarkdown;
+GW.$("saveFile").onclick = J.saveFile;
+GW.$("form").addEventListener("submit", () => { resetFiber(); document.querySelector('[aria-controls="saved"]').click() });
+
+const B = GW.journal({ key: "groundwork-eating-bst", name: "Baking soda test results", form: GW.$("bstForm"), list: GW.$("bstList"), title: e => `${GW.fmtDate(e.date || e.t)} · ${e.time}` });
+GW.$("bstForm").addEventListener("submit", () => setTimeout(() => GW.$("bstForm").scrollIntoView({ behavior: "smooth", block: "nearest" })), true);
+GW.$("bstCopy").onclick = () => {
+  const r = [...B.items].reverse();
+  if (!r.length) return GW.toast("No results saved yet");
+  GW.copy("Baking soda test results:\n" + r.map(e => `- ${GW.fmtDate(e.date || e.t)}: ${e.time}`).join("\n"), "Results copied");
+};
+GW.checklist(GW.$("homework"), "groundwork-eating-week");
+
+/* ---- fiber estimator ---- */
+const FOODS = [["Apple", "1 medium", 4], ["Berries", "1 cup", 4], ["Broccoli", "1 cup", 4], ["Spinach, cooked", "1 cup", 4], ["Oats, cooked", "1 cup", 4], ["Quinoa, cooked", "1 cup", 4], ["Almonds", "1 oz (about 23)", 4], ["Chia seeds", "1 tablespoon", 4], ["Lentils, cooked", "½ cup", 7], ["Beans, cooked", "½ cup", 7], ["Pear", "1 medium", 5], ["Avocado", "½", 5], ["Sweet potato", "1 medium, with skin", 4], ["Whole-grain bread", "1 slice", 2], ["Carrots", "1 cup", 3], ["Banana", "1 medium", 3]];
+const counts = FOODS.map(() => 0);
+GW.$("foods").innerHTML = FOODS.map(([n, s, g], i) => `<div class="food"><span>${GW.esc(n)} <small>· ${GW.esc(s)} · ~${g} g</small></span><button type="button" data-f="${i}" data-d="-1" aria-label="One less ${GW.esc(n)}">−</button><output id="fc${i}">0</output><button type="button" data-f="${i}" data-d="1" aria-label="One more ${GW.esc(n)}">+</button></div>`).join("");
+const fiberTotal = () => counts.reduce((a, c, i) => a + c * FOODS[i][2], 0);
+const showFiber = () => { counts.forEach((c, i) => GW.$("fc" + i).textContent = c); GW.$("fiberTotal").textContent = fiberTotal() + " g" };
+function resetFiber() { counts.fill(0); showFiber() }
+GW.$("foods").addEventListener("click", e => { const b = e.target.closest("[data-f]"); if (!b) return; const i = +b.dataset.f; counts[i] = Math.max(0, counts[i] + +b.dataset.d); showFiber() });
+GW.$("resetFiber").onclick = resetFiber;
+GW.$("useFiber").onclick = () => { GW.$("fiberInput").value = fiberTotal(); GW.$("fiberInput").focus(); GW.toast("Added to today's log") };
+
+/* ---- 4-7-8 breathing, three rounds ---- */
+const STEPS = [["Breathe in", 4], ["Hold", 7], ["Breathe out", 8]];
+let bt = null;
+function stopBreath(msg) { clearInterval(bt); bt = null; GW.$("bStart").hidden = false; GW.$("bStop").hidden = true; GW.$("bCount").textContent = "·"; GW.$("bLabel").textContent = msg || "Ready when you are"; GW.$("bRound").textContent = "" }
+GW.$("bStart").onclick = () => {
+  let round = 1, step = 0, n = 1;
+  GW.$("bStart").hidden = true; GW.$("bStop").hidden = false;
+  const tick = () => {
+    if (n > STEPS[step][1]) { n = 1; step++; if (step === STEPS.length) { step = 0; round++ } }
+    if (round > 3) return stopBreath("Now eat slowly, and enjoy");
+    GW.$("bCount").textContent = n; GW.$("bLabel").textContent = STEPS[step][0]; GW.$("bRound").textContent = `Round ${round} of 3`;
+    n++;
+  };
+  tick(); bt = setInterval(tick, 1000);
+};
+GW.$("bStop").onclick = () => stopBreath();
+</script>
+</body>
+</html>
