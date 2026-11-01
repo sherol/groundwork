@@ -515,9 +515,12 @@ function renderPhase() {
 /* Introduction: what trauma is and how the program works. Shown before phase 1 (S.current === -1). */
 /* The program's companion recordings are Peter Levine's, published by Sounds True. They aren't hosted here; each phase links to them. */
 const SOURCE_URL = "https://www.soundstrue.com/pages/healingtrauma";
-const audioSrc = i => `audio/phase-${String(i + 1).padStart(2, "0")}.mp3`;
+const nn = i => String(i + 1).padStart(2, "0");
+const audioSrc = i => `audio/phase-${nn(i)}.mp3`;
+/* Sounds True's page lists the 12 recordings as "Healing Trauma 1" to "Healing Trauma 12", in program order, so recording N goes with phase N. Linked, not hosted. */
+const trackURL = i => `https://d1qsxla1p9s5sy.cloudfront.net/kindleproject/PeterLevine-HealingTrauma-${nn(i)}.mp3`;
 function audioHTML(i, link = true) {
-  return `<div class="audio"><span class="hint">Guided audio · Track ${i + 1}</span><audio controls preload="metadata" src="${audioSrc(i)}"></audio>${link ? `<a class="src-link" href="${SOURCE_URL}" target="_blank" rel="noopener">Listen to Peter Levine's guided recordings at Sounds True ↗</a>` : ""}</div>`;
+  return `<div class="audio"><span class="hint">Guided audio · Track ${i + 1}</span><audio controls preload="metadata" src="${audioSrc(i)}"></audio><a class="src-link" href="${trackURL(i)}" target="_blank" rel="noopener">${link ? `Listen to Peter Levine's recording for this phase: Healing Trauma ${i + 1} (Sounds True) ↗` : `Healing Trauma ${i + 1} ↗`}</a></div>`;
 }
 function renderIntro() {
   $("phase").innerHTML = `
