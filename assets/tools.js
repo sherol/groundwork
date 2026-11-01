@@ -132,7 +132,8 @@
   /* ---------- Sploot: each page's own settling overlay ----------
      GW.sploot({ eyebrow, title, steps: [...] }) walks through steps one at a time beside the paced-breathing acorn.
      GW.sploot({ eyebrow, title, checklist: [{ group, items: [...] }] }) shows a to-do list (fresh each time) beside the acorn.
-     breath: [{ label, n, grow }] sets the pacing (grow: true swells, false settles, null holds). The page's .sploot-fab opens it. */
+     breath: [{ label, n, grow }] sets the pacing (grow: true swells, false settles, null holds).
+     trigger: the buttons that open it (a selector; the page's .sploot-fab by default). */
   const ACORN = `<svg viewBox="0 0 200 200" aria-hidden="true"><defs><radialGradient id="nutG" cx="38%" cy="38%" r="75%"><stop offset="0" stop-color="#ffe6a6"/><stop offset=".35" stop-color="#e2a64a"/><stop offset=".75" stop-color="#b06d28"/><stop offset="1" stop-color="#7c4a1d"/></radialGradient><linearGradient id="capG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#a77b4f"/><stop offset="1" stop-color="#6b4a2c"/></linearGradient><pattern id="capTex" width="12" height="12" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><path d="M0 0h12M0 0v12" stroke="#4e3420" stroke-width="2" opacity=".55"/></pattern><clipPath id="capClip"><path d="M10 80c0-36 40-54 90-54s90 18 90 54c0 10-12 14-28 14H38c-16 0-28-4-28-14Z"/></clipPath></defs><path d="M100 28c2-12 10-20 20-22" fill="none" stroke="#5a3d23" stroke-width="7" stroke-linecap="round"/><path d="M24 86H176C182 146 150 194 100 196C50 194 18 146 24 86Z" fill="url(#nutG)" stroke="#5a3d23" stroke-width="4"/><ellipse cx="60" cy="122" rx="12" ry="24" fill="#fff" opacity=".28"/><path d="M10 80c0-36 40-54 90-54s90 18 90 54c0 10-12 14-28 14H38c-16 0-28-4-28-14Z" fill="url(#capG)" stroke="#4e3420" stroke-width="4"/><rect x="6" y="20" width="188" height="78" fill="url(#capTex)" clip-path="url(#capClip)"/></svg>`;
   const CRISIS = `<div class="crisis">If you feel unsafe or overwhelmed, reach a person now. US: call or text <b>988</b> (Suicide &amp; Crisis Lifeline). UK &amp; Ireland: Samaritans <b>116 123</b>. Emergency: <b>911</b> / <b>999</b> / <b>112</b>. Elsewhere: findahelpline.com.</div>`;
   function sploot(cfg) {
@@ -169,15 +170,16 @@
       if (++n > b.n) { n = 1; ph = (ph + 1) % breath.length; if (ph === 0) q("spMeta").textContent = `${++count} slow breath${count > 1 ? "s" : ""} · ${cfg.breathText || pace}` }
     };
     const page = () => document.querySelector(".wrap");
+    const fabs = () => document.querySelectorAll(".sploot-fab");
     function open() {
       last = document.activeElement; gi = 0; ph = 0; n = 1; count = 0;
       if (cfg.steps) showStep(); else { o.querySelectorAll(".todo-item input").forEach(c => c.checked = false); showCount() }
-      o.hidden = false; page().inert = true; document.querySelector(".sploot-fab").inert = true;
+      o.hidden = false; page().inert = true; fabs().forEach(f => f.inert = true);
       q("spOrb").classList.remove("in"); clearInterval(timer);
       requestAnimationFrame(() => { tick(); timer = setInterval(tick, 1000) });
       (cfg.steps ? q("spNext") : o.querySelector(".todo-item input")).focus();
     }
-    function close() { o.hidden = true; clearInterval(timer); page().inert = false; document.querySelector(".sploot-fab").inert = false; last?.focus?.() }
+    function close() { o.hidden = true; clearInterval(timer); page().inert = false; fabs().forEach(f => f.inert = false); last?.focus?.() }
     if (cfg.steps) {
       q("spNext").onclick = () => { gi = Math.min(gi + 1, cfg.steps.length - 1); showStep() };
       q("spPrev").onclick = () => { gi = Math.max(gi - 1, 0); showStep() };
@@ -190,14 +192,29 @@
       if (e.shiftKey && document.activeElement === f[0]) { e.preventDefault(); f[f.length - 1].focus() }
       else if (!e.shiftKey && document.activeElement === f[f.length - 1]) { e.preventDefault(); f[0].focus() }
     });
-    const fab = document.querySelector(".sploot-fab");
-    if (fab) fab.addEventListener("click", e => { e.preventDefault(); open() });
+    document.querySelectorAll(cfg.trigger || ".sploot-fab").forEach(b => b.addEventListener("click", e => { e.preventDefault(); open() }));
     return { open, close };
   }
+
+  /* Integrative Eating's Sploot: a before-you-eat checklist. Used on eating.html (button at the top) and on the start page. */
+  const EATING_SPLOOT = {
+  eyebrow: "Sploot · before you eat", title: "Calm conductor checklist",
+  intro: "Tick each one off as you go. The acorn paces a 4-7-8 breath: in for 4, hold for 7, out for 8.",
+  breath: [{ label: "Breathe in", n: 4, grow: true }, { label: "Hold", n: 7, grow: null }, { label: "Breathe out", n: 8, grow: false }],
+  breathText: "in 4, hold 7, out 8",
+  crisis: false, done: "Ready to eat",
+  checklist: [
+    { group: "Set the table", items: ["<b>Sit down</b> at a table, not standing or on the go.", "<b>Phone down</b>, face down or in another room. Screens off.", "<b>Fork down</b> until you're ready for the first bite."] },
+    { group: "Ground", items: ["Feel your <b>feet on the floor</b> and your weight in the chair. Let the chair hold you.", "Soften your <b>jaw, shoulders and belly</b>."] },
+    { group: "Breathe", items: ["Take <b>2–4 slow belly breaths</b> with the acorn. Let your belly rise on the in-breath.", "Notice your body shifting into <b>rest and digest</b>: a softer breath, a calmer heart."] },
+    { group: "Be mindful", items: ["<b>Look</b> at your food: its colors, shapes and textures.", "<b>Smell</b> it, and notice your mouth getting ready.", "Take a moment for <b>gratitude</b> or a prayer.", "Check your <b>hunger</b>: how hungry am I, 0 to 10?"] },
+    { group: "Chew", items: ["Take a small first bite and <b>chew it 30–50 times</b>, until it's smooth, before you swallow.", "<b>Put your fork down</b> between bites, and keep chewing each bite 30–50 times.", "Halfway through, <b>pause and check in</b>: how full am I now?"] },
+  ],
+  };
 
   /* The Google Sheets controls (wired up by sync.js) go at the start of the page's .links[data-sync]. */
   const bar = document.querySelector("[data-sync]");
   if (bar) bar.insertAdjacentHTML("afterbegin", `<div class="sync" id="sync"><span class="sync-state" id="syncState">Saved on this device</span><a class="btn" id="openSheet" href="#" target="_blank" rel="noopener" hidden>Open sheet</a><button class="btn" id="signIn" type="button">Sync to Google Sheets</button><button class="btn" id="signOut" type="button" hidden>Disconnect</button></div>`);
 
-  window.GW = { $, esc, load, save, synced, toast, copy, download, today, fmtDate, tabs, journal, checklist, wireRanges, sploot };
+  window.GW = { $, esc, load, save, synced, toast, copy, download, today, fmtDate, tabs, journal, checklist, wireRanges, sploot, EATING_SPLOOT };
 })();

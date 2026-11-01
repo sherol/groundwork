@@ -15,7 +15,7 @@ Everything saves in the browser first. **Sync to Google Sheets** (on every page)
 - Somatic Experiencing: the original grounding steps with the paced-breathing acorn (also opened from the start page, `somatic.html?sploot`).
 - Thought Records: "A thought is not a fact": pause, name the thought, find it in the body, ground, breathe, be kind to yourself.
 - DBT: "Ride the wave": STOP and TIPP (cold water, paced breathing, paired muscle relaxation), step by step.
-- Integrative Eating: a **before-you-eat checklist** beside a 4-7-8 breathing acorn: set the table (sit down, phone down, fork down), ground, breathe, be mindful (look, smell, gratitude, hunger check) and chew each bite 30–50 times. It starts fresh each time.
+- Integrative Eating: a **before-you-eat checklist**, opened from a button pinned to the top of the eating page (it stays in view while you scroll) and from the start page, beside a 4-7-8 breathing acorn: set the table (sit down, phone down, fork down), ground, breathe, be mindful (look, smell, gratitude, hunger check) and chew each bite 30–50 times. It starts fresh each time.
 
 Old links such as `index.html#intro` and `index.html#phase-3` redirect to the same place in `somatic.html`.
 

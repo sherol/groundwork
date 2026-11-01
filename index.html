@@ -13,7 +13,7 @@ if (/^#(intro|phase-\d+)$/.test(location.hash)) location.replace("somatic.html" 
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;700;800&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&display=swap">
-<link rel="stylesheet" href="assets/tools.css?v=2">
+<link rel="stylesheet" href="assets/tools.css?v=3">
 </head>
 <body>
 <div class="wrap">
@@ -24,6 +24,7 @@ if (/^#(intro|phase-\d+)$/.test(location.hash)) location.replace("somatic.html" 
       <h1>Groundwork</h1>
       <p class="lede">Self-guided tools for a steadier body and mind.</p>
       <p>Four practices that work well together: settle the body, untangle hard thoughts, ride out strong emotions, and care for your gut. Pick one to start. Your progress stays in this browser, and can sync to one Google Sheet.</p>
+      <button type="button" class="eat-sploot" data-eat-sploot aria-haspopup="dialog"><img src="assets/emblem.png" alt=""><span><b>Sploot: before you eat</b><small>Breathe, ground, be mindful, chew 30–50 times</small></span></button>
     </div>
   </header>
 
@@ -71,7 +72,7 @@ if (/^#(intro|phase-\d+)$/.test(location.hash)) location.replace("somatic.html" 
 
 <a class="sploot-fab" href="somatic.html?sploot"><img src="assets/emblem.png" alt="">Sploot now</a>
 
-<script src="assets/tools.js?v=2"></script>
+<script src="assets/tools.js?v=3"></script>
 <script>
 /* A line of progress under each tool, read from what each page has saved in this browser. */
 function showStatus() {
@@ -90,6 +91,8 @@ function showStatus() {
 }
 showStatus();
 window.addEventListener("groundwork-synced", showStatus);
+/* The before-you-eat checklist opens right here. The floating Sploot now still goes to the somatic grounding. */
+GW.sploot({ ...GW.EATING_SPLOOT, trigger: "[data-eat-sploot]" });
 </script>
 <script src="config.js?v=11"></script>
 <script src="sync.js?v=11"></script>

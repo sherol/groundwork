@@ -9,7 +9,7 @@
 <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;700;800&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&display=swap">
-<link rel="stylesheet" href="assets/tools.css?v=2">
+<link rel="stylesheet" href="assets/tools.css?v=3">
 <style>
 .affirm { text-align: center; font: 800 clamp(20px, 3vw, 26px)/1.3 var(--display); color: var(--c); padding: 18px; background: var(--c-soft); border-radius: var(--r); margin: 0 }
 .breath { display: grid; justify-items: center; gap: 8px; text-align: center; padding: 8px 0 }
@@ -31,6 +31,10 @@ table.ramp td, table.ramp th { text-align: left; padding: 4px 10px 4px 0; border
     <a class="home" href="./"><img src="assets/emblem.png" alt="">Groundwork</a>
     <div class="links" data-sync><a class="btn" href="./">All tools</a></div>
   </nav>
+
+  <div class="eat-bar">
+    <button type="button" class="eat-sploot" data-eat-sploot aria-haspopup="dialog"><img src="assets/emblem.png" alt=""><span><b>Sploot: before you eat</b><small>Breathe, ground, be mindful, chew 30–50 times</small></span></button>
+  </div>
 
   <header class="page-head">
     <span class="eyebrow">Tool 4 · Gut</span>
@@ -142,7 +146,7 @@ table.ramp td, table.ramp th { text-align: left; padding: 4px 10px 4px 0; border
 
     <section class="block" id="homework">
       <h2><span class="tag">Homework</span>This week</h2>
-      <div class="check"><input type="checkbox" id="hw1" data-key="breathe"><label for="hw1"><b>Breathe before every meal, then chew each bite 30–50 times.</b> 2–4 slow belly breaths. Sit down, fork down, phone down. Tap <b>Sploot now</b> for a before-you-eat checklist.</label></div>
+      <div class="check"><input type="checkbox" id="hw1" data-key="breathe"><label for="hw1"><b>Breathe before every meal, then chew each bite 30–50 times.</b> 2–4 slow belly breaths. Sit down, fork down, phone down. Tap <b>Sploot: before you eat</b> at the top of the page for a checklist.</label></div>
       <div class="check"><input type="checkbox" id="hw2" data-key="fiber"><label for="hw2"><b>Start a fiber sprinkle,</b> only if it feels right for you: ⅛ teaspoon of acacia or PHGG a day (psyllium if constipated).</label></div>
       <div class="check"><input type="checkbox" id="hw3" data-key="measure"><label for="hw3"><b>Measure your fiber for one week.</b> Aim for 25 g a day over time.</label></div>
       <div class="check"><input type="checkbox" id="hw4" data-key="log"><label for="hw4"><b>Keep a log.</b> What makes you feel 10% better, or 10% worse? Use the Daily log tab, a paper journal, or an app such as Bearable.</label></div>
@@ -235,9 +239,8 @@ table.ramp td, table.ramp th { text-align: left; padding: 4px 10px 4px 0; border
   </footer>
 </div>
 
-<button type="button" class="sploot-fab" aria-haspopup="dialog"><img src="assets/emblem.png" alt="">Sploot now</button>
 
-<script src="assets/tools.js?v=2"></script>
+<script src="assets/tools.js?v=3"></script>
 <script>
 const WISDOM = ["Warm water or tea in the morning", "A gentle walk after meals", "A smaller, earlier dinner", "Good sleep habits", "Less screen time", "Meditation and breathwork", "Slowing down and chewing well", "A low-FODMAP elimination trial, with guidance", "Less stress", "Medication when it's needed", "4–5 hours between meals and snacks, so the gut's cleaning wave (the migrating motor complex) can run"];
 GW.$("wisdom").innerHTML = WISDOM.map(w => `<li>${GW.esc(w)}</li>`).join("");
@@ -293,21 +296,7 @@ GW.$("bStart").onclick = () => {
 };
 GW.$("bStop").onclick = () => stopBreath();
 
-GW.sploot({
-  eyebrow: "Sploot · before you eat", title: "Calm conductor checklist",
-  intro: "Tick each one off as you go. The acorn paces a 4-7-8 breath: in for 4, hold for 7, out for 8.",
-  breath: [{ label: "Breathe in", n: 4, grow: true }, { label: "Hold", n: 7, grow: null }, { label: "Breathe out", n: 8, grow: false }],
-  breathText: "in 4, hold 7, out 8",
-  crisis: false, done: "Ready to eat",
-  checklist: [
-    { group: "Set the table", items: ["<b>Sit down</b> at a table, not standing or on the go.", "<b>Phone down</b>, face down or in another room. Screens off.", "<b>Fork down</b> until you're ready for the first bite."] },
-    { group: "Ground", items: ["Feel your <b>feet on the floor</b> and your weight in the chair. Let the chair hold you.", "Soften your <b>jaw, shoulders and belly</b>."] },
-    { group: "Breathe", items: ["Take <b>2–4 slow belly breaths</b> with the acorn. Let your belly rise on the in-breath.", "Notice your body shifting into <b>rest and digest</b>: a softer breath, a calmer heart."] },
-    { group: "Be mindful", items: ["<b>Look</b> at your food: its colors, shapes and textures.", "<b>Smell</b> it, and notice your mouth getting ready.", "Take a moment for <b>gratitude</b> or a prayer.", "Check your <b>hunger</b>: how hungry am I, 0 to 10?"] },
-    { group: "Chew", items: ["Take a small first bite and <b>chew it 30–50 times</b>, until it's smooth, before you swallow.", "<b>Put your fork down</b> between bites, and keep chewing each bite 30–50 times.", "Halfway through, <b>pause and check in</b>: how full am I now?"] },
-  ],
-});
-</script>
+GW.sploot({ ...GW.EATING_SPLOOT, trigger: "[data-eat-sploot]" });</script>
 <script src="config.js?v=11"></script>
 <script src="sync.js?v=11"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
