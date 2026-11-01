@@ -17,6 +17,6 @@ Put one audio file per phase here. The app looks for these names:
 | 11. Orientation & engagement | `phase-11.mp3` |
 | 12. Settling & integration | `phase-12.mp3` |
 
-Until a file is added, its player is hidden and the label reads "Guided audio · Track N · not added yet". The same tracks are listed in the Introduction.
+Until a file is added, its player is hidden and the label reads "Guided audio · Track N · on Sounds True". Every phase also links to Peter Levine's guided recordings at https://www.soundstrue.com/pages/healingtrauma.
 
-This repository and its GitHub Pages site are public. Only add recordings you have the right to publish, such as ones you recorded yourself.
+This repository and its GitHub Pages site are public. Only add recordings you have the right to publish, such as ones you recorded yourself. Don't add the Sounds True recordings from *Healing Trauma*: they're © Peter A. Levine / Sounds True, and putting them here would republish them.

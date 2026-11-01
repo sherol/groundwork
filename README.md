@@ -16,7 +16,11 @@ Live: https://sherol.github.io/groundwork
   - **Completion:** 11. Orientation & engagement, 12. Settling & integration
 
   Each phase has an explanation, a lesson, a guided exercise with an audio track, homework checkboxes and notes.
-- **Guided audio:** one track per phase, played from `audio/phase-01.mp3` … `audio/phase-12.mp3` (see `audio/README.md`). No recordings are in the repo yet; until a file is added, its player is hidden and marked "not added yet".
+- **Guided audio:** every phase links to Peter Levine's guided recordings at Sounds True (https://www.soundstrue.com/pages/healingtrauma). A phase also plays `audio/phase-NN.mp3` if one is added (see `audio/README.md`).
+
+## Source
+
+The program follows Peter A. Levine, *Healing Trauma: A Pioneering Program for Restoring the Wisdom of Your Body* (Boulder, CO: Sounds True, 2008). Its guided recordings are © Peter A. Levine / Sounds True and are not included in this repository; the app links to them at https://www.soundstrue.com/pages/healingtrauma. Groundwork is not affiliated with or endorsed by Peter Levine or Sounds True.
 - **Before/after activation ratings (0–10)** for each exercise, with gentle guidance when activation goes up. An after-rating of 7 or more opens Sploot now.
 - **Progress bar** with 12 acorns.
 - **"Sploot now"** button on every screen: about 90 seconds of grounding steps beside a paced-breathing acorn that swells as you breathe in for 4 and settles as you breathe out for 6, with crisis line numbers.

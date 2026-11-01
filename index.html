@@ -93,6 +93,9 @@ nav.trail .grp { font: 700 11px/1 var(--body); letter-spacing: .12em; text-trans
 @media (max-width: 820px) { nav.trail .grp { display: none } }
 .audio { display: grid; gap: 4px }
 .audio audio { width: 100%; max-width: 420px; height: 40px }
+.src-link { font-size: 14px; font-weight: 700; color: var(--calm) }
+.cite { font-size: 14px; color: var(--muted) }
+.cite a { color: var(--calm) }
 .core4 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px }
 .core4 div { background: var(--sunk); border-radius: 12px; padding: 12px 14px; font-size: 15px }
 .core4 b { display: block; font-family: var(--display) }
@@ -227,7 +230,7 @@ select { font: inherit; padding: 8px 10px; border-radius: 8px; border: 1px solid
     <article class="phase" id="phase"></article>
   </div>
 
-  <p class="safety"><b>Groundwork is a self-regulation and learning tool, not therapy or a substitute for care.</b> It is inspired by body-based trauma approaches, including Peter Levine's work, and is not affiliated with or endorsed by Somatic Experiencing International. The exercises stay with present-moment body sensation; they never ask you to revisit a traumatic memory. Go slowly, stop whenever you want, and do deeper work with a trained practitioner. In the US, call or text <b>988</b> any time you're in crisis.</p>
+  <p class="safety"><b>Groundwork is a self-regulation and learning tool, not therapy or a substitute for care.</b> It follows the twelve-phase program in Peter A. Levine, <i>Healing Trauma: A Pioneering Program for Restoring the Wisdom of Your Body</i> (Boulder, CO: Sounds True, 2008); guided recordings are available from <a href="https://www.soundstrue.com/pages/healingtrauma" target="_blank" rel="noopener">Sounds True</a>. Groundwork is not affiliated with or endorsed by Peter Levine, Sounds True or Somatic Experiencing International. The exercises stay with present-moment body sensation; they never ask you to revisit a traumatic memory. Go slowly, stop whenever you want, and do deeper work with a trained practitioner. In the US, call or text <b>988</b> any time you're in crisis.</p>
   <p class="safety" style="margin-top:0;border-top:0;padding-top:0">Your data stays in this browser unless you connect Google Sheets. Then it is saved to a spreadsheet called <b>Groundwork progress</b> in your own Google Drive. Groundwork can only see files it created, never the rest of your Drive.</p>
   <p class="safety" style="margin-top:0;border-top:0;padding-top:0">Scripture quotations taken from The Holy Bible, New International Version® NIV®. Copyright © 1973, 1978, 1984, 2011 by Biblica, Inc.™ Used by permission. All rights reserved worldwide.</p>
 </div>
@@ -510,9 +513,11 @@ function renderPhase() {
 }
 
 /* Introduction: what trauma is and how the program works. Shown before phase 1 (S.current === -1). */
+/* The program's companion recordings are Peter Levine's, published by Sounds True. They aren't hosted here; each phase links to them. */
+const SOURCE_URL = "https://www.soundstrue.com/pages/healingtrauma";
 const audioSrc = i => `audio/phase-${String(i + 1).padStart(2, "0")}.mp3`;
-function audioHTML(i) {
-  return `<div class="audio"><span class="hint">Guided audio · Track ${i + 1}</span><audio controls preload="metadata" src="${audioSrc(i)}"></audio></div>`;
+function audioHTML(i, link = true) {
+  return `<div class="audio"><span class="hint">Guided audio · Track ${i + 1}</span><audio controls preload="metadata" src="${audioSrc(i)}"></audio>${link ? `<a class="src-link" href="${SOURCE_URL}" target="_blank" rel="noopener">Listen to Peter Levine's guided recordings at Sounds True ↗</a>` : ""}</div>`;
 }
 function renderIntro() {
   $("phase").innerHTML = `
@@ -542,7 +547,8 @@ function renderIntro() {
       <p>Healing doesn't require reliving the memory. It works with body sensation in the present, in small doses, so the incomplete responses can finish and the bound energy can discharge. Step by step, the nervous system recovers its natural rhythm between activation and rest.</p></section>
     <section class="block"><h3><span class="tag">5</span>The 12-phase program</h3>
       <p>The phases build on each other, so go in order the first time through. Each phase has a lesson, a guided exercise with its own audio track, homework and a place for notes. Spend about a week on each one, or longer if you need it.</p>
-      ${GROUPS.map((g, gi) => `<div class="intro-group"><h4>${esc(g.name)}</h4><p class="hint">${esc(g.sub)}</p><ol class="tracks">${PHASES.map((p, i) => p.group !== gi ? "" : `<li value="${i + 1}"><button type="button" class="linkbtn" data-go="${i}">${esc(p.title)}</button><span class="hint"> · ${esc(p.skill)}</span>${audioHTML(i)}</li>`).join("")}</ol></div>`).join("")}
+      <p class="cite">The guided recordings for this program are Peter Levine's own, from Peter A. Levine, <i>Healing Trauma: A Pioneering Program for Restoring the Wisdom of Your Body</i> (Boulder, CO: Sounds True, 2008). They're published by Sounds True: <a href="${SOURCE_URL}" target="_blank" rel="noopener">soundstrue.com/pages/healingtrauma</a>.</p>
+      ${GROUPS.map((g, gi) => `<div class="intro-group"><h4>${esc(g.name)}</h4><p class="hint">${esc(g.sub)}</p><ol class="tracks">${PHASES.map((p, i) => p.group !== gi ? "" : `<li value="${i + 1}"><button type="button" class="linkbtn" data-go="${i}">${esc(p.title)}</button><span class="hint"> · ${esc(p.skill)}</span>${audioHTML(i, false)}</li>`).join("")}</ol></div>`).join("")}
       <p class="hint">Go slowly and stop whenever you want. If anything feels like too much, tap <b>Sploot now</b>, and do deeper work with a trained practitioner.</p></section>
     <div class="pager"><button type="button" class="btn primary" data-go="0" style="margin-left:auto">Start: ${esc(PHASES[0].title)} →</button></div>`;
 }
@@ -572,7 +578,7 @@ function logCheckin(i) {
 function go(i) { if (i < -1 || i > 11) return; S.current = i; saveLocal(S); renderTrail(); renderPhase(); window.scrollTo({ top: 0, behavior: "smooth" }) }
 
 /* ---------- events ---------- */
-document.addEventListener("error", e => { if (e.target.tagName === "AUDIO") { e.target.hidden = true; e.target.previousElementSibling.textContent += " · not added yet" } }, true);
+document.addEventListener("error", e => { if (e.target.tagName === "AUDIO") { e.target.hidden = true; e.target.previousElementSibling.textContent += " · on Sounds True" } }, true);
 $("trail").addEventListener("click", e => { const b = e.target.closest("[data-i]"); if (b) go(+b.dataset.i) });
 $("phase").addEventListener("click", e => {
   const i = S.current, t = e.target.closest("button"); if (!t) return;
