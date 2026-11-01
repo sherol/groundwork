@@ -173,9 +173,7 @@ textarea { width: 100%; min-height: 96px; resize: vertical; font: inherit; color
 .breath-stage .ring { position: absolute; inset: 0; border-radius: 50%; border: 2px solid var(--calm); opacity: .18 }
 .breath-stage .ring.r2 { inset: 12%; opacity: .26 }
 .breath-stage .ring.r3 { inset: 24%; opacity: .34; border-style: dashed }
-.orb { position: absolute; inset: 2%; display: grid; place-items: center; transform: scale(.5); transition: transform 4s cubic-bezier(.45,.05,.55,.95), filter 4s ease;
-  filter: drop-shadow(0 0 18px rgb(242 201 107 / .45)) drop-shadow(0 6px 14px rgb(60 40 20 / .3)) saturate(.9) }
-.orb.in { transform: scale(1); filter: drop-shadow(0 0 34px rgb(242 201 107 / .7)) drop-shadow(0 8px 18px rgb(60 40 20 / .3)) saturate(1.1) }
+.orb { position: absolute; inset: 2%; display: grid; place-items: center; transform: scale(.5); will-change: transform; filter: drop-shadow(0 0 24px rgb(242 201 107 / .55)) drop-shadow(0 6px 14px rgb(60 40 20 / .3)) }
 .orb svg { width: 100%; height: 100% }
 .breath-count { position: absolute; left: 0; right: 0; top: 48%; text-align: center; display: grid; gap: 2px; color: #fff; text-shadow: 0 1px 8px rgb(30 50 50 / .55) }
 .breath-count b { font: 800 clamp(56px, 18vw, 76px)/1 var(--display); font-variant-numeric: tabular-nums }
@@ -184,7 +182,7 @@ textarea { width: 100%; min-height: 96px; resize: vertical; font: inherit; color
 .dots { display: flex; gap: 6px; justify-content: center }
 .dots i { width: 8px; height: 8px; border-radius: 50%; background: var(--line) }
 .dots i.on { background: var(--calm) }
-@media (prefers-reduced-motion: reduce) { .orb { transition: none; transform: scale(.8) } .orb.in { transform: scale(.8) } .bar > i { transition: none } }
+@media (prefers-reduced-motion: reduce) { .bar > i { transition: none } }
 .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center }
 .crisis { background: var(--sunk); border-radius: 10px; padding: 12px 14px; font-size: 14px }
 .crisis b { user-select: all }
@@ -698,6 +696,22 @@ function showGround() {
   $("groundDots").innerHTML = GROUND_STEPS.map((_, k) => `<i class="${k <= gi ? "on" : ""}"></i>`).join("");
 }
 
+/* The acorn's breathing, drawn frame by frame. (A CSS transition on transform plus filter is skipped or frozen by some mobile
+   browsers, notably iPhone Safari.) Scale .5 = breathed out, 1 = breathed in. With Reduce Motion on it still breathes, over a
+   smaller range, because pacing the breath is the point. */
+function orbAnimator(el) {
+  const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const show = s => { el.style.transform = `scale(${reduce ? .7 + (s - .5) * .4 : s})` };
+  const ease = t => t < .5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+  let raf = 0, from = .5, cur = .5, to = .5, start = 0, dur = 1;
+  const frame = now => { const t = Math.min(1, (now - start) / dur); cur = from + (to - from) * ease(t); show(cur); if (t < 1) raf = requestAnimationFrame(frame) };
+  return {
+    go(target, seconds) { cancelAnimationFrame(raf); from = cur; to = target; dur = seconds * 1000; start = performance.now(); raf = requestAnimationFrame(frame) },
+    set(s) { cancelAnimationFrame(raf); cur = to = s; show(s) },
+    stop() { cancelAnimationFrame(raf) },
+  };
+}
+const orb = orbAnimator($("orb"));
 /* Paced breathing: in for 4 counts, out for 6. The orb swells on the in-breath and settles on the out-breath. */
 const BREATH = [{ label: "Breathe in", n: 4, cls: true }, { label: "Breathe out", n: 6, cls: false }];
 let breathTimer = null, breathPhase = 0, breathCount = 1, breaths = 0;
@@ -705,14 +719,14 @@ function breathTick() {
   const ph = BREATH[breathPhase];
   $("breathNum").textContent = breathCount;
   $("breathLabel").textContent = ph.label;
-  if (breathCount === 1) { $("orb").style.transitionDuration = ph.n + "s"; $("orb").classList.toggle("in", ph.cls) }
+  if (breathCount === 1) orb.go(ph.cls ? 1 : .5, ph.n);
   if (++breathCount > ph.n) {
     breathCount = 1; breathPhase = (breathPhase + 1) % BREATH.length;
     if (breathPhase === 0) $("breathMeta").textContent = `${++breaths} slow breath${breaths > 1 ? "s" : ""} · in for 4, out for 6`;
   }
 }
-function startBreath() { stopBreath(); breathPhase = 0; breathCount = 1; breaths = 0; $("breathMeta").textContent = "In for 4, out for 6"; $("orb").classList.remove("in"); requestAnimationFrame(() => { breathTick(); breathTimer = setInterval(breathTick, 1000) }) }
-function stopBreath() { clearInterval(breathTimer); breathTimer = null }
+function startBreath() { stopBreath(); breathPhase = 0; breathCount = 1; breaths = 0; $("breathMeta").textContent = "In for 4, out for 6"; orb.set(.5); requestAnimationFrame(() => { breathTick(); breathTimer = setInterval(breathTick, 1000) }) }
+function stopBreath() { clearInterval(breathTimer); breathTimer = null; orb.stop() }
 
 /* While a dialog is open the page behind it is inert, and Tab cycles within the dialog. */
 function setModal(on) { document.querySelector(".wrap").inert = on; $("splootBtn").inert = on }

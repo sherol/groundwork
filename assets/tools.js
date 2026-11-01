@@ -136,6 +136,21 @@
      trigger: the buttons that open it (a selector; the page's .sploot-fab by default). */
   const ACORN = `<svg viewBox="0 0 200 200" aria-hidden="true"><defs><radialGradient id="nutG" cx="38%" cy="38%" r="75%"><stop offset="0" stop-color="#ffe6a6"/><stop offset=".35" stop-color="#e2a64a"/><stop offset=".75" stop-color="#b06d28"/><stop offset="1" stop-color="#7c4a1d"/></radialGradient><linearGradient id="capG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#a77b4f"/><stop offset="1" stop-color="#6b4a2c"/></linearGradient><pattern id="capTex" width="12" height="12" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><path d="M0 0h12M0 0v12" stroke="#4e3420" stroke-width="2" opacity=".55"/></pattern><clipPath id="capClip"><path d="M10 80c0-36 40-54 90-54s90 18 90 54c0 10-12 14-28 14H38c-16 0-28-4-28-14Z"/></clipPath></defs><path d="M100 28c2-12 10-20 20-22" fill="none" stroke="#5a3d23" stroke-width="7" stroke-linecap="round"/><path d="M24 86H176C182 146 150 194 100 196C50 194 18 146 24 86Z" fill="url(#nutG)" stroke="#5a3d23" stroke-width="4"/><ellipse cx="60" cy="122" rx="12" ry="24" fill="#fff" opacity=".28"/><path d="M10 80c0-36 40-54 90-54s90 18 90 54c0 10-12 14-28 14H38c-16 0-28-4-28-14Z" fill="url(#capG)" stroke="#4e3420" stroke-width="4"/><rect x="6" y="20" width="188" height="78" fill="url(#capTex)" clip-path="url(#capClip)"/></svg>`;
   const CRISIS = `<div class="crisis">If you feel unsafe or overwhelmed, reach a person now. US: call or text <b>988</b> (Suicide &amp; Crisis Lifeline). UK &amp; Ireland: Samaritans <b>116 123</b>. Emergency: <b>911</b> / <b>999</b> / <b>112</b>. Elsewhere: findahelpline.com.</div>`;
+/* The acorn's breathing, drawn frame by frame. (A CSS transition on transform plus filter is skipped or frozen by some mobile
+     browsers, notably iPhone Safari.) Scale .5 = breathed out, 1 = breathed in. With Reduce Motion on it still breathes, over a
+     smaller range, because pacing the breath is the point. */
+  function orbAnimator(el) {
+    const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const show = s => { el.style.transform = `scale(${reduce ? .7 + (s - .5) * .4 : s})` };
+    const ease = t => t < .5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+    let raf = 0, from = .5, cur = .5, to = .5, start = 0, dur = 1;
+    const frame = now => { const t = Math.min(1, (now - start) / dur); cur = from + (to - from) * ease(t); show(cur); if (t < 1) raf = requestAnimationFrame(frame) };
+    return {
+      go(target, seconds) { cancelAnimationFrame(raf); from = cur; to = target; dur = seconds * 1000; start = performance.now(); raf = requestAnimationFrame(frame) },
+      set(s) { cancelAnimationFrame(raf); cur = to = s; show(s) },
+      stop() { cancelAnimationFrame(raf) },
+    };
+  }
   function sploot(cfg) {
     const breath = cfg.breath || [{ label: "Breathe in", n: 4, grow: true }, { label: "Breathe out", n: 6, grow: false }];
     const pace = breath.map(b => b.n).join("-");
@@ -166,20 +181,21 @@
     const tick = () => {
       const b = breath[ph];
       q("spNum").textContent = n; q("spLabel").textContent = b.label;
-      if (n === 1 && b.grow !== null) { q("spOrb").style.transitionDuration = b.n + "s"; q("spOrb").classList.toggle("in", b.grow) }
+      if (n === 1 && b.grow !== null) orb.go(b.grow ? 1 : .5, b.n);
       if (++n > b.n) { n = 1; ph = (ph + 1) % breath.length; if (ph === 0) q("spMeta").textContent = `${++count} slow breath${count > 1 ? "s" : ""} · ${cfg.breathText || pace}` }
     };
+    const orb = orbAnimator(q("spOrb"));
     const page = () => document.querySelector(".wrap");
     const fabs = () => document.querySelectorAll(".sploot-fab");
     function open() {
       last = document.activeElement; gi = 0; ph = 0; n = 1; count = 0;
       if (cfg.steps) showStep(); else { o.querySelectorAll(".todo-item input").forEach(c => c.checked = false); showCount() }
       o.hidden = false; page().inert = true; fabs().forEach(f => f.inert = true);
-      q("spOrb").classList.remove("in"); clearInterval(timer);
+      orb.set(.5); clearInterval(timer);
       requestAnimationFrame(() => { tick(); timer = setInterval(tick, 1000) });
       (cfg.steps ? q("spNext") : o.querySelector(".todo-item input")).focus();
     }
-    function close() { o.hidden = true; clearInterval(timer); page().inert = false; fabs().forEach(f => f.inert = false); last?.focus?.() }
+    function close() { o.hidden = true; clearInterval(timer); orb.stop(); page().inert = false; fabs().forEach(f => f.inert = false); last?.focus?.() }
     if (cfg.steps) {
       q("spNext").onclick = () => { gi = Math.min(gi + 1, cfg.steps.length - 1); showStep() };
       q("spPrev").onclick = () => { gi = Math.max(gi - 1, 0); showStep() };
