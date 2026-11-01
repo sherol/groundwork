@@ -13,16 +13,17 @@ if (/^#(intro|phase-\d+)$/.test(location.hash)) location.replace("somatic.html" 
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;700;800&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&display=swap">
-<link rel="stylesheet" href="assets/tools.css?v=1">
+<link rel="stylesheet" href="assets/tools.css?v=2">
 </head>
 <body>
 <div class="wrap">
+  <div class="index-bar links" data-sync></div>
   <header class="hero">
     <img src="assets/emblem.png" alt="Groundwork logo: a California ground squirrel holding an acorn on rocks">
     <div>
       <h1>Groundwork</h1>
       <p class="lede">Self-guided tools for a steadier body and mind.</p>
-      <p>Four practices that work well together: settle the body, untangle hard thoughts, ride out strong emotions, and care for your gut. Pick one to start. Your progress stays in this browser.</p>
+      <p>Four practices that work well together: settle the body, untangle hard thoughts, ride out strong emotions, and care for your gut. Pick one to start. Your progress stays in this browser, and can sync to one Google Sheet.</p>
     </div>
   </header>
 
@@ -32,7 +33,7 @@ if (/^#(intro|phase-\d+)$/.test(location.hash)) location.replace("somatic.html" 
       <span class="num">1 · Body</span>
       <h2>Somatic Experiencing Method</h2>
       <p>A 12-phase program for steadying your nervous system through body sensation, following Peter Levine's healing trauma program.</p>
-      <ul><li>Lessons, guided exercises and audio</li><li>Before/after activation ratings</li><li>One-page therapist report and Google Sheets sync</li></ul>
+      <ul><li>Lessons, guided exercises and audio</li><li>Before/after activation ratings</li><li>One-page therapist report</li></ul>
       <span class="status" id="st-somatic"></span>
     </a>
     <a class="tool t2" href="thoughts.html">
@@ -55,7 +56,7 @@ if (/^#(intro|phase-\d+)$/.test(location.hash)) location.replace("somatic.html" 
       <span class="art"><svg viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 35V18"/><path d="M20 22c0-7-5-11-12-11 0 7 5 11 12 11Z"/><path d="M20 18c0-6 4-10 11-10 0 6-4 10-11 10Z"/></svg></span>
       <span class="num">4 · Gut</span>
       <h2>Integrative Eating</h2>
-      <p>Calm, mindful meals and gut health: breathe before you eat, chew fully, build fiber slowly, and be your own private investigator.</p>
+      <p>Calm, mindful meals and gut health: breathe before you eat, chew each bite 30–50 times, build fiber slowly, and be your own private investigator.</p>
       <ul><li>How digestion works, from mouth to gut</li><li>Pre-meal breathing and weekly homework</li><li>Daily food, fiber and symptom log</li></ul>
       <span class="status" id="st-eating"></span>
     </a>
@@ -63,16 +64,17 @@ if (/^#(intro|phase-\d+)$/.test(location.hash)) location.replace("somatic.html" 
 
   <footer class="safety">
     <p><b>Groundwork is a self-regulation and learning tool, not therapy, medical advice or a substitute for care.</b> Use it alongside your therapist, doctor or care team. Go slowly and stop whenever you want. <a href="about.html">About the 12 somatic phases</a>.</p>
-    <p>Everything you enter stays in this browser on this device. The Somatic Experiencing program can also sync to a spreadsheet in your own Google Drive if you connect it.</p>
+    <p>Everything you enter stays in this browser on this device. Connect Google Sheets (top of any page) to keep all four sections in one spreadsheet, <b>Groundwork progress</b>, in your own Google Drive, and to use them on another device. Groundwork can only see files it created, never the rest of your Drive.</p>
     <p>If you're in crisis in the US, call or text <b>988</b>. UK &amp; Ireland: Samaritans <b>116 123</b>. Emergency: <b>911</b> / <b>999</b> / <b>112</b>. Elsewhere: findahelpline.com.</p>
   </footer>
 </div>
 
 <a class="sploot-fab" href="somatic.html?sploot"><img src="assets/emblem.png" alt="">Sploot now</a>
 
+<script src="assets/tools.js?v=2"></script>
 <script>
 /* A line of progress under each tool, read from what each page has saved in this browser. */
-(() => {
+function showStatus() {
   const get = k => { try { return JSON.parse(localStorage.getItem(k)) } catch { return null } };
   const set = (id, t) => { document.getElementById(id).textContent = t };
   const s = get("groundwork-v1");
@@ -85,7 +87,14 @@ if (/^#(intro|phase-\d+)$/.test(location.hash)) location.replace("somatic.html" 
   set("st-thoughts", n("groundwork-thoughts", "thought record", "thought records", "Learn the thinking traps →"));
   set("st-dbt", n("groundwork-dbt", "diary card", "diary cards", "Explore the four modules →"));
   set("st-eating", n("groundwork-eating", "day", "days", "Start with calm, mindful meals →"));
-})();
+}
+showStatus();
+window.addEventListener("groundwork-synced", showStatus);
 </script>
+<script src="config.js?v=11"></script>
+<script src="sync.js?v=11"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script>GroundworkSync.ready()</script>
 </body>
 </html>

@@ -9,7 +9,7 @@
 <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;700;800&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&display=swap">
-<link rel="stylesheet" href="assets/tools.css?v=1">
+<link rel="stylesheet" href="assets/tools.css?v=2">
 <style>
 .finder { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px }
 .finder button { text-align: left; border: 1px solid var(--line); background: var(--bg); color: var(--ink); border-radius: 12px; padding: 12px 14px; font-weight: 700 }
@@ -21,7 +21,7 @@
 <div class="wrap">
   <nav class="top" aria-label="Site">
     <a class="home" href="./"><img src="assets/emblem.png" alt="">Groundwork</a>
-    <div class="links"><a class="btn" href="./">All tools</a></div>
+    <div class="links" data-sync><a class="btn" href="./">All tools</a></div>
   </nav>
 
   <header class="page-head">
@@ -101,15 +101,15 @@
 
   <footer class="safety">
     <p><b>Groundwork is a self-help and learning tool, not therapy.</b> DBT was developed by Marsha M. Linehan; see her <i>DBT Skills Training Manual</i> (2nd ed., Guilford Press, 2015). The skills here are summarized in our own words. Groundwork isn't affiliated with or endorsed by Dr. Linehan or Behavioral Tech. DBT works best in a program with a trained therapist.</p>
-    <p>Your diary cards stay in this browser on this device. They aren't synced to Google Sheets.</p>
+    <p>Your diary cards stay in this browser on this device. If you connect Google Sheets (top of the page), they go into the same <b>Groundwork progress</b> spreadsheet as the rest of Groundwork.</p>
     <p>Scripture quotations taken from The Holy Bible, New International Version® NIV®. Copyright © 1973, 1978, 1984, 2011 by Biblica, Inc.™ Used by permission. All rights reserved worldwide.</p>
     <p>If you're having urges to hurt yourself or you're in crisis: in the US, call or text <b>988</b>. UK &amp; Ireland: Samaritans <b>116 123</b>. Emergency: <b>911</b> / <b>999</b> / <b>112</b>. Elsewhere: findahelpline.com.</p>
   </footer>
 </div>
 
-<a class="sploot-fab" href="somatic.html?sploot"><img src="assets/emblem.png" alt="">Sploot now</a>
+<button type="button" class="sploot-fab" aria-haspopup="dialog"><img src="assets/emblem.png" alt="">Sploot now</button>
 
-<script src="assets/tools.js?v=1"></script>
+<script src="assets/tools.js?v=2"></script>
 <script>
 /* Each skill: id, name, short "what", and steps as [letter or label, text] pairs. */
 const MODULES = [
@@ -185,7 +185,7 @@ GW.$("finderBtns").addEventListener("click", e => {
   const b = e.target.closest("[data-need]"); if (!b) return;
   GW.$("finderBtns").querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", x === b));
   const n = NEEDS[+b.dataset.need];
-  GW.$("finderOut").innerHTML = (n.note ? `<div class="callout">${GW.esc(n.note)}${n.sploot ? ` <a href="somatic.html?sploot">Open Sploot now</a> for paced breathing.` : ""}</div>` : "")
+  GW.$("finderOut").innerHTML = (n.note ? `<div class="callout">${GW.esc(n.note)}${n.sploot ? ` <button type="button" class="linkbtn" data-open-sploot>Open Sploot now</button> to walk through STOP and TIPP.` : ""}</div>` : "")
     + n.ids.map(id => { const s = byId(id); return `<div class="tile" style="background:var(--surface);border:1px solid var(--line)"><span class="eyebrow">${GW.esc(s.module)}</span>${skillHTML(s)}</div>` }).join("");
   GW.$("finderOut").scrollIntoView({ behavior: "smooth", block: "nearest" });
 });
@@ -201,6 +201,26 @@ const J = GW.journal({
 GW.$("copyMd").onclick = J.copyMarkdown;
 GW.$("saveFile").onclick = J.saveFile;
 GW.$("form").addEventListener("submit", () => document.querySelector('[aria-controls="saved"]').click());
+
+const SP = GW.sploot({
+  eyebrow: "Sploot · STOP and TIPP", title: "Ride the wave",
+  steps: [
+    "S: Stop. Freeze for a moment. You don't have to act on this urge right now.",
+    "T: Take a step back. Breathe. Give yourself a little distance from the situation.",
+    "Temperature: if you can, splash cold water on your face or hold something cold for 30 seconds. It slows your heart.",
+    "Paced breathing: follow the acorn. Breathe out longer than you breathe in.",
+    "Paired muscle relaxation: tense your hands and shoulders as you breathe in, then let them go as you breathe out. Twice more.",
+    "O: Observe. What am I feeling? What's the urge? Where is it in my body? Just notice.",
+    "P: Proceed mindfully. Ask wise mind: what will make this better, not worse?",
+    "Emotions rise, peak and pass, like waves. This one will pass too.",
+  ],
+});
+document.addEventListener("click", e => { if (e.target.closest("[data-open-sploot]")) SP.open() });
 </script>
+<script src="config.js?v=11"></script>
+<script src="sync.js?v=11"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script>GroundworkSync.ready()</script>
 </body>
 </html>

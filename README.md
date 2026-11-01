@@ -9,7 +9,13 @@ Self-guided tools for a steadier body and mind. The start page (`index.html`) of
 3. **DBT Skills** (`dbt.html`): the four DBT modules (mindfulness, distress tolerance, emotion regulation, interpersonal effectiveness) in plain language, a "What do I need right now?" skill finder, and a daily diary card.
 4. **Integrative Eating** (`eating.html`): calm, mindful meals and gut health: pre-meal breathing (with a guided 1-minute 4-7-8 breath), a tour of digestion, building fiber slowly, weekly homework, an optional baking-soda-test log, a fiber estimator and a daily food, fiber and symptom log.
 
-The three new tools save to this browser only (`localStorage` keys `groundwork-thoughts`, `groundwork-dbt`, `groundwork-eating`, `groundwork-eating-bst`, `groundwork-eating-week`). Saved entries can be copied as Markdown or saved as a printable HTML file. They aren't synced to Google Sheets. Every page has a **Sploot now** button that opens the grounding sequence (`somatic.html?sploot`).
+Everything saves in the browser first. **Sync to Google Sheets** (on every page) keeps all four sections in one spreadsheet (see below). Saved entries can also be copied as Markdown or saved as a printable HTML file.
+
+**Each section has its own Sploot now:**
+- Somatic Experiencing: the original grounding steps with the paced-breathing acorn (also opened from the start page, `somatic.html?sploot`).
+- Thought Records: "A thought is not a fact": pause, name the thought, find it in the body, ground, breathe, be kind to yourself.
+- DBT: "Ride the wave": STOP and TIPP (cold water, paced breathing, paired muscle relaxation), step by step.
+- Integrative Eating: a **before-you-eat checklist** beside a 4-7-8 breathing acorn: set the table (sit down, phone down, fork down), ground, breathe, be mindful (look, smell, gratitude, hunger check) and chew each bite 30–50 times. It starts fresh each time.
 
 Old links such as `index.html#intro` and `index.html#phase-3` redirect to the same place in `somatic.html`.
 
@@ -45,11 +51,14 @@ The program follows Peter A. Levine, *Healing Trauma: A Pioneering Program for R
 
 - **Always:** in your browser on this device (`localStorage`, key `groundwork-v1`). Nothing is sent anywhere unless you connect Google Sheets.
 - Progress saved before the twelve-phase restructure is moved over automatically the first time the new version loads: notes, ratings and check-ins go to the new phase that covers the same ground (each note is labelled with its old phase), and ticks carry over only where the content didn't change.
-- **If you click "Sync to Google Sheets":** Groundwork creates a spreadsheet called **Groundwork progress** in your Google Drive and keeps it up to date. It has these tabs:
-  - **Progress:** one row per phase
+- **If you click "Sync to Google Sheets"** (on any page): Groundwork creates a spreadsheet called **Groundwork progress** in your Google Drive and keeps all four sections up to date in it. It has these tabs:
+  - **Progress:** one row per Somatic Experiencing phase
   - **Check-ins:** one row per before/after rating, so you can see trends over time
   - **Notes:** your notes per phase
-  - **_data** (hidden): the full app state, used to restore your progress on another device. Don't edit it.
+  - **Thought records**, **DBT diary**, **Eating log**, **Baking soda test:** one row per saved entry
+  - **_data** and **_tools** (hidden): the full state of every section, used to restore your progress on another device. Don't edit them.
+- A spreadsheet made before the new sections existed gets their tabs added the next time it syncs.
+- Merging: for Somatic Experiencing, the copy changed most recently wins (below). Thought records, diary cards and log entries from both copies are combined, and an entry deleted on one device stays deleted. For the eating homework checklist, the most recent change wins.
 - The app asks only for the `drive.file` permission. It can see the files it created and nothing else in your Drive.
 - When you connect, if the browser copy and the spreadsheet differ, the one changed most recently wins. Anything you change while it's connecting is kept either way. After that, each change is written to the spreadsheet a moment later. Moving between phases doesn't count as a change: it's remembered on this device and goes along with your next real change.
 - If the spreadsheet is deleted while you're connected, Groundwork says so and sets it up again (finding another Groundwork spreadsheet in your Drive, or making a new one) and syncs again.
@@ -89,10 +98,10 @@ There is no build step. Sign-in only works on an authorized domain, so add `loca
 | `thoughts.html` | Thought records and cognitive distortions |
 | `dbt.html` | DBT skills, skill finder and diary card |
 | `eating.html` | Integrative eating and gut health |
-| `assets/tools.css`, `assets/tools.js` | Shared styles and helpers (tabs, saved entries, export) for the start page and the three new tools |
+| `assets/tools.css`, `assets/tools.js` | Shared styles and helpers (tabs, saved entries, export, the Sploot overlay and checklist, the sync controls) for the start page and the three new tools |
 | `about.html` | The 12 phases at a glance |
 | `config.js` | Firebase settings for Google sign-in |
-| `sync.js` | Google Sheets sync |
+| `sync.js` | Google Sheets sync for all four sections, from any page |
 | `assets/` | Emblem, favicon and touch icon, plus `logo-full.png` (not used by the pages) |
 | `audio/` | Guided audio, one MP3 per phase |
 
