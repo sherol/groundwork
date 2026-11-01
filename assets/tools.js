@@ -6,6 +6,8 @@
 
   function load(key, fallback) { try { const v = JSON.parse(localStorage.getItem(key)); return v ?? fallback } catch { return fallback } }
   function save(key, v) { try { localStorage.setItem(key, JSON.stringify(v)); return true } catch { return false } }
+  /* Save a change that belongs in Google Sheets (when connected; see sync.js). */
+  const synced = () => window.GroundworkSync?.queue();
 
   function toast(m) {
     let t = $("toast");
@@ -45,6 +47,7 @@
     });
     document.addEventListener("click", e => { const a = e.target.closest("[data-tab]"); if (a) { e.preventDefault(); show(a.dataset.tab); container.scrollIntoView({ behavior: "smooth" }) } });
     show(location.hash.slice(1) || load(memoryKey, ""));
+    window.addEventListener("hashchange", () => { if (btns.some(b => "#" + b.getAttribute("aria-controls") === location.hash)) show(location.hash.slice(1)) });
     return show;
   }
 
@@ -85,7 +88,7 @@
       F.forEach(f => { entry[f.name] = f.multi ? fd.getAll(f.name) : f.box ? fd.has(f.name) : f.range ? +fd.get(f.name) : (fd.get(f.name) || "").trim() });
       // Untouched sliders are recorded as given only when the person moved them or the form marks them as always recorded.
       form.querySelectorAll('input[type="range"]:not([data-touched]):not([data-keep])').forEach(r => entry[r.name] = "");
-      items.unshift(entry); save(key, items); render();
+      items.unshift(entry); save(key, items); synced(); render();
       form.reset(); form.querySelectorAll("[data-touched]").forEach(r => delete r.dataset.touched);
       form.querySelectorAll('input[type="date"]').forEach(d => d.value = today());
       form.querySelectorAll('input[type="range"]').forEach(r => r.dispatchEvent(new Event("input")));
@@ -96,11 +99,16 @@
     list.addEventListener("click", e => {
       const b = e.target.closest("[data-del]"); if (!b) return;
       if (!confirm("Delete this entry? This can't be undone.")) return;
-      items.splice(+b.dataset.del, 1); save(key, items); render(); toast("Deleted");
+      // Remember the deleted id so syncing with another device doesn't bring the entry back.
+      const [gone] = items.splice(+b.dataset.del, 1); save(key, items);
+      if (gone?.id) save(key + "-deleted", [...load(key + "-deleted", []), gone.id]);
+      synced(); render(); toast("Deleted");
     });
     form.querySelectorAll('input[type="date"]').forEach(d => d.value ||= today());
     wireRanges(form);
     render();
+    // Entries from another device arrived through Google Sheets.
+    window.addEventListener("groundwork-synced", () => { items = load(key, []); render() });
 
     const markdown = () => `# ${name}\n\n` + (items.length ? items.map(e => `## ${title(e)}\n\n` + rowsOf(e).map(([k, v]) => `- **${k}:** ${String(v).replace(/\n+/g, " / ")}`).join("\n")).join("\n\n") : "_No entries yet._") + "\n";
     const html = () => `<!doctype html><html><head><meta charset="utf-8"><title>${esc(name)}</title><style>body{font:13px/1.45 Verdana,sans-serif;color:#222;max-width:760px;margin:24px auto;padding:0 20px}h1{font-size:20px}h2{font-size:14px;margin:18px 0 4px;border-bottom:1px solid #e3ddca;padding-bottom:2px}dl{display:grid;grid-template-columns:max-content 1fr;gap:2px 12px;margin:0}dt{color:#6b6450;font-weight:bold}dd{margin:0;white-space:pre-wrap}@page{size:letter;margin:.6in}</style></head><body><h1>${esc(name)}</h1><p style="color:#777">Saved ${esc(fmtDate(new Date()))} from Groundwork. Self-reported; not a clinical record.</p>${items.map(e => `<h2>${esc(title(e))}</h2><dl>${rowsOf(e).map(([k, v]) => `<dt>${esc(k)}</dt><dd>${esc(v)}</dd>`).join("")}</dl>`).join("") || "<p>No entries yet.</p>"}</body></html>`;
@@ -113,12 +121,83 @@
 
   /* A simple persistent checklist: checkboxes with data-key inside root. */
   function checklist(root, key) {
-    const s = load(key, {});
-    root.querySelectorAll("input[type=checkbox][data-key]").forEach(c => {
-      c.checked = !!s[c.dataset.key];
-      c.addEventListener("change", () => { s[c.dataset.key] = c.checked; save(key, s) });
-    });
+    let s = load(key, {});
+    const boxes = [...root.querySelectorAll("input[type=checkbox][data-key]")];
+    const show = () => boxes.forEach(c => c.checked = !!s[c.dataset.key]);
+    boxes.forEach(c => c.addEventListener("change", () => { s[c.dataset.key] = c.checked; save(key, s); save(key + "-meta", new Date().toISOString()); synced() }));
+    window.addEventListener("groundwork-synced", () => { s = load(key, {}); show() });
+    show();
   }
 
-  window.GW = { $, esc, load, save, toast, copy, download, today, fmtDate, tabs, journal, checklist, wireRanges };
+  /* ---------- Sploot: each page's own settling overlay ----------
+     GW.sploot({ eyebrow, title, steps: [...] }) walks through steps one at a time beside the paced-breathing acorn.
+     GW.sploot({ eyebrow, title, checklist: [{ group, items: [...] }] }) shows a to-do list (fresh each time) beside the acorn.
+     breath: [{ label, n, grow }] sets the pacing (grow: true swells, false settles, null holds). The page's .sploot-fab opens it. */
+  const ACORN = `<svg viewBox="0 0 200 200" aria-hidden="true"><defs><radialGradient id="nutG" cx="38%" cy="38%" r="75%"><stop offset="0" stop-color="#ffe6a6"/><stop offset=".35" stop-color="#e2a64a"/><stop offset=".75" stop-color="#b06d28"/><stop offset="1" stop-color="#7c4a1d"/></radialGradient><linearGradient id="capG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#a77b4f"/><stop offset="1" stop-color="#6b4a2c"/></linearGradient><pattern id="capTex" width="12" height="12" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><path d="M0 0h12M0 0v12" stroke="#4e3420" stroke-width="2" opacity=".55"/></pattern><clipPath id="capClip"><path d="M10 80c0-36 40-54 90-54s90 18 90 54c0 10-12 14-28 14H38c-16 0-28-4-28-14Z"/></clipPath></defs><path d="M100 28c2-12 10-20 20-22" fill="none" stroke="#5a3d23" stroke-width="7" stroke-linecap="round"/><path d="M24 86H176C182 146 150 194 100 196C50 194 18 146 24 86Z" fill="url(#nutG)" stroke="#5a3d23" stroke-width="4"/><ellipse cx="60" cy="122" rx="12" ry="24" fill="#fff" opacity=".28"/><path d="M10 80c0-36 40-54 90-54s90 18 90 54c0 10-12 14-28 14H38c-16 0-28-4-28-14Z" fill="url(#capG)" stroke="#4e3420" stroke-width="4"/><rect x="6" y="20" width="188" height="78" fill="url(#capTex)" clip-path="url(#capClip)"/></svg>`;
+  const CRISIS = `<div class="crisis">If you feel unsafe or overwhelmed, reach a person now. US: call or text <b>988</b> (Suicide &amp; Crisis Lifeline). UK &amp; Ireland: Samaritans <b>116 123</b>. Emergency: <b>911</b> / <b>999</b> / <b>112</b>. Elsewhere: findahelpline.com.</div>`;
+  function sploot(cfg) {
+    const breath = cfg.breath || [{ label: "Breathe in", n: 4, grow: true }, { label: "Breathe out", n: 6, grow: false }];
+    const pace = breath.map(b => b.n).join("-");
+    const o = document.createElement("div");
+    o.className = "overlay"; o.id = "splootOverlay"; o.hidden = true;
+    o.setAttribute("role", "dialog"); o.setAttribute("aria-modal", "true"); o.setAttribute("aria-labelledby", "splootTitle");
+    const items = cfg.checklist ? cfg.checklist.flatMap(g => g.items) : [];
+    o.innerHTML = `<div class="sheet ground-sheet${cfg.checklist ? " list-sheet" : ""}">
+      <span class="eyebrow">${esc(cfg.eyebrow)}</span><h2 id="splootTitle">${esc(cfg.title)}</h2>
+      ${cfg.intro ? `<p class="ground-intro">${esc(cfg.intro)}</p>` : ""}
+      <div class="breath-stage${cfg.checklist ? " small" : ""}"><span class="ring"></span><span class="ring r2"></span><span class="ring r3"></span>
+        <div class="orb" id="spOrb">${ACORN}<div class="breath-count"><b id="spNum">1</b><span id="spLabel">${esc(breath[0].label)}</span></div></div></div>
+      <p class="breath-meta" id="spMeta">${esc(cfg.breathText || breath.map(b => `${b.label.replace(/^Breathe /, "")} ${b.n}`).join(", "))}</p>
+      ${cfg.checklist ? `<div class="todo" id="spTodo">${cfg.checklist.map(g => `<div class="todo-group"><h3>${esc(g.group)}</h3>${g.items.map(it => { const k = items.indexOf(it); return `<label class="todo-item"><input type="checkbox" data-i="${k}"><span>${it}</span></label>` }).join("")}</div>`).join("")}</div>
+        <p class="todo-count" id="spCount" aria-live="polite"></p>
+        <div class="row"><button class="btn primary" id="spClose" type="button">${esc(cfg.done || "Done")}</button></div>`
+      : `<p class="ground-step" id="spStep" aria-live="polite"></p><div class="dots" id="spDots" aria-hidden="true"></div>
+        <div class="row"><button class="btn" id="spPrev" type="button">Back</button><button class="btn primary" id="spNext" type="button">Next</button><button class="btn" id="spClose" type="button" style="margin-left:auto">${esc(cfg.done || "I'm steadier, close")}</button></div>`}
+      ${cfg.crisis === false ? "" : CRISIS}</div>`;
+    document.body.append(o);
+    const q = id => o.querySelector("#" + id);
+    let gi = 0, timer = null, ph = 0, n = 1, count = 0, last = null;
+    const showStep = () => {
+      q("spStep").textContent = cfg.steps[gi]; q("spPrev").disabled = gi === 0; q("spNext").hidden = gi === cfg.steps.length - 1;
+      q("spDots").innerHTML = cfg.steps.map((_, k) => `<i class="${k <= gi ? "on" : ""}"></i>`).join("");
+    };
+    const showCount = () => { const d = o.querySelectorAll(".todo-item input:checked").length; q("spCount").textContent = d === items.length ? "All done. Enjoy your meal." : `${d} of ${items.length} done` };
+    const tick = () => {
+      const b = breath[ph];
+      q("spNum").textContent = n; q("spLabel").textContent = b.label;
+      if (n === 1 && b.grow !== null) { q("spOrb").style.transitionDuration = b.n + "s"; q("spOrb").classList.toggle("in", b.grow) }
+      if (++n > b.n) { n = 1; ph = (ph + 1) % breath.length; if (ph === 0) q("spMeta").textContent = `${++count} slow breath${count > 1 ? "s" : ""} · ${cfg.breathText || pace}` }
+    };
+    const page = () => document.querySelector(".wrap");
+    function open() {
+      last = document.activeElement; gi = 0; ph = 0; n = 1; count = 0;
+      if (cfg.steps) showStep(); else { o.querySelectorAll(".todo-item input").forEach(c => c.checked = false); showCount() }
+      o.hidden = false; page().inert = true; document.querySelector(".sploot-fab").inert = true;
+      q("spOrb").classList.remove("in"); clearInterval(timer);
+      requestAnimationFrame(() => { tick(); timer = setInterval(tick, 1000) });
+      (cfg.steps ? q("spNext") : o.querySelector(".todo-item input")).focus();
+    }
+    function close() { o.hidden = true; clearInterval(timer); page().inert = false; document.querySelector(".sploot-fab").inert = false; last?.focus?.() }
+    if (cfg.steps) {
+      q("spNext").onclick = () => { gi = Math.min(gi + 1, cfg.steps.length - 1); showStep() };
+      q("spPrev").onclick = () => { gi = Math.max(gi - 1, 0); showStep() };
+    } else o.addEventListener("change", showCount);
+    q("spClose").onclick = close;
+    o.addEventListener("keydown", e => {
+      if (e.key === "Escape") return close();
+      if (e.key !== "Tab") return;
+      const f = [...o.querySelectorAll("button, input, a[href]")].filter(el => !el.disabled && el.getClientRects().length);
+      if (e.shiftKey && document.activeElement === f[0]) { e.preventDefault(); f[f.length - 1].focus() }
+      else if (!e.shiftKey && document.activeElement === f[f.length - 1]) { e.preventDefault(); f[0].focus() }
+    });
+    const fab = document.querySelector(".sploot-fab");
+    if (fab) fab.addEventListener("click", e => { e.preventDefault(); open() });
+    return { open, close };
+  }
+
+  /* The Google Sheets controls (wired up by sync.js) go at the start of the page's .links[data-sync]. */
+  const bar = document.querySelector("[data-sync]");
+  if (bar) bar.insertAdjacentHTML("afterbegin", `<div class="sync" id="sync"><span class="sync-state" id="syncState">Saved on this device</span><a class="btn" id="openSheet" href="#" target="_blank" rel="noopener" hidden>Open sheet</a><button class="btn" id="signIn" type="button">Sync to Google Sheets</button><button class="btn" id="signOut" type="button" hidden>Disconnect</button></div>`);
+
+  window.GW = { $, esc, load, save, synced, toast, copy, download, today, fmtDate, tabs, journal, checklist, wireRanges, sploot };
 })();
