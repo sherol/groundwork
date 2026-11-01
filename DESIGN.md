@@ -3,6 +3,8 @@
 **Status:** live at https://sherol.github.io/groundwork · **Repo:** `sherol/groundwork` (`main` publishes via GitHub Pages) · **Updated:** Nov 1, 2026
 
 ## Purpose
+Groundwork opens on a start page with four tools: the **Somatic Experiencing Method** (the 12-phase program this doc mainly describes, now at `somatic.html`), **Thought Records & Cognitive Distortions** (`thoughts.html`), **DBT Skills** (`dbt.html`) and **Integrative Eating** (`eating.html`). The three newer tools share `assets/tools.css` and `assets/tools.js`, save to `localStorage` only, and export saved entries as Markdown or a printable HTML file.
+
 A self-guided, body-based program for steadying the nervous system after trauma, following the order of Peter Levine's twelve-phase healing trauma program. It's a learning and practice companion to use alongside a therapist, not therapy. Exercises stay with present-moment sensation and never ask the user to revisit a traumatic memory.
 
 ## Who it's for
@@ -29,7 +31,7 @@ A self-guided, body-based program for steadying the nervous system after trauma,
 - **About page:** the 12 phases at a glance, in four colored groups.
 
 ## Architecture
-- **Static site with no build step:** `index.html` (app), `about.html`, `sync.js` (Google Sheets sync), `config.js` (Firebase settings), `assets/`, `audio/`.
+- **Static site with no build step:** `index.html` (start page), `somatic.html` (12-phase app), `thoughts.html`, `dbt.html`, `eating.html`, `about.html`, `sync.js` (Google Sheets sync), `config.js` (Firebase settings), `assets/`, `audio/`.
 - **State:** one JSON object `{ v, checks, lesson, exercise, notes, pre, post, log, current, started, updated }`, saved in `localStorage`. Version 1 state from the old phase list is migrated automatically to version 2.
 - **Optional Google Sheets sync:**
   - Signs in with Firebase Auth (the same Firebase project as mdlife) with the `drive.file` scope, so the app can see only the spreadsheet it creates.
