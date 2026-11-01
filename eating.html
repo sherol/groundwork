@@ -22,6 +22,10 @@
 .food output { min-width: 1.4em; text-align: center; font-weight: 700; font-variant-numeric: tabular-nums }
 .total { font: 800 22px var(--display); color: var(--c) }
 table.ramp { border-collapse: collapse; font-size: 15px; max-width: 520px }
+.bst-row { border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; margin: 0; display: grid; grid-template-columns: minmax(130px, 1fr) minmax(170px, 1.3fr) minmax(150px, 1.2fr); gap: 10px; align-items: end; background: var(--bg) }
+.bst-row input, .bst-row select { min-width: 0 }
+@media (max-width: 720px) { .bst-row { grid-template-columns: minmax(0, 1fr) } }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap }
 table.ramp td, table.ramp th { text-align: left; padding: 4px 10px 4px 0; border-bottom: 1px solid var(--line) }
 </style>
 </head>
@@ -160,12 +164,12 @@ table.ramp td, table.ramp th { text-align: left; padding: 4px 10px 4px 0; border
       <ol>
         <li>First thing in the morning, before eating or drinking, mix ¼ teaspoon of <b>fresh</b> baking soda into 4 oz of cold water.</li>
         <li>Drink it and start a timer. Note how long it takes to burp. Stop timing at 5 minutes.</li>
-        <li>Repeat for 3 mornings in a row.</li>
+        <li>Repeat for 3 mornings in a row, or as many days as your clinician asks. Log each morning below.</li>
       </ol>
       <p>In theory, burping within 1–2 minutes suggests enough stomach acid; burping after 3 minutes, or not at all, may suggest low acid, which your clinician may want to look into.</p>
-      <form id="bstForm" class="grid3" style="align-items:end">
-        <label class="field"><span>Date</span><input type="date" name="date"></label>
-        <label class="field"><span>Time to burp</span><select name="time" required><option value="">Choose…</option><option>Under 1 minute</option><option>1–2 minutes</option><option>2–3 minutes</option><option>3–5 minutes</option><option>No burp within 5 minutes</option></select></label>
+      <form id="bstForm" class="stack" novalidate>
+        <p class="hint">Choose a result, type how long it took, or both (for example <b>1.5</b> or <b>1:30</b>). Choose <b>No baking soda</b> for a morning you drank the water without it, and still type the minutes if you burped.</p>
+        <div id="bstRows" class="stack" style="gap:10px"></div>
         <div class="row"><button type="submit" class="btn primary">Save result</button></div>
       </form>
       <div class="entries" id="bstList"></div>
@@ -240,7 +244,7 @@ table.ramp td, table.ramp th { text-align: left; padding: 4px 10px 4px 0; border
 </div>
 
 
-<script src="assets/tools.js?v=4"></script>
+<script src="assets/tools.js?v=5"></script>
 <script>
 const WISDOM = ["Warm water or tea in the morning", "A gentle walk after meals", "A smaller, earlier dinner", "Good sleep habits", "Less screen time", "Meditation and breathwork", "Slowing down and chewing well", "A low-FODMAP elimination trial, with guidance", "Less stress", "Medication when it's needed", "4–5 hours between meals and snacks, so the gut's cleaning wave (the migrating motor complex) can run"];
 GW.$("wisdom").innerHTML = WISDOM.map(w => `<li>${GW.esc(w)}</li>`).join("");
@@ -259,12 +263,41 @@ GW.$("copyMd").onclick = J.copyMarkdown;
 GW.$("saveFile").onclick = J.saveFile;
 GW.$("form").addEventListener("submit", () => { resetFiber(); document.querySelector('[aria-controls="saved"]').click() });
 
-const B = GW.journal({ key: "groundwork-eating-bst", name: "Baking soda test results", form: GW.$("bstForm"), list: GW.$("bstList"), title: e => `${GW.fmtDate(e.date || e.t)} · ${e.time}` });
-GW.$("bstForm").addEventListener("submit", () => setTimeout(() => GW.$("bstForm").scrollIntoView({ behavior: "smooth", block: "nearest" })), true);
+/* ---- baking soda test: one morning at a time; after saving, the date moves to the next morning ---- */
+const BST_RESULTS = ["Under 1 minute", "1–2 minutes", "2–3 minutes", "3–5 minutes", "No burp within 5 minutes", "No baking soda"];
+const bstSummary = e => [e.time, e.minutes && `${e.minutes} min`].filter(Boolean).join(" · ");
+const nextDay = d => { const x = new Date((d || GW.today()) + "T12:00"); x.setDate(x.getDate() + 1); return x.toISOString().slice(0, 10) };
+function bstRow(date) {
+  const k = Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+  GW.$("bstRows").insertAdjacentHTML("beforeend", `<fieldset class="bst-row">
+    <legend class="sr-only">Morning</legend>
+    <label class="field"><span>Date</span><input type="date" data-f="date" value="${date}"></label>
+    <label class="field"><span>Result</span><select data-f="time"><option value="">Choose…</option>${BST_RESULTS.map(r => `<option>${r}</option>`).join("")}</select></label>
+    <label class="field"><span>How long it took (minutes)</span><input type="text" data-f="minutes" inputmode="decimal" placeholder="e.g. 1.5 or 1:30" autocomplete="off"></label>
+  </fieldset>`);
+}
+const bstRows = () => [...GW.$("bstRows").querySelectorAll(".bst-row")];
+const B = GW.journal({
+  key: "groundwork-eating-bst", name: "Baking soda test results", form: GW.$("bstForm"), list: GW.$("bstList"),
+  fields: [{ name: "date", label: "Date" }, { name: "time", label: "Result" }, { name: "minutes", label: "How long it took (minutes)" }],
+  title: e => `${GW.fmtDate(e.date || e.t)} · ${bstSummary(e) || "no result"}`,
+  // A morning needs a result, a time, or both.
+  collect: () => {
+    const got = bstRows().map(r => Object.fromEntries([...r.querySelectorAll("[data-f]")].map(el => [el.dataset.f, el.value.trim()]))).filter(e => e.time || e.minutes);
+    if (!got.length) { GW.toast("Choose a result or type how long it took"); bstRows()[0]?.querySelector("select").focus(); return null }
+    return got;
+  },
+});
+// After saving, the date moves to the morning after the latest result (or today, if that's later).
+GW.$("bstForm").addEventListener("reset", () => setTimeout(() => {
+  const latest = B.items.map(e => e.date).filter(Boolean).sort().at(-1);
+  GW.$("bstRows").innerHTML = ""; bstRow(latest && latest >= GW.today() ? nextDay(latest) : GW.today());
+}));
+bstRow(GW.today());
 GW.$("bstCopy").onclick = () => {
-  const r = [...B.items].reverse();
+  const r = [...B.items].sort((a, b) => (a.date || "").localeCompare(b.date || ""));
   if (!r.length) return GW.toast("No results saved yet");
-  GW.copy("Baking soda test results:\n" + r.map(e => `- ${GW.fmtDate(e.date || e.t)}: ${e.time}`).join("\n"), "Results copied");
+  GW.copy("Baking soda test results:\n" + r.map(e => `- ${GW.fmtDate(e.date || e.t)}: ${bstSummary(e)}`).join("\n"), "Results copied");
 };
 GW.checklist(GW.$("homework"), "groundwork-eating-week");
 
@@ -298,7 +331,7 @@ GW.$("bStop").onclick = () => stopBreath();
 
 GW.sploot({ ...GW.EATING_SPLOOT, trigger: "[data-eat-sploot]" });</script>
 <script src="config.js?v=11"></script>
-<script src="sync.js?v=11"></script>
+<script src="sync.js?v=12"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script>GroundworkSync.ready()</script>

@@ -61,9 +61,12 @@
 
   /* A journal of dated entries built from a <form>. Every named control becomes a field, labelled by the text of its .field heading
      (or data-label). Checkbox groups become lists. Entries are listed newest first with delete, plus copy/save for the whole journal. */
-  function journal({ key, form, list, title, count, name }) {
+  /* Options for forms that don't fit that pattern: fields: [{ name, label }] lists the fields to show; collect(form) returns an array
+     of entries to save at once (or null to save nothing), for forms with repeated rows such as several days of results. */
+  function journal({ key, form, list, title, count, name, fields: given, collect }) {
     let items = load(key, []);
     const fields = () => {
+      if (given) return given.map(f => ({ multi: false, box: false, range: false, unit: "", ...f }));
       const seen = new Map();
       form.querySelectorAll("[name]").forEach(el => {
         if (seen.has(el.name)) return;
@@ -84,15 +87,22 @@
     }
     form.addEventListener("submit", e => {
       e.preventDefault();
-      const fd = new FormData(form), entry = { id: Date.now().toString(36), t: new Date().toISOString() };
-      F.forEach(f => { entry[f.name] = f.multi ? fd.getAll(f.name) : f.box ? fd.has(f.name) : f.range ? +fd.get(f.name) : (fd.get(f.name) || "").trim() });
-      // Untouched sliders are recorded as given only when the person moved them or the form marks them as always recorded.
-      form.querySelectorAll('input[type="range"]:not([data-touched]):not([data-keep])').forEach(r => entry[r.name] = "");
-      items.unshift(entry); save(key, items); synced(); render();
+      const t = new Date().toISOString(), stamp = Date.now().toString(36);
+      let entries;
+      if (collect) { entries = collect(form); if (!entries || !entries.length) return }
+      else {
+        const fd = new FormData(form), entry = {};
+        F.forEach(f => { entry[f.name] = f.multi ? fd.getAll(f.name) : f.box ? fd.has(f.name) : f.range ? +fd.get(f.name) : (fd.get(f.name) || "").trim() });
+        // Untouched sliders are recorded as given only when the person moved them or the form marks them as always recorded.
+        form.querySelectorAll('input[type="range"]:not([data-touched]):not([data-keep])').forEach(r => entry[r.name] = "");
+        entries = [entry];
+      }
+      items.unshift(...entries.map((e, k) => ({ id: stamp + (entries.length > 1 ? "-" + k : ""), t, ...e })));
+      save(key, items); synced(); render();
       form.reset(); form.querySelectorAll("[data-touched]").forEach(r => delete r.dataset.touched);
       form.querySelectorAll('input[type="date"]').forEach(d => d.value = today());
       form.querySelectorAll('input[type="range"]').forEach(r => r.dispatchEvent(new Event("input")));
-      toast("Saved on this device");
+      toast(entries.length > 1 ? `${entries.length} entries saved on this device` : "Saved on this device");
       list.scrollIntoView({ behavior: "smooth", block: "start" });
     });
     form.addEventListener("input", e => { if (e.target.type === "range") e.target.dataset.touched = "" });
@@ -114,6 +124,7 @@
     const html = () => `<!doctype html><html><head><meta charset="utf-8"><title>${esc(name)}</title><style>body{font:13px/1.45 Verdana,sans-serif;color:#222;max-width:760px;margin:24px auto;padding:0 20px}h1{font-size:20px}h2{font-size:14px;margin:18px 0 4px;border-bottom:1px solid #e3ddca;padding-bottom:2px}dl{display:grid;grid-template-columns:max-content 1fr;gap:2px 12px;margin:0}dt{color:#6b6450;font-weight:bold}dd{margin:0;white-space:pre-wrap}@page{size:letter;margin:.6in}</style></head><body><h1>${esc(name)}</h1><p style="color:#777">Saved ${esc(fmtDate(new Date()))} from Groundwork. Self-reported; not a clinical record.</p>${items.map(e => `<h2>${esc(title(e))}</h2><dl>${rowsOf(e).map(([k, v]) => `<dt>${esc(k)}</dt><dd>${esc(v)}</dd>`).join("")}</dl>`).join("") || "<p>No entries yet.</p>"}</body></html>`;
     return {
       get items() { return items },
+      render,
       copyMarkdown: () => copy(markdown(), "Markdown copied"),
       saveFile: () => { download(key.replace(/^groundwork-/, "groundwork-") + "-" + today() + ".html", html()); toast("Saved as file") },
     };
