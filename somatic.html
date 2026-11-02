@@ -554,7 +554,7 @@ const ICON = {
 const mmss = t => !isFinite(t) ? "--:--" : `${Math.floor(t / 60)}:${String(Math.floor(t % 60)).padStart(2, "0")}`;
 function playerHTML(i) {
   return `<div class="player" id="player" data-phase="${i}">
-    <audio id="pAudio" preload="metadata"><source src="${audioSrc(i)}" type="audio/mpeg"><source src="${trackURL(i)}" type="audio/mpeg"></audio>
+    <audio id="pAudio" preload="metadata" playsinline></audio>
     <div class="player-top">
       <button type="button" class="pbtn play" id="pPlay" aria-label="Play">${ICON.play}</button>
       <div class="meta"><b>Healing Trauma ${i + 1}</b><span>Guided audio for this phase · Peter A. Levine (Sounds True)</span></div>
@@ -596,8 +596,11 @@ function initPlayer(i) {
   a.addEventListener("waiting", () => { msg.textContent = "Loading…" });
   a.addEventListener("playing", () => { msg.textContent = "" });
   a.addEventListener("ended", () => { setPlaying(false); savePos(); msg.textContent = "Finished. Take a moment to notice how your body feels, then rate your activation below." });
-  // The last <source> failing means neither the local file nor the Sounds True stream could be played.
-  a.querySelector("source:last-of-type").addEventListener("error", () => { msg.textContent = "Couldn't load the recording here. Open it on Sounds True instead (link below)."; play.disabled = true });
+  // One source only: phones (iPhone Safari especially) can stall on a missing first <source> instead of trying the next one.
+  // So check for a local audio/phase-NN.mp3 first, and otherwise stream the Sounds True recording.
+  a.addEventListener("error", () => { const c = a.error ? a.error.code : "?"; msg.textContent = `Couldn't load the recording here (error ${c}). Open it on Sounds True instead (link below).`; play.disabled = true });
+  fetch(audioSrc(i), { method: "HEAD" }).then(r => r.ok && /audio|mpeg|octet/.test(r.headers.get("content-type") || "")).catch(() => false)
+    .then(local => { if (player !== a) return; a.src = local ? audioSrc(i) : trackURL(i); a.load() });
   play.onclick = () => { if (a.paused) a.play().catch(() => { msg.textContent = "Couldn't start playback. Try again, or open it on Sounds True." }); else a.pause() };
   $("pBack").onclick = () => { a.currentTime = Math.max(0, a.currentTime - 15) };
   $("pFwd").onclick = () => { a.currentTime = Math.min(a.duration || 0, a.currentTime + 15) };
