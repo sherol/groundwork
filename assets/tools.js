@@ -169,17 +169,22 @@
     o.className = "overlay"; o.id = "splootOverlay"; o.hidden = true;
     o.setAttribute("role", "dialog"); o.setAttribute("aria-modal", "true"); o.setAttribute("aria-labelledby", "splootTitle");
     const items = cfg.checklist ? cfg.checklist.flatMap(g => g.items) : [];
-    o.innerHTML = `<div class="sheet ground-sheet${cfg.checklist ? " list-sheet" : ""}">
-      <span class="eyebrow">${esc(cfg.eyebrow)}</span><h2 id="splootTitle">${esc(cfg.title)}</h2>
-      ${cfg.intro ? `<p class="ground-intro">${esc(cfg.intro)}</p>` : ""}
-      <div class="breath-stage${cfg.checklist ? " small" : ""}"><span class="ring"></span><span class="ring r2"></span><span class="ring r3"></span>
+    if (cfg.theme) o.classList.add(cfg.theme);
+    if (cfg.checklist) o.classList.add("list-overlay");
+    const head = `<span class="eyebrow">${esc(cfg.eyebrow)}</span><h2 id="splootTitle">${esc(cfg.title)}</h2>
+      ${cfg.intro ? `<p class="ground-intro">${esc(cfg.intro)}</p>` : ""}`;
+    const acorn = `<div class="breath-stage${cfg.checklist ? " small" : ""}"><span class="ring"></span><span class="ring r2"></span><span class="ring r3"></span>
         <div class="orb" id="spOrb">${ACORN}<div class="breath-count"><b id="spNum">1</b><span id="spLabel">${esc(breath[0].label)}</span></div></div></div>
-      <p class="breath-meta" id="spMeta">${esc(cfg.breathText || breath.map(b => `${b.label.replace(/^Breathe /, "")} ${b.n}`).join(", "))}</p>
-      ${cfg.checklist ? `<div class="todo" id="spTodo">${cfg.checklist.map(g => `<div class="todo-group"><h3>${esc(g.group)}</h3>${g.items.map(it => { const k = items.indexOf(it); return `<label class="todo-item"><input type="checkbox" data-i="${k}"><span>${it}</span></label>` }).join("")}</div>`).join("")}</div>
+      <p class="breath-meta" id="spMeta">${esc(cfg.breathText || breath.map(b => `${b.label.replace(/^Breathe /, "")} ${b.n}`).join(", "))}</p>`;
+    /* A checklist Sploot has two columns: the breathing acorn, and the heading plus list. Upright on a phone (and on wider screens)
+       they stack as one column; on a phone held sideways the acorn stays on the left and the list scrolls on the right. */
+    o.innerHTML = cfg.checklist ? `<div class="sheet ground-sheet list-sheet">
+      <div class="sp-breath">${acorn}</div>
+      <div class="sp-side">${head}<p class="rotate-hint">Tip: turn your phone sideways to keep the acorn beside the list.</p><div class="todo" id="spTodo">${cfg.checklist.map(g => `<div class="todo-group"><h3>${esc(g.group)}</h3>${g.items.map(it => { const k = items.indexOf(it); return `<label class="todo-item"><input type="checkbox" data-i="${k}"><span>${it}</span></label>` }).join("")}</div>`).join("")}</div>
         <p class="todo-count" id="spCount" aria-live="polite"></p>
-        <div class="row"><button class="btn primary" id="spClose" type="button">${esc(cfg.done || "Done")}</button></div>`
-      : `<p class="ground-step" id="spStep" aria-live="polite"></p><div class="dots" id="spDots" aria-hidden="true"></div>
-        <div class="row"><button class="btn" id="spPrev" type="button">Back</button><button class="btn primary" id="spNext" type="button">Next</button><button class="btn" id="spClose" type="button" style="margin-left:auto">${esc(cfg.done || "I'm steadier, close")}</button></div>`}
+        <div class="row"><button class="btn primary" id="spClose" type="button">${esc(cfg.done || "Done")}</button></div></div></div>`
+      : `<div class="sheet ground-sheet">${head}${acorn}<p class="ground-step" id="spStep" aria-live="polite"></p><div class="dots" id="spDots" aria-hidden="true"></div>
+        <div class="row"><button class="btn" id="spPrev" type="button">Back</button><button class="btn primary" id="spNext" type="button">Next</button><button class="btn" id="spClose" type="button" style="margin-left:auto">${esc(cfg.done || "I'm steadier, close")}</button></div>
       ${cfg.crisis === false ? "" : CRISIS}</div>`;
     document.body.append(o);
     const q = id => o.querySelector("#" + id);
@@ -225,6 +230,7 @@
 
   /* Integrative Eating's Sploot: a before-you-eat checklist. Used on eating.html (button at the top) and on the start page. */
   const EATING_SPLOOT = {
+  theme: "t4",
   eyebrow: "Sploot · before you eat", title: "Calm conductor checklist",
   intro: "Tick each one off as you go. The acorn paces a 4-7-8 breath: in for 4, hold for 7, out for 8.",
   breath: [{ label: "Breathe in", n: 4, grow: true }, { label: "Hold", n: 7, grow: null }, { label: "Breathe out", n: 8, grow: false }],
