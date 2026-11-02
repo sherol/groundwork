@@ -134,7 +134,7 @@ textarea { min-height: 80px; resize: vertical }
 /* footer and floating button */
 footer.safety { font-size: 14px; color: var(--muted); border-top: 1px solid var(--line); margin-top: 36px; padding-top: 16px; max-width: 80ch; display: grid; gap: 8px }
 footer.safety p { margin: 0 }
-.sploot-fab { position: fixed; right: max(16px, calc(env(safe-area-inset-right, 0px) + 16px)); bottom: calc(env(safe-area-inset-bottom, 0px) + 16px); z-index: 20; display: flex; align-items: center; gap: 8px; background: var(--calm); color: var(--surface); padding: 12px 18px 12px 12px; border-radius: 999px; font-weight: 700; box-shadow: 0 6px 20px rgb(0 0 0 / .18); text-decoration: none }
+.sploot-fab { position: fixed; right: max(16px, calc(env(safe-area-inset-right, 0px) + 16px)); bottom: calc(env(safe-area-inset-bottom, 0px) + 16px); z-index: 20; display: flex; align-items: center; gap: 8px; background: var(--c); color: var(--surface); padding: 12px 18px 12px 12px; border-radius: 999px; font-weight: 700; box-shadow: 0 6px 20px rgb(0 0 0 / .18); text-decoration: none }
 .sploot-fab img { width: 30px; height: 30px; background: var(--surface); border-radius: 50%; padding: 2px }
 .toast { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(env(safe-area-inset-bottom, 0px) + 84px); background: var(--ink); color: var(--bg); padding: 8px 14px; border-radius: 999px; font-size: 14px; z-index: 40 }
 
@@ -185,7 +185,7 @@ button.sploot-fab { border: 0; font: inherit; font-weight: 700; cursor: pointer 
 
 /* Integrative Eating: the before-you-eat Sploot sits at the top of the page and stays there while scrolling */
 .eat-bar { position: sticky; top: 0; z-index: 15; padding: 12px 0; background: var(--bg) }
-.eat-sploot { width: 100%; display: flex; align-items: center; gap: 12px; border: 0; border-radius: 999px; background: var(--calm); color: var(--surface); padding: 10px 22px 10px 10px; text-align: left; font: inherit; cursor: pointer; box-shadow: 0 4px 14px rgb(0 0 0 / .14) }
+.eat-sploot { --c: var(--amber); width: 100%; display: flex; align-items: center; gap: 12px; border: 0; border-radius: 999px; background: var(--c); color: var(--surface); padding: 10px 22px 10px 10px; text-align: left; font: inherit; cursor: pointer; box-shadow: 0 4px 14px rgb(0 0 0 / .14) }
 .eat-sploot img { width: 40px; height: 40px; flex: none; background: var(--surface); border-radius: 50%; padding: 2px }
 .eat-sploot span { display: grid; line-height: 1.25 }
 .eat-sploot b { font: 800 17px var(--display) }
@@ -193,3 +193,29 @@ button.sploot-fab { border: 0; font: inherit; font-weight: 700; cursor: pointer 
 .eat-sploot:hover { filter: brightness(1.08) }
 .hero .eat-sploot { width: auto; margin-top: 14px; display: inline-flex }
 @media (max-width: 640px) { .hero .eat-sploot { width: 100% } }
+
+/* Sploot buttons and overlays follow their section's color: Somatic Experiencing green (.t1, and the start page's floating
+   button), Thought Records teal (.t2), DBT plum (.t3), Integrative Eating amber (.t4). */
+.overlay.t4 .todo-group h3, .overlay.t4 .todo-count { color: var(--c) }
+
+/* Checklist Sploot (eating). Upright, its two columns stack as one, heading first. */
+.list-sheet .sp-breath, .list-sheet .sp-side { display: contents }
+.list-sheet .sp-side > .eyebrow, .list-sheet .sp-side > h2, .list-sheet .sp-side > .ground-intro, .list-sheet .sp-side > .rotate-hint { order: -1 }
+.rotate-hint { display: none; margin: -4px 0 0; font-size: 13px; color: var(--muted) }
+@media (orientation: portrait) and (max-width: 600px) and (pointer: coarse) { .list-sheet .rotate-hint { display: block } }
+
+/* Phone held sideways: the acorn stays on the left half; the heading and checklist scroll on the right half. */
+@media (orientation: landscape) and (max-height: 540px) {
+  .list-overlay { place-items: stretch; padding: 6px }
+  .list-sheet { width: 100%; height: 100%; max-height: none; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 0 18px; overflow: hidden;
+    padding: 10px max(14px, env(safe-area-inset-right, 0px)) 10px max(14px, env(safe-area-inset-left, 0px));
+    background: linear-gradient(90deg, var(--calm-soft), var(--surface) 50%, var(--surface)) }
+  .list-sheet .sp-breath { display: grid; place-items: center; align-content: center; gap: 4px; min-height: 0 }
+  .list-sheet .breath-stage.small { width: min(42vw, calc(100vh - 70px), calc(100dvh - 70px)); margin: 0 }
+  .list-sheet .sp-side { display: grid; align-content: start; justify-items: stretch; gap: 12px; text-align: left; min-height: 0; overflow-y: auto;
+    overscroll-behavior: contain; -webkit-overflow-scrolling: touch; padding: 4px 4px 12px 0 }
+  .list-sheet .sp-side > * { order: 0 }
+  .list-sheet .sp-side h2 { font-size: 22px }
+  .list-sheet .sp-side .row { justify-content: flex-start }
+  .list-sheet .todo-item { padding: 8px 10px; font-size: 15px }
+}
