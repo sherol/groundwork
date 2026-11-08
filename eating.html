@@ -12,9 +12,6 @@
 <link rel="stylesheet" href="assets/tools.css?v=7">
 <style>
 .affirm { text-align: center; font: 800 clamp(20px, 3vw, 26px)/1.3 var(--display); color: var(--c); padding: 18px; background: var(--c-soft); border-radius: var(--r); margin: 0 }
-.breath { display: grid; justify-items: center; gap: 8px; text-align: center; padding: 8px 0 }
-.breath .count { font: 800 56px/1 var(--display); font-variant-numeric: tabular-nums; color: var(--c) }
-.breath .label { font: 700 15px/1 var(--body); letter-spacing: .14em; text-transform: uppercase; color: var(--muted) }
 .foods { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 8px }
 .food { display: grid; grid-template-columns: minmax(0, 1fr) auto auto auto; gap: 6px; align-items: center; background: var(--sunk); border-radius: 10px; padding: 6px 8px 6px 12px; font-size: 14px }
 .food small { color: var(--muted) }
@@ -27,8 +24,37 @@ table.ramp { border-collapse: collapse; font-size: 15px; max-width: 520px }
 @media (max-width: 720px) { .bst-row { grid-template-columns: minmax(0, 1fr) } }
 .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap }
 table.ramp td, table.ramp th { text-align: left; padding: 4px 10px 4px 0; border-bottom: 1px solid var(--line) }
-.session-head { margin: 10px 0 -4px; display: grid; gap: 2px; font: 800 clamp(20px, 2.6vw, 24px)/1.25 var(--display); color: var(--ink) }
-.session-head span { font: 700 13px/1 var(--body); letter-spacing: .14em; text-transform: uppercase; color: var(--c) }
+/* Sessions: a picker, then one session at a time: its homework first, then "In this session" links, then the notes. */
+.session-pick { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px }
+@media (max-width: 640px) { .session-pick { grid-template-columns: repeat(2, minmax(0, 1fr)) } .pick span { display: none } }
+.pick { display: grid; gap: 3px; align-content: start; text-align: left; padding: 10px 12px; border-radius: 12px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); font: inherit; cursor: pointer }
+.pick b { font: 800 16px/1.2 var(--display) }
+.pick span { font-size: 13px; line-height: 1.3; color: var(--muted) }
+.pick small { font-size: 12px; font-weight: 700; color: var(--c) }
+.pick.soon { border-style: dashed; background: none }
+.pick.soon small { color: var(--muted) }
+.pick[aria-pressed="true"] { border: 2px solid var(--c); background: var(--c-soft); padding: 9px 11px }
+.pick:focus-visible { outline: 3px solid var(--c); outline-offset: 2px }
+.session-top { display: grid; gap: 6px; padding-top: 4px }
+.session-top h2 { font-size: clamp(25px, 3.6vw, 34px) }
+.session-top p { margin: 0; max-width: 66ch }
+.hw { border: 2px solid var(--c) }
+.hw-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 4px 12px }
+.hw-head h3 { font-size: 20px; margin: 0 }
+.hw-progress { font-weight: 700; color: var(--c); font-size: 15px }
+.bar { height: 6px; border-radius: 99px; background: var(--sunk); overflow: hidden; margin: 6px 0 4px }
+.bar i { display: block; height: 100%; width: 0; background: var(--c); border-radius: inherit; transition: width .3s }
+.hw .check { display: grid; grid-template-columns: auto minmax(0, 1fr); column-gap: 10px; row-gap: 2px }
+.hw .check .how { grid-column: 2; justify-self: start; border: 0; background: none; padding: 2px 0; font: 700 14px/1.3 var(--body); color: var(--c); text-decoration: underline; text-underline-offset: 3px; cursor: pointer }
+.jump { display: flex; flex-wrap: wrap; gap: 6px; align-items: center }
+.jump b { font-size: 13px; color: var(--muted); margin-right: 2px }
+.jump a { font-size: 14px; padding: 5px 11px; border-radius: 999px; background: var(--sunk); border: 1px solid var(--line); color: var(--ink); text-decoration: none }
+.jump a:hover { border-color: var(--c) }
+.session section[id] { scroll-margin-top: 92px }
+.session section[id]:focus { outline: none }
+.flash { animation: flash 1.6s ease-out }
+@keyframes flash { from { box-shadow: 0 0 0 4px var(--c) } to { box-shadow: 0 0 0 4px transparent } }
+@media (prefers-reduced-motion: reduce) { .flash { animation: none } .bar i { transition: none } }
 details.more { border: 1px solid var(--line); border-radius: 12px; padding: 10px 14px; background: var(--bg) }
 details.more > summary { cursor: pointer; font-weight: 700; font-family: var(--display) }
 details.more[open] > summary { margin-bottom: 8px }
@@ -50,197 +76,272 @@ details.more[open] > summary { margin-bottom: 8px }
   <header class="page-head">
     <span class="eyebrow">Tool 4 · Gut</span>
     <h1>Integrative Eating</h1>
-    <p class="lede">Your gut is complex and amazing, and when it's out of balance the answer is usually more than a single pill. Calm meals, slow chewing, steady fiber and careful noticing all add up.</p>
-    <p>Be the private investigator: observe yourself and keep a log. What makes you feel 10% better, or 10% worse? Progress over perfection.</p>
+    <p class="lede">Calm meals, slow chewing, steady fiber and careful noticing, one class session at a time.</p>
   </header>
 
   <div class="tabs" role="tablist" aria-label="Sections">
-    <button type="button" role="tab" aria-controls="learn" id="tab-learn">Learn</button>
-    <button type="button" role="tab" aria-controls="week" id="tab-week">This week</button>
+    <button type="button" role="tab" aria-controls="sessions" id="tab-sessions">Sessions</button>
     <button type="button" role="tab" aria-controls="log" id="tab-log">Daily log</button>
     <button type="button" role="tab" aria-controls="saved" id="tab-saved">Saved (<span id="count">0</span>)</button>
   </div>
 
-  <!-- ============ LEARN ============ -->
-  <div id="learn" role="tabpanel" aria-labelledby="tab-learn" class="stack">
-    <p class="affirm">My body wants to heal. My body is on my side. My body is amazing!</p>
+  <!-- ============ SESSIONS: one class session at a time, each with its homework first ============ -->
+  <div id="sessions" role="tabpanel" aria-labelledby="tab-sessions" class="stack">
+    <div class="session-pick" role="group" aria-label="Class sessions">
+      <button type="button" class="pick" data-session="1" aria-pressed="false"><b>Session 1</b><span>Calm meals, digestion, fiber</span><small></small></button>
+      <button type="button" class="pick" data-session="2" aria-pressed="false"><b>Session 2</b><span>Acid, enzymes, diets</span><small></small></button>
+      <button type="button" class="pick soon" data-session="3" aria-pressed="false"><b>Session 3</b><span>Powders, pills, vagus nerve</span><small>Coming soon</small></button>
+      <button type="button" class="pick soon" data-session="4" aria-pressed="false"><b>Session 4</b><span>Microbiome and wrap-up</span><small>Coming soon</small></button>
+    </div>
 
-    <h2 class="session-head" id="session-2"><span>Session 2 of 4 · newest</span>Acid, enzymes and elimination diets</h2>
-    <p>Look back over Session 1 first (further down this page), then carry on here. This week is about getting curious: which small trial helps <i>your</i> gut? Use your intuition, try one thing at a time, and keep notes.</p>
+    <div class="session stack" id="sess-2" data-session="2" hidden>
+      <header class="session-top">
+        <span class="eyebrow">Session 2 of 4 · newest</span>
+        <h2>Acid, enzymes and elimination diets</h2>
+        <p>This week is about getting curious: which small trial helps <i>your</i> gut? Use your intuition, try one thing at a time, and keep notes. Keep Session 1's habits going too.</p>
+      </header>
+      <section class="block hw" data-session="2" aria-labelledby="hw2-h">
+        <div class="hw-head"><h3 id="hw2-h">Session 2 homework</h3><span class="hw-progress" aria-live="polite"></span></div>
+        <div class="bar" aria-hidden="true"><i></i></div>
+        <div class="hw-list">
+          <div class="check"><input type="checkbox" id="hw21" data-key="w2-breathe"><label for="hw21"><b>Belly breaths before every meal and snack.</b> 2 slow breaths, or the 4-7-8 breath.</label><button type="button" class="how" data-eat-sploot aria-haspopup="dialog">Open the before-you-eat checklist →</button></div>
+          <div class="check"><input type="checkbox" id="hw22" data-key="w2-calm"><label for="hw22"><b>Calm the gut–brain connection every day:</b> the Nerva app (12 weeks), or a free gut-directed meditation nightly (6 weeks).</label><a class="how" href="#s2-calm" data-jump>Options and links →</a></div>
+          <div class="check"><input type="checkbox" id="hw23" data-key="w2-trial"><label for="hw23"><b>Pick one trial, using your intuition:</b> acid support, digestive enzymes, or an elimination diet.</label><a class="how" href="#s2-acid" data-jump>Compare the trials →</a></div>
+          <div class="check"><input type="checkbox" id="hw24" data-key="w2-log"><label for="hw24"><b>Log what you're trying</b> and what makes you feel 10% better, or 10% worse.</label><a class="how" href="#log" data-tab="log">Open the Daily log →</a></div>
+          <div class="check"><input type="checkbox" id="hw25" data-key="w2-tests"><label for="hw25"><b>Any tests your clinician ordered:</b> check how to prepare, and book them.</label><a class="how" href="#s2-tests" data-jump>How to prepare →</a></div>
+        </div>
+      </section>
+      <nav class="jump" aria-label="In this session"><b>In this session:</b><a href="#s2-key" data-jump>Key ideas</a><a href="#s2-calm" data-jump>Gut–brain</a><a href="#s2-acid" data-jump>Acid support</a><a href="#s2-enzymes" data-jump>Enzymes</a><a href="#s2-diets" data-jump>Elimination diets</a><a href="#s2-tests" data-jump>Tests</a></nav>
 
-    <section class="block">
-      <h2><span class="tag">1</span>The paper cut</h2>
-      <p>Your body knows how to heal, and it wants to. It's on your side. But a paper cut won't heal if you rub dirt in it every day and keep splitting it open, no matter how much ointment you put on top. Gut healing works the same way. Stay curious: <b>what's getting in the way? What do I need?</b></p>
-      <ul>
-        <li><b>Be the private investigator.</b> Keep a log of what makes you feel 10% better, or 10% worse. Diets and pills won't work as well if the nerves to the gut are sending the wrong messages.</li>
-        <li><b>Progress over perfection.</b> This is complex, and you and your body are both doing your best. You will figure it out, and you're not alone in this.</li>
-        <li><b>The conductor's mood decides how the symphony plays.</b> A calm nervous system lets the gut do its job.</li>
-        <li><b>Why SIBO keeps coming back:</b> small intestinal bacterial overgrowth tends to return unless the underlying causes are addressed, such as stress, low stomach acid or enzymes, thyroid problems, or biofilm.</li>
-      </ul>
-    </section>
-
-    <section class="block">
-      <h2><span class="tag">2</span>Calm the gut–brain connection</h2>
-      <p>There are more nerves going to the gut than in the entire spinal cord. The gut won't work properly until the signals from those nerves are calm, and say <b>safety</b> and <b>peace</b>.</p>
-      <ul>
-        <li><b>Before every snack and meal:</b> 2 slow belly (diaphragmatic) breaths. Your "software" needs to be online for the "hardware" to work. The 4-7-8 breath is great for digestion too.</li>
-        <li><b>Daily, for 12 weeks:</b> gut-directed hypnotherapy with the <a href="https://www.nervahealth.com/" target="_blank" rel="noopener">Nerva app ↗</a>. Research suggests it can work about as well for symptoms as a low-FODMAP diet, and doing both together may be even better. It has a free trial, and your clinician may be able to arrange a discount or financial help.</li>
-        <li><b>On a budget?</b> Try one of these free guided meditations nightly for 6 weeks (Insight Timer):
-          <ul class="links-list">
-            <li><a href="https://insighttimer.com/michellewhite/guided-meditations/gut-directed-imagery-constipation" target="_blank" rel="noopener">Gut-directed imagery for constipation ↗</a></li>
-            <li><a href="https://insighttimer.com/michellewhite/guided-meditations/gut-directed-imagery-diarrhea" target="_blank" rel="noopener">Gut-directed imagery for diarrhea ↗</a></li>
-            <li><a href="https://insighttimer.com/michellewhite/guided-meditations/let-go-9" target="_blank" rel="noopener">Let go: befriend your body, let go of resistance ↗</a></li>
+        <section class="block" id="s2-key">
+          <h2><span class="tag">1</span>Key ideas: the paper cut</h2>
+          <p>Your body knows how to heal, and it wants to. It's on your side. But a paper cut won't heal if you rub dirt in it every day and keep splitting it open, no matter how much ointment you put on top. Gut healing works the same way. Stay curious: <b>what's getting in the way? What do I need?</b></p>
+          <ul>
+            <li><b>Be the private investigator.</b> Keep a log of what makes you feel 10% better, or 10% worse. Diets and pills won't work as well if the nerves to the gut are sending the wrong messages.</li>
+            <li><b>Progress over perfection.</b> This is complex, and you and your body are both doing your best. You will figure it out, and you're not alone in this.</li>
+            <li><b>The conductor's mood decides how the symphony plays.</b> A calm nervous system lets the gut do its job.</li>
+            <li><b>Why SIBO keeps coming back:</b> small intestinal bacterial overgrowth tends to return unless the underlying causes are addressed, such as stress, low stomach acid or enzymes, thyroid problems, or biofilm.</li>
           </ul>
-        </li>
-      </ul>
-      <div class="row"><button type="button" class="btn primary" data-tab="week">See this week's homework</button></div>
-    </section>
+          <h3>From the round table</h3>
+          <ul>
+            <li>2 belly breaths before each meal.</li>
+            <li>Slow waaay down: hydrate, chew, be present with the food.</li>
+            <li>Sit down to eat, with a moment of gratitude or prayer.</li>
+            <li>Fork down, phone down, sit down. Close your eyes for the first minute and really taste the food.</li>
+            <li>Self-compassion: you and your body are trying your best.</li>
+          </ul>
+        </section>
 
-    <section class="block">
-      <h2><span class="tag">3</span>Stomach acid support</h2>
-      <p>The baking soda test is a rough, ballpark test. It just helps you investigate whether acid support during meals <i>could</i> help. Always follow your intuition first, and talk with your clinician before starting.</p>
-      <div class="grid2">
-        <div class="tile"><b>Burped within 2 minutes, all three days?</b>Your acid levels are probably fine for now.</div>
-        <div class="tile"><b>Didn't?</b>That's fine. Your clinician may suggest a trial of apple cider vinegar or betaine (below), and may order blood tests to look for causes of low acid.</div>
-      </div>
-      <h3>Apple cider vinegar (most people can try this)</h3>
-      <p>Use an organic apple cider vinegar "with the mother." Take <b>1 teaspoon diluted in ½ cup of water</b>, up to 3 times a day, right before meals. You can work up to 1 tablespoon at a time if you like. Watch for changes over 1 week: less bloating? Better stools? Take notes. If you have methane-type overgrowth, it can make constipation worse.</p>
-      <h3>Or: betaine with pepsin (with your clinician's guidance)</h3>
-      <p>For people who didn't burp in the baking soda test, a betaine trial is a better way to check for, and treat, low stomach acid (which can cause bloating and IBS symptoms soon after eating). Start with <b>1 capsule at the start of each meal</b>, and increase slowly, up to the most your clinician recommends, until:</p>
-      <ul>
-        <li>you notice clear relief from gas and bloating: stay at that dose, or</li>
-        <li>you feel pain, burning or nausea: drop back to a dose that's comfortable. Don't push through discomfort.</li>
-      </ul>
-      <p>This is a discovery process. The goal is a comfortable dose where you feel a clear benefit with no side effects. High-protein meals need more.</p>
-      <p class="callout"><b>Discomfort with even a little vinegar or one betaine capsule?</b> That may be a clue to an inflamed stomach lining or histamine sensitivity. Stop, and wait for Session 3 (healing the gut lining) before trying again.<br><b>Take a daily PPI</b> (such as Prilosec or Protonix)? Don't stop it on your own. Talk with your clinician about tapering safely, and never stop it if you've been diagnosed with Barrett's esophagus.</p>
-    </section>
-
-    <section class="block">
-      <h2><span class="tag">4</span>Digestive enzymes</h2>
-      <p><b>Most people can try this.</b> After you understand your acid needs, add 1–2 digestive enzymes at the start of each meal for 1 week (at the same time as betaine, if you take it). Does your digestion improve? If yes, continue. If not, stop.</p>
-      <p>Try at least 2 different brands to find one that suits you. Some that the group discussed:</p>
-      <div class="grid3">
-        <div class="tile"><b>NOW Super Enzymes</b>Not vegetarian.</div>
-        <div class="tile"><b>Pure Encapsulations Digestive Enzymes</b>Vegetarian.</div>
-        <div class="tile"><b>DaVinci Enzyme Benefits</b>Vegetarian.</div>
-      </div>
-      <p><b>FODZYME or FODMATE:</b> many people with bloating or IBS find these helpful, especially <i>together with</i> a low-FODMAP diet. Take one at the start of each meal and notice any improvement at all.</p>
-    </section>
-
-    <section class="block">
-      <h2><span class="tag">5</span>Elimination diet trials</h2>
-      <p>Get to know your gut and what it needs right now, <b>not forever</b>. Try one of these for about 6 weeks, and note what improves even a little. Progress over perfection. An AI assistant can help you make shopping lists and meal plans, and the <a href="https://foodisgood.com/" target="_blank" rel="noopener">FIG app ↗</a> can help you plan around your needs.</p>
-      <div class="grid2">
-        <div class="tile"><b>Gluten-free</b><span>Especially for IBS, IBD, autoimmune, skin, allergy or headaches. Avoid wheat, barley and rye (most breads, cereals and pastas). Naturally gluten-free: rice, quinoa, oats, corn, beans, sweet potatoes, and <i>all</i> vegetables, fruit, nuts, seeds, olive oil and protein. Try lentil pasta, Mary's Gone crackers, Siete almond flour tortillas, or Simple Kneads or SRSLY bread.</span></div>
-        <div class="tile"><b>Dairy-free</b><span>Especially for joint pain, bloating or IBS. Go 2 weeks with no dairy and see how you feel. Then add back small amounts of A2 dairy (goat or sheep cheese or yogurt) and see if you tolerate it.</span></div>
-        <div class="tile"><b>Low sugar</b><span>Go 2 weeks with very little refined sugar. What shifts?</span></div>
-        <div class="tile"><b>Reflux (GERD)-friendly</b><span>Some foods loosen the valve that keeps acid out of the esophagus: coffee, fizzy drinks, chocolate, peppermint, garlic, onions, and fatty, spicy or fried foods. Notice whether citrus and tomatoes bother you too. Ask your clinician whether a small dose of melatonin at bedtime might help with overnight reflux.</span></div>
-        <div class="tile"><b>Low FODMAP</b><span>Especially for bloating, IBS or SIBO. Cuts back on certain fermentable carbohydrates. See <a href="https://www.monashfodmap.com/" target="_blank" rel="noopener">Monash University's FODMAP guide ↗</a>; <a href="https://modifyhealth.com/" target="_blank" rel="noopener">ModifyHealth ↗</a> delivers low-FODMAP meals.</span></div>
-        <div class="tile"><b>Low histamine</b><span>Especially for IBS, pain, headaches or migraines, skin, allergy, or food reactions that seem inconsistent. <b>More:</b> fresh vegetables, fruit, whole grains, fresh meat, eggs, dairy. <b>Less:</b> aged, cultured and fermented foods, leftovers, processed foods and additives; walnuts, peanuts, tomatoes, spinach, eggplant, avocado, pineapple, strawberries and most citrus (a little lemon or lime is sometimes fine); alcohol, black tea, chocolate, cured meats and aged cheeses. A <b>DAO enzyme</b> with the first bite of each meal can help during the trial. See the <a href="https://www.histaminintoleranz.ch/downloads/SIGHI-Leaflet_HistamineEliminationDiet.pdf" target="_blank" rel="noopener">SIGHI histamine elimination diet leaflet ↗</a>. If cutting histamine helps a lot, ask your clinician about testing for SIBO.</span></div>
-      </div>
-      <p class="callout"><b>Trouble swallowing?</b> See a gastroenterologist (GI) for an upper endoscopy. If you're diagnosed with eosinophilic esophagitis, a 6-food elimination diet (gluten, dairy, egg, nuts, seafood and soy) is worth trying with their guidance.</p>
-      <p class="hint">Log what you're trying, with doses and brands, in the <b>Trying now</b> section of the Daily log.</p>
-    </section>
-
-    <section class="block">
-      <h2><span class="tag">6</span>Tests your clinician may suggest</h2>
-      <p>Depending on your symptoms, your clinician may order some of these. Follow the instructions you're given, and don't stop any medication without checking with them first.</p>
-      <ul>
-        <li><b>Low stomach acid:</b> fasting blood tests for vitamin B12 and intrinsic factor antibody, to rule out autoimmune gastritis.</li>
-        <li><b>H. pylori breath test</b> (an infection that can affect stomach acid).</li>
-        <li><b>SIBO breath test</b> for bloating, diarrhea, constipation or pain. It's done at home, needs a special diet the day before, and takes about 3 hours. The kit contains a glucose drink, so tell your clinician if you have diabetes.</li>
-        <li><b>Stool tests</b> (calprotectin and elastase) for chronically loose stools, done with your next loose stool.</li>
-        <li><b>Celiac panel</b>, if you haven't had one in the last 3 years. Keep eating gluten until the test, or it can give a false negative.</li>
-      </ul>
-      <details class="more">
-        <summary>Getting ready for an H. pylori breath test</summary>
-        <p>These medicines can hide H. pylori and cause a false-negative result. Ask your clinician before stopping any of them.</p>
+      <section class="block" id="s2-calm">
+        <h2><span class="tag">2</span>Calm the gut–brain connection</h2>
+        <p>There are more nerves going to the gut than in the entire spinal cord. The gut won't work properly until the signals from those nerves are calm, and say <b>safety</b> and <b>peace</b>.</p>
         <ul>
-          <li><b>Antibiotics:</b> stop at least 4 weeks before the test.</li>
-          <li><b>Proton pump inhibitors (PPIs)</b> such as omeprazole, lansoprazole or pantoprazole: stop at least 2 weeks before.</li>
-          <li><b>Bismuth</b> (such as Pepto-Bismol): stop at least 2 weeks before.</li>
-          <li><b>Fasting:</b> nothing to eat or drink except water for at least 6 hours before (usually the morning after an overnight fast).</li>
-          <li><b>On the day:</b> no smoking, gum or mints.</li>
-          <li>The test drink contains aspartame (phenylalanine). Tell your clinician if you have PKU or diabetes.</li>
+          <li><b>Before every snack and meal:</b> 2 slow belly (diaphragmatic) breaths. Your "software" needs to be online for the "hardware" to work. The 4-7-8 breath is great for digestion too.</li>
+          <li><b>Daily, for 12 weeks:</b> gut-directed hypnotherapy with the <a href="https://www.nervahealth.com/" target="_blank" rel="noopener">Nerva app ↗</a>. Research suggests it can work about as well for symptoms as a low-FODMAP diet, and doing both together may be even better. It has a free trial, and your clinician may be able to arrange a discount or financial help.</li>
+          <li><b>On a budget?</b> Try one of these free guided meditations nightly for 6 weeks (Insight Timer):
+            <ul class="links-list">
+              <li><a href="https://insighttimer.com/michellewhite/guided-meditations/gut-directed-imagery-constipation" target="_blank" rel="noopener">Gut-directed imagery for constipation ↗</a></li>
+              <li><a href="https://insighttimer.com/michellewhite/guided-meditations/gut-directed-imagery-diarrhea" target="_blank" rel="noopener">Gut-directed imagery for diarrhea ↗</a></li>
+              <li><a href="https://insighttimer.com/michellewhite/guided-meditations/let-go-9" target="_blank" rel="noopener">Let go: befriend your body, let go of resistance ↗</a></li>
+            </ul>
+          </li>
         </ul>
-      </details>
-      <p class="hint"><b>Food sensitivity (IgG) testing usually isn't helpful.</b> It isn't the same as allergy (IgE) testing. IgG mostly reflects what you've been eating, not an intolerance, so you'll tend to test "positive" to your usual foods.</p>
-    </section>
+      </section>
 
-    <h2 class="session-head" id="session-1"><span>Session 1 of 4</span>Calm meals, digestion and fiber</h2>
+      <section class="block" id="s2-acid">
+        <h2><span class="tag">3</span>Stomach acid support</h2>
+        <p>Your <a href="#s1-bst" data-jump>baking soda test</a> from Session 1 is a rough, ballpark test. It just helps you investigate whether acid support during meals <i>could</i> help. Always follow your intuition first, and talk with your clinician before starting.</p>
+        <div class="grid2">
+          <div class="tile"><b>Burped within 2 minutes, all three days?</b>Your acid levels are probably fine for now.</div>
+          <div class="tile"><b>Didn't?</b>That's fine. Your clinician may suggest a trial of apple cider vinegar or betaine (below), and may order blood tests to look for causes of low acid.</div>
+        </div>
+        <h3>Apple cider vinegar (most people can try this)</h3>
+        <p>Use an organic apple cider vinegar "with the mother." Take <b>1 teaspoon diluted in ½ cup of water</b>, up to 3 times a day, right before meals. You can work up to 1 tablespoon at a time if you like. Watch for changes over 1 week: less bloating? Better stools? Take notes. If you have methane-type overgrowth, it can make constipation worse.</p>
+        <h3>Or: betaine with pepsin (with your clinician's guidance)</h3>
+        <p>For people who didn't burp in the baking soda test, a betaine trial is a better way to check for, and treat, low stomach acid (which can cause bloating and IBS symptoms soon after eating). Start with <b>1 capsule at the start of each meal</b>, and increase slowly, up to the most your clinician recommends, until:</p>
+        <ul>
+          <li>you notice clear relief from gas and bloating: stay at that dose, or</li>
+          <li>you feel pain, burning or nausea: drop back to a dose that's comfortable. Don't push through discomfort.</li>
+        </ul>
+        <p>This is a discovery process. The goal is a comfortable dose where you feel a clear benefit with no side effects. High-protein meals need more.</p>
+        <p class="callout"><b>Discomfort with even a little vinegar or one betaine capsule?</b> That may be a clue to an inflamed stomach lining or histamine sensitivity. Stop, and wait for Session 3 (healing the gut lining) before trying again.<br><b>Take a daily PPI</b> (such as Prilosec or Protonix)? Don't stop it on your own. Talk with your clinician about tapering safely, and never stop it if you've been diagnosed with Barrett's esophagus.</p>
+      </section>
 
-    <section class="block">
-      <h2><span class="tag">1</span>Key ideas</h2>
-      <ul>
-        <li><b>Investigate.</b> The gut is complex, and each person's is different. Notice what makes a 10% better day.</li>
-        <li><b>Self-compassion.</b> Your digestive system is doing the best it can with what it's been given.</li>
-        <li><b>It's connected.</b> Gut flares can come with whole-body symptoms: anxiety, joint pain, muscle aches, fatigue, migraines.</li>
-        <li><b>Acceptance.</b> Meeting the present moment as it is, without resistance, opens a path to healing.</li>
-      </ul>
-    </section>
+      <section class="block" id="s2-enzymes">
+        <h2><span class="tag">4</span>Digestive enzymes</h2>
+        <p><b>Most people can try this.</b> After you understand your acid needs, add 1–2 digestive enzymes at the start of each meal for 1 week (at the same time as betaine, if you take it). Does your digestion improve? If yes, continue. If not, stop.</p>
+        <p>Try at least 2 different brands to find one that suits you. Some that the group discussed:</p>
+        <div class="grid3">
+          <div class="tile"><b>NOW Super Enzymes</b>Not vegetarian.</div>
+          <div class="tile"><b>Pure Encapsulations Digestive Enzymes</b>Vegetarian.</div>
+          <div class="tile"><b>DaVinci Enzyme Benefits</b>Vegetarian.</div>
+        </div>
+        <p><b>FODZYME or FODMATE:</b> many people with bloating or IBS find these helpful, especially <i>together with</i> a low-FODMAP diet. Take one at the start of each meal and notice any improvement at all.</p>
+      </section>
 
-    <section class="block">
-      <h2><span class="tag">2</span>A calm conductor at every meal</h2>
-      <p>There are more nerves in your gut than in your entire spinal cord. Digestion runs best in "rest and digest" mode, so your nervous system (the software) needs to be online for your gut (the hardware) to do its job. The symphony plays far better with a calm conductor.</p>
-      <ul>
-        <li><b>Breathe first:</b> take 2–4 slow belly breaths before every meal and snack. The 4-7-8 breath is great for digestion too.</li>
-        <li><b>Sit down, fork down, phone down.</b> How relaxed can you get in one minute?</li>
-        <li><b>Chew each bite 30–50 times.</b> Chewing until your food is smooth signals the rest of your gut to release its juices, and sets digestion up for success.</li>
-        <li><b>Bonus:</b> try closing your eyes and chewing calmly. What do you notice?</li>
-      </ul>
-      <div class="row"><button type="button" class="btn primary" data-tab="week">Try the 1-minute pre-meal breath</button></div>
-    </section>
+      <section class="block" id="s2-diets">
+        <h2><span class="tag">5</span>Elimination diet trials</h2>
+        <p>Get to know your gut and what it needs right now, <b>not forever</b>. Try one of these for about 6 weeks, and note what improves even a little. Progress over perfection. An AI assistant can help you make shopping lists and meal plans, and the <a href="https://foodisgood.com/" target="_blank" rel="noopener">FIG app ↗</a> can help you plan around your needs.</p>
+        <div class="grid2">
+          <div class="tile"><b>Gluten-free</b><span>Especially for IBS, IBD, autoimmune, skin, allergy or headaches. Avoid wheat, barley and rye (most breads, cereals and pastas). Naturally gluten-free: rice, quinoa, oats, corn, beans, sweet potatoes, and <i>all</i> vegetables, fruit, nuts, seeds, olive oil and protein. Try lentil pasta, Mary's Gone crackers, Siete almond flour tortillas, or Simple Kneads or SRSLY bread.</span></div>
+          <div class="tile"><b>Dairy-free</b><span>Especially for joint pain, bloating or IBS. Go 2 weeks with no dairy and see how you feel. Then add back small amounts of A2 dairy (goat or sheep cheese or yogurt) and see if you tolerate it.</span></div>
+          <div class="tile"><b>Low sugar</b><span>Go 2 weeks with very little refined sugar. What shifts?</span></div>
+          <div class="tile"><b>Reflux (GERD)-friendly</b><span>Some foods loosen the valve that keeps acid out of the esophagus: coffee, fizzy drinks, chocolate, peppermint, garlic, onions, and fatty, spicy or fried foods. Notice whether citrus and tomatoes bother you too. Ask your clinician whether a small dose of melatonin at bedtime might help with overnight reflux.</span></div>
+          <div class="tile"><b>Low FODMAP</b><span>Especially for bloating, IBS or SIBO. Cuts back on certain fermentable carbohydrates. See <a href="https://www.monashfodmap.com/" target="_blank" rel="noopener">Monash University's FODMAP guide ↗</a>; <a href="https://modifyhealth.com/" target="_blank" rel="noopener">ModifyHealth ↗</a> delivers low-FODMAP meals.</span></div>
+          <div class="tile"><b>Low histamine</b><span>Especially for IBS, pain, headaches or migraines, skin, allergy, or food reactions that seem inconsistent. <b>More:</b> fresh vegetables, fruit, whole grains, fresh meat, eggs, dairy. <b>Less:</b> aged, cultured and fermented foods, leftovers, processed foods and additives; walnuts, peanuts, tomatoes, spinach, eggplant, avocado, pineapple, strawberries and most citrus (a little lemon or lime is sometimes fine); alcohol, black tea, chocolate, cured meats and aged cheeses. A <b>DAO enzyme</b> with the first bite of each meal can help during the trial. See the <a href="https://www.histaminintoleranz.ch/downloads/SIGHI-Leaflet_HistamineEliminationDiet.pdf" target="_blank" rel="noopener">SIGHI histamine elimination diet leaflet ↗</a>. If cutting histamine helps a lot, ask your clinician about testing for SIBO.</span></div>
+        </div>
+        <p class="callout"><b>Trouble swallowing?</b> See a gastroenterologist (GI) for an upper endoscopy. If you're diagnosed with eosinophilic esophagitis, a 6-food elimination diet (gluten, dairy, egg, nuts, seafood and soy) is worth trying with their guidance.</p>
+        <p class="hint">Log what you're trying, with doses and brands, under <b>Habits and trials</b> in the <a href="#log" data-tab="log">Daily log</a>.</p>
+      </section>
 
-    <section class="block">
-      <h2><span class="tag">3</span>A tour of digestion</h2>
-      <p>Watch: <a href="https://youtu.be/Og5xAdC8EUI" target="_blank" rel="noopener">How your digestive system works (TED-Ed) ↗</a>. To go deeper: <a href="https://www.youtube.com/watch?v=X3TAROotFfM" target="_blank" rel="noopener">a more detailed walkthrough ↗</a>.</p>
-      <div class="grid2">
-        <div class="tile"><b>Saliva</b>You make 1–1.5 liters a day, so drink enough water.</div>
-        <div class="tile"><b>Mouth</b>Chewing well signals your stomach, pancreas and gallbladder to get ready.</div>
-        <div class="tile"><b>Esophagus</b>The lower esophageal sphincter keeps stomach acid from coming up. It works best with an active vagus nerve (breathing, relaxing), a strong diaphragm and the right acid levels. Common reflux (GERD) triggers: caffeine, alcohol, high-fat meals, peppermint, chocolate, smoking and nicotine, and stress. With a hiatal hernia, raising the head of the bed can help.</div>
-        <div class="tile"><b>Stomach</b>For some people, too <i>little</i> stomach acid is behind reflux-like symptoms. Aging, stress, trauma and illness can all lower it. Low acid can lead to poor nutrient absorption and problems further down: bloating, recurring SIBO, diarrhea and an unbalanced microbiome.</div>
-      </div>
-    </section>
+      <section class="block" id="s2-tests">
+        <h2><span class="tag">6</span>Tests your clinician may suggest</h2>
+        <p>Depending on your symptoms, your clinician may order some of these. Follow the instructions you're given, and don't stop any medication without checking with them first.</p>
+        <ul>
+          <li><b>Low stomach acid:</b> fasting blood tests for vitamin B12 and intrinsic factor antibody, to rule out autoimmune gastritis.</li>
+          <li><b>H. pylori breath test</b> (an infection that can affect stomach acid).</li>
+          <li><b>SIBO breath test</b> for bloating, diarrhea, constipation or pain. It's done at home, needs a special diet the day before, and takes about 3 hours. The kit contains a glucose drink, so tell your clinician if you have diabetes.</li>
+          <li><b>Stool tests</b> (calprotectin and elastase) for chronically loose stools, done with your next loose stool.</li>
+          <li><b>Celiac panel</b>, if you haven't had one in the last 3 years. Keep eating gluten until the test, or it can give a false negative.</li>
+        </ul>
+        <details class="more">
+          <summary>Getting ready for an H. pylori breath test</summary>
+          <p>These medicines can hide H. pylori and cause a false-negative result. Ask your clinician before stopping any of them.</p>
+          <ul>
+            <li><b>Antibiotics:</b> stop at least 4 weeks before the test.</li>
+            <li><b>Proton pump inhibitors (PPIs)</b> such as omeprazole, lansoprazole or pantoprazole: stop at least 2 weeks before.</li>
+            <li><b>Bismuth</b> (such as Pepto-Bismol): stop at least 2 weeks before.</li>
+            <li><b>Fasting:</b> nothing to eat or drink except water for at least 6 hours before (usually the morning after an overnight fast).</li>
+            <li><b>On the day:</b> no smoking, gum or mints.</li>
+            <li>The test drink contains aspartame (phenylalanine). Tell your clinician if you have PKU or diabetes.</li>
+          </ul>
+        </details>
+        <p class="hint"><b>Food sensitivity (IgG) testing usually isn't helpful.</b> It isn't the same as allergy (IgE) testing. IgG mostly reflects what you've been eating, not an intolerance, so you'll tend to test "positive" to your usual foods.</p>
+      </section>
+    </div>
 
-    <section class="block">
-      <h2><span class="tag">4</span>Fiber: food for your good bacteria</h2>
-      <p>Fiber feeds the "good" bacteria in your gut, and much of health starts there. Large studies link more fiber with:</p>
-      <div class="grid2">
-        <div class="tile"><b>Longer life</b>About 10% lower risk of death from any cause for each extra 10 g a day.</div>
-        <div class="tile"><b>Heart and metabolism</b>Around 30 g a day is linked with about 25% less cardiovascular death, steadier blood sugar after meals, less diabetes and fatty liver, and easier weight management.</div>
-        <div class="tile"><b>Lower cancer risk</b>Up to 40% less colon cancer at 30 g a day, and lower risk of several other cancers.</div>
-        <div class="tile"><b>Immunity</b>Most of the immune system lives in the gut: fewer colds, and less autoimmune and Crohn's disease. Fiber also binds some pesticides from food so they're carried out.</div>
-        <div class="tile"><b>Gut lining</b>Fiber raises short-chain fatty acids such as butyrate, which feed the gut lining. A healthy lining is like cheesecloth: good things through, bad things kept out. Inflammation widens the holes ("leaky gut"), which can show up as food sensitivities, joint pain and brain fog.</div>
-        <div class="tile"><b>Bowel balance</b>Less diverticulitis, and steadier IBS, diarrhea and constipation.</div>
-      </div>
-      <p><b>Goal: 25 g a day.</b> (Our ancestors ate 50–100 g.) Measure it for one week. You need about 7–8 servings of "healthy things" a day. Food is the best source when you can; if high-fiber foods don't agree with you yet, a fiber supplement can "train" your gut.</p>
-      <p class="hint">Tip: tell an AI chatbot everything you ate today, and ask how much fiber that was. Or use the fiber estimator on the Daily log tab.</p>
-      <h3>Start very, very slowly</h3>
-      <p>A sensitive gut needs time to get used to fiber. If you get bloated, cut back or split the dose, but don't stop completely.</p>
-      <table class="ramp"><thead><tr><th>Week</th><th>Supplement amount (in 12 oz water)</th></tr></thead><tbody>
-        <tr><td>1</td><td>⅛ teaspoon a day</td></tr><tr><td>2</td><td>¼ teaspoon</td></tr><tr><td>3</td><td>⅜ teaspoon</td></tr><tr><td>Each week after</td><td>add ⅛ teaspoon, as tolerated, up to 1–2 tablespoons a day</td></tr></tbody></table>
-      <div class="grid3">
-        <div class="tile"><b>Acacia fiber</b>Gentle and low-FODMAP. A good first choice for sensitive, IBS-prone guts.</div>
-        <div class="tile"><b>Partially hydrolyzed guar gum (PHGG)</b>Also low-FODMAP and good for IBS.</div>
-        <div class="tile"><b>Psyllium husk</b>Great for constipation if you tolerate it, but more likely to cause gas and bloating.</div>
-      </div>
-      <p class="hint">For diarrhea, use a little less water; for constipation, a little more (about 12 oz per tablespoon). Talk with your doctor before starting any supplement, especially if you have kidney or liver disease or take blood thinners.</p>
-    </section>
+    <div class="session stack" id="sess-1" data-session="1" hidden>
+      <header class="session-top">
+        <span class="eyebrow">Session 1 of 4</span>
+        <h2>Calm meals, digestion and fiber</h2>
+        <p>Start here. A calm body digests better, chewing sets up the whole gut, and fiber feeds your good bacteria. These habits carry on through every session.</p>
+      </header>
+      <section class="block hw" data-session="1" aria-labelledby="hw1-h">
+        <div class="hw-head"><h3 id="hw1-h">Session 1 homework</h3><span class="hw-progress" aria-live="polite"></span></div>
+        <div class="bar" aria-hidden="true"><i></i></div>
+        <div class="hw-list">
+          <div class="check"><input type="checkbox" id="hw1" data-key="breathe"><label for="hw1"><b>Breathe before every meal, then chew each bite 30–50 times.</b> Sit down, fork down, phone down.</label><button type="button" class="how" data-eat-sploot aria-haspopup="dialog">Open the before-you-eat checklist →</button></div>
+          <div class="check"><input type="checkbox" id="hw2" data-key="fiber"><label for="hw2"><b>Start a fiber sprinkle,</b> only if it feels right for you: ⅛ teaspoon of acacia or PHGG a day, building up slowly.</label><a class="how" href="#s1-fiber" data-jump>How to start →</a></div>
+          <div class="check"><input type="checkbox" id="hw3" data-key="measure"><label for="hw3"><b>Measure your fiber for one week.</b> Aim for 25 g a day over time.</label><a class="how" href="#log" data-tab="log" data-open="estimator">Use the fiber estimator →</a></div>
+          <div class="check"><input type="checkbox" id="hw4" data-key="log"><label for="hw4"><b>Keep a log.</b> What makes you feel 10% better, or 10% worse?</label><a class="how" href="#log" data-tab="log">Open the Daily log →</a></div>
+          <div class="check"><input type="checkbox" id="hw5" data-key="bst"><label for="hw5"><b>Baking soda test, 3 mornings,</b> if your clinician asked you to. Send them your times.</label><a class="how" href="#s1-bst" data-jump>Instructions and log →</a></div>
+          <div class="check"><input type="checkbox" id="hw6" data-key="video"><label for="hw6"><b>Watch the digestion video</b> all the way through at least once.</label><a class="how" href="#s1-digestion" data-jump>Watch the video →</a></div>
+        </div>
+      </section>
+      <nav class="jump" aria-label="In this session"><b>In this session:</b><a href="#s1-key" data-jump>Key ideas</a><a href="#s1-conductor" data-jump>Calm meals</a><a href="#s1-digestion" data-jump>Digestion</a><a href="#s1-fiber" data-jump>Fiber</a><a href="#s1-bst" data-jump>Baking soda test</a><a href="#s1-wisdom" data-jump>Group wisdom</a></nav>
 
-    <section class="block">
-      <h2><span class="tag">5</span>Group wisdom: what helps</h2>
-      <p>Ideas shared by people in the class. Try one at a time and notice what changes.</p>
-      <ul id="wisdom"></ul>
-    </section>
+      <section class="block" id="s1-key">
+        <h2><span class="tag">1</span>Key ideas</h2>
+        <ul>
+          <li><b>Investigate.</b> The gut is complex, and each person's is different. Notice what makes a 10% better day.</li>
+          <li><b>Self-compassion.</b> Your digestive system is doing the best it can with what it's been given.</li>
+          <li><b>It's connected.</b> Gut flares can come with whole-body symptoms: anxiety, joint pain, muscle aches, fatigue, migraines.</li>
+          <li><b>Acceptance.</b> Meeting the present moment as it is, without resistance, opens a path to healing.</li>
+        </ul>
+      </section>
 
-    <section class="block">
-      <h2><span class="tag">Next</span>Coming up</h2>
-      <p>The integrative gut-health series continues with these topics. They'll be added here as they're covered.</p>
-      <ol start="3">
-        <li><b>Powders and pills</b> in gut care (including healing the gut lining), and vagus nerve exercises.</li>
-        <li><b>The microbiome,</b> alternative therapies, and wrap-up.</li>
-      </ol>
-    </section>
+      <section class="block" id="s1-conductor">
+        <h2><span class="tag">2</span>A calm conductor at every meal</h2>
+        <p>There are more nerves in your gut than in your entire spinal cord. Digestion runs best in "rest and digest" mode, so your nervous system (the software) needs to be online for your gut (the hardware) to do its job. The symphony plays far better with a calm conductor.</p>
+        <ul>
+          <li><b>Breathe first:</b> take 2–4 slow belly breaths before every meal and snack. The 4-7-8 breath is great for digestion too.</li>
+          <li><b>Sit down, fork down, phone down.</b> How relaxed can you get in one minute?</li>
+          <li><b>Chew each bite 30–50 times.</b> Chewing until your food is smooth signals the rest of your gut to release its juices, and sets digestion up for success.</li>
+          <li><b>Bonus:</b> try closing your eyes and chewing calmly. What do you notice?</li>
+        </ul>
+        <div class="row"><button type="button" class="btn primary" data-eat-sploot aria-haspopup="dialog">Open Sploot: before you eat</button></div>
+      </section>
+
+      <section class="block" id="s1-digestion">
+        <h2><span class="tag">3</span>A tour of digestion</h2>
+        <p>Watch: <a href="https://youtu.be/Og5xAdC8EUI" target="_blank" rel="noopener">How your digestive system works (TED-Ed) ↗</a>. To go deeper: <a href="https://www.youtube.com/watch?v=X3TAROotFfM" target="_blank" rel="noopener">a more detailed walkthrough ↗</a>.</p>
+        <div class="grid2">
+          <div class="tile"><b>Saliva</b>You make 1–1.5 liters a day, so drink enough water.</div>
+          <div class="tile"><b>Mouth</b>Chewing well signals your stomach, pancreas and gallbladder to get ready.</div>
+          <div class="tile"><b>Esophagus</b>The lower esophageal sphincter keeps stomach acid from coming up. It works best with an active vagus nerve (breathing, relaxing), a strong diaphragm and the right acid levels. Common reflux (GERD) triggers: caffeine, alcohol, high-fat meals, peppermint, chocolate, smoking and nicotine, and stress. With a hiatal hernia, raising the head of the bed can help.</div>
+          <div class="tile"><b>Stomach</b>For some people, too <i>little</i> stomach acid is behind reflux-like symptoms. Aging, stress, trauma and illness can all lower it. Low acid can lead to poor nutrient absorption and problems further down: bloating, recurring SIBO, diarrhea and an unbalanced microbiome.</div>
+        </div>
+      </section>
+
+      <section class="block" id="s1-fiber">
+        <h2><span class="tag">4</span>Fiber: food for your good bacteria</h2>
+        <p>Fiber feeds the "good" bacteria in your gut, and much of health starts there. Large studies link more fiber with:</p>
+        <div class="grid2">
+          <div class="tile"><b>Longer life</b>About 10% lower risk of death from any cause for each extra 10 g a day.</div>
+          <div class="tile"><b>Heart and metabolism</b>Around 30 g a day is linked with about 25% less cardiovascular death, steadier blood sugar after meals, less diabetes and fatty liver, and easier weight management.</div>
+          <div class="tile"><b>Lower cancer risk</b>Up to 40% less colon cancer at 30 g a day, and lower risk of several other cancers.</div>
+          <div class="tile"><b>Immunity</b>Most of the immune system lives in the gut: fewer colds, and less autoimmune and Crohn's disease. Fiber also binds some pesticides from food so they're carried out.</div>
+          <div class="tile"><b>Gut lining</b>Fiber raises short-chain fatty acids such as butyrate, which feed the gut lining. A healthy lining is like cheesecloth: good things through, bad things kept out. Inflammation widens the holes ("leaky gut"), which can show up as food sensitivities, joint pain and brain fog.</div>
+          <div class="tile"><b>Bowel balance</b>Less diverticulitis, and steadier IBS, diarrhea and constipation.</div>
+        </div>
+        <p><b>Goal: 25 g a day.</b> (Our ancestors ate 50–100 g.) Measure it for one week. You need about 7–8 servings of "healthy things" a day. Food is the best source when you can; if high-fiber foods don't agree with you yet, a fiber supplement can "train" your gut.</p>
+        <p class="hint">Tip: tell an AI chatbot everything you ate today, and ask how much fiber that was. Or use the fiber estimator in the <a href="#log" data-tab="log">Daily log</a>.</p>
+        <h3>Start very, very slowly</h3>
+        <p>A sensitive gut needs time to get used to fiber. If you get bloated, cut back or split the dose, but don't stop completely.</p>
+        <table class="ramp"><thead><tr><th>Week</th><th>Supplement amount (in 12 oz water)</th></tr></thead><tbody>
+          <tr><td>1</td><td>⅛ teaspoon a day</td></tr><tr><td>2</td><td>¼ teaspoon</td></tr><tr><td>3</td><td>⅜ teaspoon</td></tr><tr><td>Each week after</td><td>add ⅛ teaspoon, as tolerated, up to 1–2 tablespoons a day</td></tr></tbody></table>
+        <div class="grid3">
+          <div class="tile"><b>Acacia fiber</b>Gentle and low-FODMAP. A good first choice for sensitive, IBS-prone guts.</div>
+          <div class="tile"><b>Partially hydrolyzed guar gum (PHGG)</b>Also low-FODMAP and good for IBS.</div>
+          <div class="tile"><b>Psyllium husk</b>Great for constipation if you tolerate it, but more likely to cause gas and bloating.</div>
+        </div>
+        <p class="hint">For diarrhea, use a little less water; for constipation, a little more (about 12 oz per tablespoon). Talk with your doctor before starting any supplement, especially if you have kidney or liver disease or take blood thinners.</p>
+      </section>
+
+      <section class="block" id="s1-bst">
+        <h2><span class="tag">Optional</span>Baking soda stomach acid test</h2>
+        <p class="callout">Only do this if your clinician has asked you to. If you take a PPI (such as omeprazole/Prilosec), don't do it unless your doctor has said you can safely stop for 2 weeks. If you take Pepcid or Tums, try skipping the dose the night before.</p>
+        <ol>
+          <li>First thing in the morning, before eating or drinking, mix ¼ teaspoon of <b>fresh</b> baking soda into 4 oz of cold water.</li>
+          <li>Drink it and start a timer. Note how long it takes to burp. Stop timing at 5 minutes.</li>
+          <li>Repeat for 3 mornings in a row, or as many days as your clinician asks. Log each morning below.</li>
+        </ol>
+        <p>In theory, burping within 1–2 minutes suggests enough stomach acid; burping after 3 minutes, or not at all, may suggest low acid, which your clinician may want to look into.</p>
+        <form id="bstForm" class="stack" novalidate>
+          <p class="hint">Choose a result, type how long it took, or both (for example <b>1.5</b> or <b>1:30</b>). Choose <b>No baking soda</b> for a morning you drank the water without it, and still type the minutes if you burped.</p>
+          <div id="bstRows" class="stack" style="gap:10px"></div>
+          <div class="row"><button type="submit" class="btn primary">Save result</button></div>
+        </form>
+        <div class="entries" id="bstList"></div>
+        <div class="row"><button type="button" class="btn" id="bstCopy">Copy results for a message to my clinician</button></div>
+      </section>
+
+      <section class="block" id="s1-wisdom">
+        <h2><span class="tag">5</span>Group wisdom: what helps</h2>
+        <p>Ideas shared by people in the class. Try one at a time and notice what changes.</p>
+        <ul id="wisdom"></ul>
+      </section>
+    </div>
+
+    <div class="session stack" id="sess-3" data-session="3" hidden>
+      <header class="session-top">
+        <span class="eyebrow">Session 3 of 4 · coming up</span>
+        <h2>Powders and pills, and the vagus nerve</h2>
+        <p>Supplements in gut care, including healing the gut lining, and vagus nerve exercises. The notes and homework will appear here after the class.</p>
+      </header>
+      <p class="callout">Until then, keep going with the homework from Sessions 1 and 2.</p>
+    </div>
+
+    <div class="session stack" id="sess-4" data-session="4" hidden>
+      <header class="session-top">
+        <span class="eyebrow">Session 4 of 4 · coming up</span>
+        <h2>The microbiome and wrap-up</h2>
+        <p>The microbiome, alternative therapies, and putting it all together. The notes and homework will appear here after the class.</p>
+      </header>
+      <p class="callout">Until then, keep going with the homework from Sessions 1 and 2.</p>
+    </div>
+
+    <p class="affirm">My body wants to heal. My body is on my side. My body is amazing!</p>
 
     <figure class="callout" style="margin:0;border-left:4px solid var(--grass);background:var(--grass-soft);border-radius:0 var(--r) var(--r) 0;padding:18px 22px">
       <blockquote style="margin:0;font:500 18px/1.5 var(--display);font-style:italic;max-width:60ch">So whether you eat or drink or whatever you do, do it all for the glory of God.</blockquote>
@@ -248,67 +349,37 @@ details.more[open] > summary { margin-bottom: 8px }
     </figure>
   </div>
 
-  <!-- ============ THIS WEEK ============ -->
-  <div id="week" role="tabpanel" aria-labelledby="tab-week" class="stack" hidden>
-    <section class="block">
-      <h2><span class="tag">Practice</span>1-minute pre-meal breath</h2>
-      <p>Before you eat: sit down, put your fork and phone down, and follow along. Three rounds of 4-7-8 breathing take about a minute.</p>
-      <div class="breath" aria-live="polite"><span class="count" id="bCount">·</span><span class="label" id="bLabel">Ready when you are</span><span class="hint" id="bRound"></span></div>
-      <div class="row" style="justify-content:center"><button type="button" class="btn primary" id="bStart">Start</button><button type="button" class="btn" id="bStop" hidden>Stop</button></div>
-      <p class="hint">Breathe in through your nose for 4, hold for 7, breathe out slowly through your mouth for 8. If holding is uncomfortable, shorten the counts and keep the out-breath longest. Then take your first bite slowly, and chew it 30–50 times.</p>
-    </section>
-
-    <section class="block" id="homework">
-      <h2><span class="tag">Homework</span>This week (Session 2)</h2>
-      <div class="check"><input type="checkbox" id="hw21" data-key="w2-breathe"><label for="hw21"><b>Diaphragmatic breathing before every meal and snack.</b> 2 slow belly breaths, or the 1-minute 4-7-8 breath above. Tap <b>Sploot: before you eat</b> at the top of the page for a checklist.</label></div>
-      <div class="check"><input type="checkbox" id="hw22" data-key="w2-calm"><label for="hw22"><b>Calm the gut–brain connection every day:</b> the Nerva app (daily for 12 weeks), or a free gut-directed meditation nightly for 6 weeks. Links on the Learn tab.</label></div>
-      <div class="check"><input type="checkbox" id="hw23" data-key="w2-trial"><label for="hw23"><b>Use your intuition and pick a trial:</b> acid support (apple cider vinegar, or betaine with your clinician's guidance), digestive enzymes, or an elimination diet. One thing at a time.</label></div>
-      <div class="check"><input type="checkbox" id="hw24" data-key="w2-log"><label for="hw24"><b>Keep investigating.</b> Log what you're trying and what makes you feel 10% better, or 10% worse, in the Daily log.</label></div>
-      <div class="check"><input type="checkbox" id="hw25" data-key="w2-tests"><label for="hw25"><b>Any tests your clinician ordered:</b> check the preparation instructions (Learn tab, section 6) and book them.</label></div>
-      <details class="more" style="margin-top:10px">
-        <summary>Session 1 homework (keep these going)</summary>
-        <div class="check"><input type="checkbox" id="hw1" data-key="breathe"><label for="hw1"><b>Breathe before every meal, then chew each bite 30–50 times.</b> 2–4 slow belly breaths. Sit down, fork down, phone down.</label></div>
-        <div class="check"><input type="checkbox" id="hw2" data-key="fiber"><label for="hw2"><b>Start a fiber sprinkle,</b> only if it feels right for you: ⅛ teaspoon of acacia or PHGG a day (psyllium if constipated), building up slowly.</label></div>
-        <div class="check"><input type="checkbox" id="hw3" data-key="measure"><label for="hw3"><b>Measure your fiber for one week.</b> Aim for 25 g a day over time.</label></div>
-        <div class="check"><input type="checkbox" id="hw4" data-key="log"><label for="hw4"><b>Keep a log.</b> What makes you feel 10% better, or 10% worse? Use the Daily log tab, a paper journal, or an app such as Bearable.</label></div>
-        <div class="check"><input type="checkbox" id="hw5" data-key="bst"><label for="hw5"><b>Baking soda test, 3 mornings,</b> if your clinician asked you to (instructions below). Send them your times.</label></div>
-        <div class="check"><input type="checkbox" id="hw6" data-key="video"><label for="hw6"><b>Watch the digestion video</b> all the way through at least once.</label></div>
-      </details>
-    </section>
-
-    <section class="block">
-      <h2><span class="tag">Optional</span>Baking soda stomach acid test</h2>
-      <p class="callout">Only do this if your clinician has asked you to. If you take a PPI (such as omeprazole/Prilosec), don't do it unless your doctor has said you can safely stop for 2 weeks. If you take Pepcid or Tums, try skipping the dose the night before.</p>
-      <ol>
-        <li>First thing in the morning, before eating or drinking, mix ¼ teaspoon of <b>fresh</b> baking soda into 4 oz of cold water.</li>
-        <li>Drink it and start a timer. Note how long it takes to burp. Stop timing at 5 minutes.</li>
-        <li>Repeat for 3 mornings in a row, or as many days as your clinician asks. Log each morning below.</li>
-      </ol>
-      <p>In theory, burping within 1–2 minutes suggests enough stomach acid; burping after 3 minutes, or not at all, may suggest low acid, which your clinician may want to look into.</p>
-      <form id="bstForm" class="stack" novalidate>
-        <p class="hint">Choose a result, type how long it took, or both (for example <b>1.5</b> or <b>1:30</b>). Choose <b>No baking soda</b> for a morning you drank the water without it, and still type the minutes if you burped.</p>
-        <div id="bstRows" class="stack" style="gap:10px"></div>
-        <div class="row"><button type="submit" class="btn primary">Save result</button></div>
-      </form>
-      <div class="entries" id="bstList"></div>
-      <div class="row"><button type="button" class="btn" id="bstCopy">Copy results for a message to my clinician</button></div>
-    </section>
-  </div>
-
-  <!-- ============ DAILY LOG ============ -->
+  <!-- ============ DAILY LOG: how I feel first, then food, habits and what I noticed ============ -->
   <div id="log" role="tabpanel" aria-labelledby="tab-log" class="stack" hidden>
-    <section class="block">
-      <h2><span class="tag">Estimate</span>Fiber estimator</h2>
-      <p class="hint">Tap + for each serving you ate today. These are rough averages; packaged foods list fiber on the label.</p>
-      <div class="foods" id="foods"></div>
-      <div class="row"><span>Estimated total: <span class="total" id="fiberTotal">0 g</span></span><button type="button" class="btn primary" id="useFiber">Put in today's log</button><button type="button" class="btn" id="resetFiber">Reset</button></div>
-    </section>
-
     <form id="form" class="stack">
       <section class="block">
-        <h2><span class="tag">Today</span>Food and habits</h2>
+        <h2><span class="tag">Today</span>How I feel</h2>
         <label class="field"><span>Date</span><input type="date" name="date"></label>
+        <label class="field"><span>Gut symptoms overall</span><small>0 = none, 10 = severe.</small><div class="range"><input type="range" name="symptoms" min="0" max="10" value="0" data-unit="/10"><output></output></div></label>
+        <div class="field"><span>Symptoms</span><div class="checks" id="symptomChecks"></div></div>
+        <div class="grid2">
+          <label class="field"><span>Stress</span><small>0 = calm, 10 = very stressed.</small><div class="range"><input type="range" name="stress" min="0" max="10" value="0" data-unit="/10"><output></output></div></label>
+          <label class="field"><span>Sleep</span><small>Hours, and how well.</small><input type="text" name="sleep" placeholder="e.g. 7 h, restless"></label>
+        </div>
+      </section>
+
+      <section class="block">
+        <h2><span class="tag">Food</span>What I ate</h2>
         <label class="field"><span>What I ate and drank</span><textarea name="food"></textarea></label>
+        <div class="grid2">
+          <label class="field"><span>Fiber (grams, estimated)</span><input type="number" name="fiber" id="fiberInput" min="0" max="150" inputmode="numeric"></label>
+          <label class="field"><span>Fiber supplement and amount</span><input type="text" name="supplement" placeholder="e.g. acacia, ⅛ tsp"></label>
+        </div>
+        <details class="more" id="estimator">
+          <summary>Help me estimate today's fiber</summary>
+          <p class="hint">Tap + for each serving you ate today. These are rough averages; packaged foods list fiber on the label.</p>
+          <div class="foods" id="foods"></div>
+          <div class="row" style="margin-top:10px"><span>Estimated total: <span class="total" id="fiberTotal">0 g</span></span><button type="button" class="btn primary" id="useFiber">Use this total</button><button type="button" class="btn" id="resetFiber">Reset</button></div>
+        </details>
+      </section>
+
+      <section class="block">
+        <h2><span class="tag">Habits</span>Habits and trials</h2>
         <div class="field"><span>Belly breaths before</span><div class="checks">
           <label class="chip"><input type="checkbox" name="breaths" value="Breakfast">Breakfast</label>
           <label class="chip"><input type="checkbox" name="breaths" value="Lunch">Lunch</label>
@@ -328,18 +399,8 @@ details.more[open] > summary { margin-bottom: 8px }
         </div></div>
         <div class="field"><span>Trying now</span><small>Acid support, enzymes or an elimination diet (Session 2).</small><div class="checks" id="trialChecks"></div></div>
         <label class="field"><span>Doses, brands and notes on what I'm trying</span><input type="text" name="trialNote" placeholder="e.g. apple cider vinegar 1 tsp before lunch and dinner; NOW Super Enzymes"></label>
-        <div class="grid2">
-          <label class="field"><span>Fiber (grams, estimated)</span><input type="number" name="fiber" id="fiberInput" min="0" max="150" inputmode="numeric"></label>
-          <label class="field"><span>Fiber supplement and amount</span><input type="text" name="supplement" placeholder="e.g. acacia, ⅛ tsp"></label>
-        </div>
       </section>
-      <section class="block">
-        <h2><span class="tag">Body</span>Symptoms and mood</h2>
-        <div class="field"><span>Symptoms</span><div class="checks" id="symptomChecks"></div></div>
-        <label class="field"><span>Gut symptoms overall</span><small>0 = none, 10 = severe.</small><div class="range"><input type="range" name="symptoms" min="0" max="10" value="0" data-unit="/10"><output></output></div></label>
-        <label class="field"><span>Stress</span><div class="range"><input type="range" name="stress" min="0" max="10" value="0" data-unit="/10"><output></output></div></label>
-        <label class="field"><span>Sleep</span><input type="text" name="sleep" placeholder="hours, quality"></label>
-      </section>
+
       <section class="block">
         <h2><span class="tag">Investigate</span>10% better, 10% worse</h2>
         <div class="grid2">
@@ -367,7 +428,7 @@ details.more[open] > summary { margin-bottom: 8px }
 
 <script src="assets/tools.js?v=7"></script>
 <script>
-const WISDOM = ["Warm water or tea in the morning", "A gentle walk after meals", "A smaller, earlier dinner", "Good sleep habits", "Less screen time", "Meditation and breathwork", "Slowing down and chewing well", "A low-FODMAP elimination trial, with guidance", "Less stress", "Medication when it's needed", "4–5 hours between meals and snacks, so the gut's cleaning wave (the migrating motor complex) can run", "Slow waaay down: hydrate, chew, be present with the food", "Sit down to eat, with a moment of gratitude or prayer", "Close your eyes for the first minute and really taste the food", "Self-compassion: you and your body are trying your best"];
+const WISDOM = ["Warm water or tea in the morning", "A gentle walk after meals", "A smaller, earlier dinner", "Good sleep habits", "Less screen time", "Meditation and breathwork", "Slowing down and chewing well", "A low-FODMAP elimination trial, with guidance", "Less stress", "Medication when it's needed", "4–5 hours between meals and snacks, so the gut's cleaning wave (the migrating motor complex) can run"];
 GW.$("wisdom").innerHTML = WISDOM.map(w => `<li>${GW.esc(w)}</li>`).join("");
 
 const TRIALS = ["Apple cider vinegar", "Betaine with pepsin", "Digestive enzyme", "FODZYME or FODMATE", "Gluten-free", "Dairy-free", "Low sugar", "Reflux-friendly", "Low FODMAP", "Low histamine", "DAO enzyme"];
@@ -376,8 +437,42 @@ GW.$("trialChecks").innerHTML = TRIALS.map(s => `<label class="chip"><input type
 const SYMPTOMS = ["Bloating", "Gas", "Cramping", "Reflux or heartburn", "Loose stools", "Constipation", "Nausea", "Fatigue", "Anxiety", "Joint or muscle aches", "Headache or migraine", "Brain fog"];
 GW.$("symptomChecks").innerHTML = SYMPTOMS.map(s => `<label class="chip"><input type="checkbox" name="symptomList" value="${GW.esc(s)}">${GW.esc(s)}</label>`).join("");
 
-/* ---- tabs and journals ---- */
-GW.tabs(document.querySelector(".tabs"), "groundwork-eating-tab");
+/* ---- tabs and sessions ----
+   The Sessions tab shows one class session at a time. It opens on the newest one (LATEST), or the one in the address
+   (#session-1), and the address follows the session picked, so a reload or a shared link lands in the same place. */
+const LATEST = 2;
+const fromHash = +(location.hash.match(/^#session-(\d)$/) || [])[1] || 0;
+const showTab = GW.tabs(document.querySelector(".tabs"), "groundwork-eating-tab");
+function showSession(n) {
+  n = String(n);
+  document.querySelectorAll(".session").forEach(el => el.hidden = el.dataset.session !== n);
+  document.querySelectorAll(".pick").forEach(b => b.setAttribute("aria-pressed", b.dataset.session === n));
+  if (!GW.$("sessions").hidden) try { history.replaceState(history.state, "", "#session-" + n) } catch {}
+}
+document.querySelector(".session-pick").addEventListener("click", e => { const b = e.target.closest(".pick"); if (b) showSession(b.dataset.session) });
+GW.$("tab-sessions").addEventListener("click", () => showSession(document.querySelector('.pick[aria-pressed="true"]')?.dataset.session || LATEST));
+if (fromHash) showTab("sessions");
+showSession(fromHash || LATEST);
+
+/* "In this session" links and homework "How" links: open the right session if needed, scroll there and flash the section. */
+document.addEventListener("click", e => {
+  const a = e.target.closest("a[data-jump]"); if (!a) return;
+  const t = document.querySelector(a.getAttribute("href")); if (!t) return;
+  e.preventDefault();
+  const sess = t.closest(".session"); if (sess?.hidden) showSession(sess.dataset.session);
+  t.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
+  t.tabIndex = -1; t.focus({ preventScroll: true });
+  t.classList.remove("flash"); void t.offsetWidth; t.classList.add("flash");
+});
+
+// A link can also open a fold on the tab it goes to (the fiber estimator).
+document.addEventListener("click", e => {
+  const a = e.target.closest("[data-open]"); if (!a) return;
+  const d = GW.$(a.dataset.open); d.open = true;
+  setTimeout(() => d.scrollIntoView({ behavior: "smooth", block: "center" }), 60);
+});
+
+/* ---- journals ---- */
 const J = GW.journal({
   key: "groundwork-eating", name: "Groundwork integrative eating log",
   form: GW.$("form"), list: GW.$("list"), count: GW.$("count"),
@@ -423,7 +518,20 @@ GW.$("bstCopy").onclick = () => {
   if (!r.length) return GW.toast("No results saved yet");
   GW.copy("Baking soda test results:\n" + r.map(e => `- ${GW.fmtDate(e.date || e.t)}: ${bstSummary(e)}`).join("\n"), "Results copied");
 };
-GW.checklist(GW.$("homework"), "groundwork-eating-week");
+/* Homework: the same saved checklist as before (keys unchanged), shown in each session with its progress. */
+GW.checklist(GW.$("sessions"), "groundwork-eating-week");
+function showProgress() {
+  document.querySelectorAll(".hw").forEach(card => {
+    const boxes = [...card.querySelectorAll("input[data-key]")], d = boxes.filter(b => b.checked).length, all = d === boxes.length;
+    const text = all ? `All ${d} done` : `${d} of ${boxes.length} done`;
+    card.querySelector(".hw-progress").textContent = all ? text + ". Well done!" : text;
+    card.querySelector(".bar i").style.width = (100 * d / boxes.length) + "%";
+    document.querySelector(`.pick[data-session="${card.dataset.session}"] small`).textContent = (all ? "✓ " : "") + "Homework: " + text.toLowerCase();
+  });
+}
+GW.$("sessions").addEventListener("change", e => { if (e.target.matches("input[data-key]")) showProgress() });
+window.addEventListener("groundwork-synced", showProgress);
+showProgress();
 
 /* ---- fiber estimator ---- */
 const FOODS = [["Apple", "1 medium", 4], ["Berries", "1 cup", 4], ["Broccoli", "1 cup", 4], ["Spinach, cooked", "1 cup", 4], ["Oats, cooked", "1 cup", 4], ["Quinoa, cooked", "1 cup", 4], ["Almonds", "1 oz (about 23)", 4], ["Chia seeds", "1 tablespoon", 4], ["Lentils, cooked", "½ cup", 7], ["Beans, cooked", "½ cup", 7], ["Pear", "1 medium", 5], ["Avocado", "½", 5], ["Sweet potato", "1 medium, with skin", 4], ["Whole-grain bread", "1 slice", 2], ["Carrots", "1 cup", 3], ["Banana", "1 medium", 3]];
@@ -434,24 +542,7 @@ const showFiber = () => { counts.forEach((c, i) => GW.$("fc" + i).textContent = 
 function resetFiber() { counts.fill(0); showFiber() }
 GW.$("foods").addEventListener("click", e => { const b = e.target.closest("[data-f]"); if (!b) return; const i = +b.dataset.f; counts[i] = Math.max(0, counts[i] + +b.dataset.d); showFiber() });
 GW.$("resetFiber").onclick = resetFiber;
-GW.$("useFiber").onclick = () => { GW.$("fiberInput").value = fiberTotal(); GW.$("fiberInput").focus(); GW.toast("Added to today's log") };
-
-/* ---- 4-7-8 breathing, three rounds ---- */
-const STEPS = [["Breathe in", 4], ["Hold", 7], ["Breathe out", 8]];
-let bt = null;
-function stopBreath(msg) { clearInterval(bt); bt = null; GW.$("bStart").hidden = false; GW.$("bStop").hidden = true; GW.$("bCount").textContent = "·"; GW.$("bLabel").textContent = msg || "Ready when you are"; GW.$("bRound").textContent = "" }
-GW.$("bStart").onclick = () => {
-  let round = 1, step = 0, n = 1;
-  GW.$("bStart").hidden = true; GW.$("bStop").hidden = false;
-  const tick = () => {
-    if (n > STEPS[step][1]) { n = 1; step++; if (step === STEPS.length) { step = 0; round++ } }
-    if (round > 3) return stopBreath("Now eat slowly, and enjoy");
-    GW.$("bCount").textContent = n; GW.$("bLabel").textContent = STEPS[step][0]; GW.$("bRound").textContent = `Round ${round} of 3`;
-    n++;
-  };
-  tick(); bt = setInterval(tick, 1000);
-};
-GW.$("bStop").onclick = () => stopBreath();
+GW.$("useFiber").onclick = () => { GW.$("fiberInput").value = fiberTotal(); GW.$("fiberInput").focus(); GW.toast("Fiber total filled in") };
 
 GW.sploot({ ...GW.EATING_SPLOOT, trigger: "[data-eat-sploot]" });</script>
 <script src="config.js?v=11"></script>
