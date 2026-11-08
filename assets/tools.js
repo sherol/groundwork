@@ -180,7 +180,7 @@
     /* A checklist Sploot has two columns: the breathing acorn, and the heading plus list. Upright on a phone (and on wider screens)
        they stack as one column; on a phone held sideways the acorn stays on the left and the list scrolls on the right. */
     o.innerHTML = cfg.checklist ? `<div class="sheet ground-sheet list-sheet">
-      <div class="sp-breath">${acorn}</div>
+      <div class="sp-breath">${cfg.record ? `<button type="button" class="sp-x" id="spX" aria-label="Close without saving this session">×</button>` : ""}${acorn}</div>
       <div class="sp-side">${head}<p class="rotate-hint">Tip: turn your phone sideways to keep the acorn beside the list.</p><div class="todo" id="spTodo">${cfg.checklist.map(g => `<div class="todo-group"><h3>${esc(g.group)}</h3>${g.items.map(it => { const k = items.indexOf(it); return `<label class="todo-item"><input type="checkbox" data-i="${k}"><span>${it}</span></label>` }).join("")}</div>`).join("")}</div>
         <p class="todo-count" id="spCount" aria-live="polite"></p>
         <div class="row"><button class="btn primary" id="spClose" type="button">${esc(cfg.done || "Done")}</button></div></div></div>`
@@ -247,15 +247,17 @@
     }
     // Closing or leaving the page with the Sploot open still records the session.
     if (cfg.record) window.addEventListener("pagehide", () => { if (!o.hidden) record(false) });
-    function close(finished) { record(finished === true);
+    /* finished: closed with the done button. discard: closed with × (or Escape) on a recording Sploot, so nothing is saved. */
+    function close(finished, discard) { if (discard) opened = 0; else record(finished === true);
       o.hidden = true; clearInterval(timer); clearTimeout(settle); orb.stop(); page().inert = false; fabs().forEach(f => f.inert = false); last?.focus?.() }
     if (cfg.steps) {
       q("spNext").onclick = () => { gi = Math.min(gi + 1, cfg.steps.length - 1); showStep() };
       q("spPrev").onclick = () => { gi = Math.max(gi - 1, 0); showStep() };
     } else o.addEventListener("change", showCount);
     q("spClose").onclick = () => close(true);
+    if (q("spX")) q("spX").onclick = () => { close(false, true); toast("Closed without saving") };
     o.addEventListener("keydown", e => {
-      if (e.key === "Escape") return close(false);
+      if (e.key === "Escape") return close(false, !!cfg.record);
       if (e.key !== "Tab") return;
       const f = [...o.querySelectorAll("button, input, a[href], [tabindex='0']")].filter(el => !el.disabled && el.getClientRects().length);
       if (e.shiftKey && document.activeElement === f[0]) { e.preventDefault(); f[f.length - 1].focus() }
