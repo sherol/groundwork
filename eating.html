@@ -9,7 +9,7 @@
 <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;700;800&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&display=swap">
-<link rel="stylesheet" href="assets/tools.css?v=7">
+<link rel="stylesheet" href="assets/tools.css?v=8">
 <style>
 .affirm { text-align: center; font: 800 clamp(20px, 3vw, 26px)/1.3 var(--display); color: var(--c); padding: 18px; background: var(--c-soft); border-radius: var(--r); margin: 0 }
 .foods { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 8px }
@@ -60,6 +60,8 @@ details.more > summary { cursor: pointer; font-weight: 700; font-family: var(--d
 details.more[open] > summary { margin-bottom: 8px }
 .links-list { padding-left: 1.2em }
 .links-list li { margin: 4px 0 }
+.sp-week { margin: 0; font-weight: 700; color: var(--c) }
+.sp-line { margin: 4px 0 0; color: var(--muted); font-size: 15px }
 </style>
 </head>
 <body class="t4">
@@ -416,6 +418,12 @@ details.more[open] > summary { margin-bottom: 8px }
   <div id="saved" role="tabpanel" aria-labelledby="tab-saved" class="stack" hidden>
     <div class="row"><button type="button" class="btn" id="copyMd">Copy all as Markdown</button><button type="button" class="btn" id="saveFile">Save as file (to print or share)</button></div>
     <div class="entries" id="list"></div>
+    <section class="block" id="splootLog">
+      <h2><span class="tag">Sploot</span>Before-you-eat sessions</h2>
+      <p class="hint">Each time you use <b>Sploot: before you eat</b> for 10 seconds or more (or tick something off), it's saved here, and to Google Sheets if you've connected it.</p>
+      <p class="sp-week" id="spWeek"></p>
+      <div class="entries" id="spList"></div>
+    </section>
   </div>
 
   <footer class="safety">
@@ -426,7 +434,7 @@ details.more[open] > summary { margin-bottom: 8px }
 </div>
 
 
-<script src="assets/tools.js?v=7"></script>
+<script src="assets/tools.js?v=8"></script>
 <script>
 const WISDOM = ["Warm water or tea in the morning", "A gentle walk after meals", "A smaller, earlier dinner", "Good sleep habits", "Less screen time", "Meditation and breathwork", "Slowing down and chewing well", "A low-FODMAP elimination trial, with guidance", "Less stress", "Medication when it's needed", "4–5 hours between meals and snacks, so the gut's cleaning wave (the migrating motor complex) can run"];
 GW.$("wisdom").innerHTML = WISDOM.map(w => `<li>${GW.esc(w)}</li>`).join("");
@@ -543,6 +551,25 @@ function resetFiber() { counts.fill(0); showFiber() }
 GW.$("foods").addEventListener("click", e => { const b = e.target.closest("[data-f]"); if (!b) return; const i = +b.dataset.f; counts[i] = Math.max(0, counts[i] + +b.dataset.d); showFiber() });
 GW.$("resetFiber").onclick = resetFiber;
 GW.$("useFiber").onclick = () => { GW.$("fiberInput").value = fiberTotal(); GW.$("fiberInput").focus(); GW.toast("Fiber total filled in") };
+
+/* ---- Sploot sessions (recorded by the Sploot itself; listed on the Saved tab, newest first, with delete) ---- */
+const SPK = "groundwork-eating-sploot";
+function showSploots() {
+  const all = GW.load(SPK, []), weekAgo = new Date(Date.now() - 6 * 864e5).toISOString().slice(0, 10);
+  const week = all.filter(e => (e.date || "") >= weekAgo).length;
+  GW.$("spWeek").textContent = all.length ? `Last 7 days: ${week} session${week === 1 ? "" : "s"} before eating.` : "";
+  GW.$("spList").innerHTML = all.length ? all.slice(0, 30).map(e => `<article class="entry"><header><b>${GW.esc(GW.fmtDate(e.date || e.t))} · ${GW.esc(e.start || "")}</b><button type="button" class="btn small danger" data-sp-del="${GW.esc(e.id)}">Delete</button></header>
+    <p class="sp-line">${GW.esc([`${e.minutes} min`, `${e.breaths} slow breath${e.breaths === 1 ? "" : "s"}`, e.rounds !== "" && e.rounds != null && `${e.rounds} counted on the cap`, e.done && `${e.done} ticked`, e.finished ? "ended with Ready to eat" : "closed early"].filter(Boolean).join(" · "))}</p></article>`).join("")
+    : `<p class="empty">No sessions yet. Tap <b>Sploot: before you eat</b> before your next meal.</p>`;
+}
+GW.$("spList").addEventListener("click", e => {
+  const b = e.target.closest("[data-sp-del]"); if (!b || !confirm("Delete this session? This can't be undone.")) return;
+  // Remember the deleted id so syncing with another device doesn't bring it back.
+  GW.save(SPK, GW.load(SPK, []).filter(x => x.id !== b.dataset.spDel)); GW.save(SPK + "-deleted", [...GW.load(SPK + "-deleted", []), b.dataset.spDel]);
+  GW.synced(); showSploots(); GW.toast("Deleted");
+});
+["groundwork-sploot-recorded", "groundwork-synced"].forEach(ev => window.addEventListener(ev, showSploots));
+showSploots();
 
 GW.sploot({ ...GW.EATING_SPLOOT, trigger: "[data-eat-sploot]" });</script>
 <script src="config.js?v=11"></script>

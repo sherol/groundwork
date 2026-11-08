@@ -176,7 +176,6 @@
     const tap = cfg.tapRestart ? ` role="button" tabindex="0" id="spTap" aria-label="Tap the acorn to start the breath from the beginning and count rounds"` : "";
     const acorn = `<div class="breath-stage${cfg.checklist ? " small" : ""}${cfg.tapRestart ? " tappable" : ""}"${tap}><span class="ring"></span><span class="ring r2"></span><span class="ring r3"></span>
         <div class="orb" id="spOrb">${ACORN}${cfg.tapRestart ? `<span class="cap-count" id="spRounds" hidden aria-live="polite"></span>` : ""}<div class="breath-count"><b id="spNum">1</b><span id="spLabel">${esc(breath[0].label)}</span></div></div></div>
-      ${cfg.tapRestart ? `<p class="tap-hint" id="spTapHint">Tap the acorn to start from the beginning and count your rounds.</p>` : ""}
       <p class="breath-meta" id="spMeta">${esc(cfg.breathText || breath.map(b => `${b.label.replace(/^Breathe /, "")} ${b.n}`).join(", "))}</p>`;
     /* A checklist Sploot has two columns: the breathing acorn, and the heading plus list. Upright on a phone (and on wider screens)
        they stack as one column; on a phone held sideways the acorn stays on the left and the list scrolls on the right. */
@@ -190,7 +189,11 @@
       ${cfg.crisis === false ? "" : CRISIS}</div>`;
     document.body.append(o);
     const q = id => o.querySelector("#" + id);
-    let gi = 0, timer = null, ph = 0, n = 1, count = 0, last = null, rounds = null, opened = 0;
+    let gi = 0, timer = null, settle = null, ph = 0, n = 1, count = 0, last = null, rounds = null, opened = 0;
+    const paceText = cfg.breathText || pace;
+    /* The line under the acorn. With tapRestart, the cap is the only counter: before a tap the line says how to start one. */
+    const showMeta = () => q("spMeta").textContent = !cfg.tapRestart ? (count ? `${count} slow breath${count > 1 ? "s" : ""} · ${paceText}` : cfg.breathText || breath.map(b => `${b.label.replace(/^Breathe /, "")} ${b.n}`).join(", "))
+      : rounds === null ? `Tap the acorn to count rounds · ${paceText}` : `${paceText} · tap the acorn to start over`;
     const showStep = () => {
       q("spStep").textContent = cfg.steps[gi]; q("spPrev").disabled = gi === 0; q("spNext").hidden = gi === cfg.steps.length - 1;
       q("spDots").innerHTML = cfg.steps.map((_, k) => `<i class="${k <= gi ? "on" : ""}"></i>`).join("");
@@ -200,15 +203,16 @@
       const b = breath[ph];
       q("spNum").textContent = n; q("spLabel").textContent = b.label;
       if (n === 1 && b.grow !== null) orb.go(b.grow ? 1 : .5, b.n);
-      if (++n > b.n) { n = 1; ph = (ph + 1) % breath.length; if (ph === 0) { q("spMeta").textContent = `${++count} slow breath${count > 1 ? "s" : ""} · ${cfg.breathText || pace}`; if (rounds !== null) showRounds(++rounds) } }
+      if (++n > b.n) { n = 1; ph = (ph + 1) % breath.length; if (ph === 0) { count++; if (rounds !== null) showRounds(++rounds); showMeta() } }
     };
     const orb = orbAnimator(q("spOrb"));
-    /* Tapping the acorn restarts the breath at the top of the in-breath, and the cap counts the full rounds finished since the tap. */
+    /* Tapping the acorn restarts the breath at the top of the in-breath, and the cap counts the full rounds finished since the tap.
+       The acorn first settles gently (under a second) to its breathed-out size, so starting over never jolts. */
     const showRounds = r => { const el = q("spRounds"); el.hidden = false; el.textContent = r; el.setAttribute("aria-label", `${r} round${r === 1 ? "" : "s"} since you tapped`) };
     function restart() {
-      clearInterval(timer); ph = 0; n = 1; rounds = 0; showRounds(0); orb.set(.5);
-      q("spTapHint") && (q("spTapHint").textContent = "Counting rounds since your tap. Tap again to start over.");
-      tick(); timer = setInterval(tick, 1000);
+      clearInterval(timer); clearTimeout(settle); ph = 0; n = 1; rounds = 0; showRounds(0); showMeta();
+      q("spNum").textContent = "·"; q("spLabel").textContent = "Starting over"; orb.go(.5, .7);
+      settle = setTimeout(() => { tick(); timer = setInterval(tick, 1000) }, 800);
     }
     if (cfg.tapRestart) {
       const t = q("spTap");
@@ -218,8 +222,9 @@
     const page = () => document.querySelector(".wrap");
     const fabs = () => document.querySelectorAll(".sploot-fab");
     function open() {
-      last = document.activeElement; gi = 0; ph = 0; n = 1; count = 0; rounds = null; opened = Date.now();
-      if (cfg.tapRestart) { q("spRounds").hidden = true; q("spTapHint").textContent = "Tap the acorn to start from the beginning and count your rounds." }
+      last = document.activeElement; gi = 0; ph = 0; n = 1; count = 0; rounds = null; opened = Date.now(); clearTimeout(settle);
+      if (cfg.tapRestart) q("spRounds").hidden = true;
+      showMeta();
       if (cfg.steps) showStep(); else { o.querySelectorAll(".todo-item input").forEach(c => c.checked = false); showCount() }
       o.hidden = false; page().inert = true; fabs().forEach(f => f.inert = true);
       orb.set(.5); clearInterval(timer);
@@ -238,9 +243,12 @@
         minutes: Math.round(secs / 6) / 10, breaths: count, rounds: rounds ?? "", done: items.length ? `${done} of ${items.length}` : "", finished,
         page: (location.pathname.split("/").pop() || "index.html").replace(/\.html$/, "") };
       save(cfg.record, [entry, ...load(cfg.record, [])]); synced();
+      window.dispatchEvent(new CustomEvent("groundwork-sploot-recorded"));
     }
+    // Closing or leaving the page with the Sploot open still records the session.
+    if (cfg.record) window.addEventListener("pagehide", () => { if (!o.hidden) record(false) });
     function close(finished) { record(finished === true);
-      o.hidden = true; clearInterval(timer); orb.stop(); page().inert = false; fabs().forEach(f => f.inert = false); last?.focus?.() }
+      o.hidden = true; clearInterval(timer); clearTimeout(settle); orb.stop(); page().inert = false; fabs().forEach(f => f.inert = false); last?.focus?.() }
     if (cfg.steps) {
       q("spNext").onclick = () => { gi = Math.min(gi + 1, cfg.steps.length - 1); showStep() };
       q("spPrev").onclick = () => { gi = Math.max(gi - 1, 0); showStep() };
@@ -249,7 +257,7 @@
     o.addEventListener("keydown", e => {
       if (e.key === "Escape") return close(false);
       if (e.key !== "Tab") return;
-      const f = [...o.querySelectorAll("button, input, a[href]")].filter(el => !el.disabled && el.getClientRects().length);
+      const f = [...o.querySelectorAll("button, input, a[href], [tabindex='0']")].filter(el => !el.disabled && el.getClientRects().length);
       if (e.shiftKey && document.activeElement === f[0]) { e.preventDefault(); f[f.length - 1].focus() }
       else if (!e.shiftKey && document.activeElement === f[f.length - 1]) { e.preventDefault(); f[0].focus() }
     });
