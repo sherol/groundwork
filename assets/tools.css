@@ -199,8 +199,19 @@ button.sploot-fab { border: 0; font: inherit; font-weight: 700; cursor: pointer 
 .overlay.t4 .todo-group h3, .overlay.t4 .todo-count { color: var(--c) }
 
 /* Checklist Sploot (eating). Upright, its two columns stack as one, heading first. */
-.list-sheet .sp-breath, .list-sheet .sp-side { display: contents }
+/* The acorn sticks to the top of the sheet once the heading scrolls away, so it stays in view while the checklist scrolls under it. */
+.list-sheet .sp-side { display: contents }
+.list-sheet .sp-breath { display: grid; justify-items: center; gap: 2px; position: sticky; top: -24px; z-index: 1; width: calc(100% + 48px); margin: 0 -24px;
+  padding: 6px 24px 8px; background: var(--surface); box-shadow: 0 10px 12px -12px rgb(60 40 20 / .35) }
+.list-sheet .breath-stage.small { width: min(190px, 52vw, 26vh, 26dvh); margin: 0 auto }
+.list-sheet .breath-meta { margin: 0 }
 .list-sheet .sp-side > .eyebrow, .list-sheet .sp-side > h2, .list-sheet .sp-side > .ground-intro, .list-sheet .sp-side > .rotate-hint { order: -1 }
+/* Tap the acorn to restart the breath; the cap shows the rounds finished since the tap. */
+.breath-stage.tappable { cursor: pointer; -webkit-tap-highlight-color: transparent; border-radius: 50% }
+.breath-stage.tappable:focus-visible { outline: 3px solid var(--c); outline-offset: 4px }
+.cap-count { position: absolute; left: 50%; top: 31%; transform: translate(-50%, -50%); min-width: 1.7em; padding: .08em .3em; border-radius: 999px;
+  background: #fbefd2; color: #6b4a2c; border: 2px solid #4e3420; font: 800 clamp(22px, 7vw, 30px)/1.1 var(--display); text-align: center; font-variant-numeric: tabular-nums; pointer-events: none }
+.tap-hint { margin: 0; font-size: 13px; color: var(--muted) }
 .rotate-hint { display: none; margin: -4px 0 0; font-size: 13px; color: var(--muted) }
 @media (orientation: portrait) and (max-width: 600px) and (pointer: coarse) { .list-sheet .rotate-hint { display: block } }
 
@@ -210,7 +221,7 @@ button.sploot-fab { border: 0; font: inherit; font-weight: 700; cursor: pointer 
   .list-sheet { width: 100%; height: 100%; max-height: none; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 0 18px; overflow: hidden;
     padding: 10px max(14px, env(safe-area-inset-right, 0px)) 10px max(14px, env(safe-area-inset-left, 0px));
     background: linear-gradient(90deg, var(--calm-soft), var(--surface) 50%, var(--surface)) }
-  .list-sheet .sp-breath { display: grid; place-items: center; align-content: center; gap: 4px; min-height: 0 }
+  .list-sheet .sp-breath { display: grid; place-items: center; align-content: center; gap: 4px; min-height: 0; position: static; width: auto; margin: 0; padding: 0; background: none; box-shadow: none }
   .list-sheet .breath-stage.small { width: min(42vw, calc(100vh - 70px), calc(100dvh - 70px)); margin: 0 }
   .list-sheet .sp-side { display: grid; align-content: start; justify-items: stretch; gap: 12px; text-align: left; min-height: 0; overflow-y: auto;
     overscroll-behavior: contain; -webkit-overflow-scrolling: touch; padding: 4px 4px 12px 0 }

@@ -5,7 +5,7 @@
  * drive.file scope, so the app can only see the spreadsheet it creates. The spreadsheet
  * "Groundwork progress" has:
  *   Progress, Check-ins, Notes – the Somatic Experiencing program (readable)
- *   Thought records, DBT diary, Eating log, Baking soda test – one row per saved entry (readable)
+ *   Thought records, DBT diary, Eating log, Before-you-eat Sploot, Baking soda test – one row per saved entry (readable)
  *   _data  – hidden; the Somatic Experiencing state as JSON
  *   _tools – hidden; the other sections' saved entries as JSON
  * The hidden tabs are used to restore on other devices. The browser copy (localStorage) is always
@@ -13,7 +13,7 @@
  *
  * Merging when connecting:
  *   Somatic Experiencing: the copy changed most recently wins; edits made while connecting are kept (as before).
- *   Journals (thought records, diary cards, eating log, baking soda results): entries from both copies are combined
+ *   Journals (thought records, diary cards, eating log, Sploot sessions, baking soda results): entries from both copies are combined
  *     by id, and entries deleted on either side stay deleted.
  *   Checklists (this week's eating homework): the copy changed most recently wins.
  */
@@ -30,6 +30,7 @@
     "groundwork-thoughts": { tab: "Thought records", cols: [["Date", "date"], ["Situation", "situation"], ["Emotions", "emotions"], ["Strength before (0–100)", "before"], ["Body", "body"], ["Hot thought", "thought"], ["Belief before (0–100)", "belief"], ["Thinking traps", "traps"], ["Evidence for", "for"], ["Evidence against", "against"], ["Balanced thought", "balanced"], ["Belief in balanced thought", "newBelief"], ["Belief in hot thought after", "oldBelief"], ["Strength after (0–100)", "after"], ["Next step", "action"]] },
     "groundwork-dbt": { tab: "DBT diary", cols: [["Date", "date"], ["Sadness (0–5)", "sad"], ["Anxiety or fear", "fear"], ["Anger", "anger"], ["Shame or guilt", "shame"], ["Joy", "joy"], ["Overall distress", "distress"], ["Urges", "urges"], ["Strongest urge (0–5)", "urgeLevel"], ["Acted on it", "acted"], ["Skills used", "skills"], ["PLEASE", "please"], ["Skills helped (0–5)", "helped"], ["Notes", "notes"]] },
     "groundwork-eating": { tab: "Eating log", cols: [["Date", "date"], ["Food and drink", "food"], ["Belly breaths before", "breaths"], ["Habits", "habits"], ["Fiber (g)", "fiber"], ["Fiber supplement", "supplement"], ["Trying now", "trials"], ["Trial doses and notes", "trialNote"], ["Symptoms", "symptomList"], ["Gut symptoms (0–10)", "symptoms"], ["Stress (0–10)", "stress"], ["Sleep", "sleep"], ["10% better", "better"], ["10% worse", "worse"], ["Questions for clinician", "questions"]] },
+    "groundwork-eating-sploot": { tab: "Before-you-eat Sploot", cols: [["Date", "date"], ["Started", "start"], ["Minutes", "minutes"], ["Slow breaths", "breaths"], ["Rounds since tapping the acorn", "rounds"], ["Checklist done", "done"], ["Closed with Ready to eat", "finished"], ["Page", "page"]] },
     "groundwork-eating-bst": { tab: "Baking soda test", cols: [["Date", "date"], ["Time to burp", "time"], ["How long it took (minutes)", "minutes"]] },
   };
   /* Checklists: localStorage key → { value, updated } is kept under key + "-meta" for the timestamp. */

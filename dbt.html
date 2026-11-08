@@ -9,7 +9,7 @@
 <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;700;800&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&display=swap">
-<link rel="stylesheet" href="assets/tools.css?v=6">
+<link rel="stylesheet" href="assets/tools.css?v=7">
 <style>
 .finder { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px }
 .finder button { text-align: left; border: 1px solid var(--line); background: var(--bg); color: var(--ink); border-radius: 12px; padding: 12px 14px; font-weight: 700 }
@@ -109,7 +109,7 @@
 
 <button type="button" class="sploot-fab" aria-haspopup="dialog"><img src="assets/emblem.png" alt="">Sploot now</button>
 
-<script src="assets/tools.js?v=6"></script>
+<script src="assets/tools.js?v=7"></script>
 <script>
 /* Each skill: id, name, short "what", and steps as [letter or label, text] pairs. */
 const MODULES = [
@@ -218,7 +218,7 @@ const SP = GW.sploot({
 document.addEventListener("click", e => { if (e.target.closest("[data-open-sploot]")) SP.open() });
 </script>
 <script src="config.js?v=11"></script>
-<script src="sync.js?v=13"></script>
+<script src="sync.js?v=14"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script>GroundworkSync.ready()</script>
