@@ -1,9 +1,9 @@
 # Groundwork: design doc
 
-**Status:** live at https://sherol.github.io/groundwork · **Repo:** `sherol/groundwork` (`main` publishes via GitHub Pages) · **Updated:** Nov 1, 2026
+**Status:** live at https://sherol.github.io/groundwork · **Repo:** `sherol/groundwork` (`main` publishes via GitHub Pages) · **Updated:** Nov 8, 2026
 
 ## Purpose
-Groundwork opens on a start page with four tools: the **Somatic Experiencing Method** (the 12-phase program this doc mainly describes, now at `somatic.html`), **Thought Records & Cognitive Distortions** (`thoughts.html`), **DBT Skills** (`dbt.html`) and **Integrative Eating** (`eating.html`). The three newer tools share `assets/tools.css` and `assets/tools.js`, save to `localStorage`, and export saved entries as Markdown or a printable HTML file. All four sections sync to the same Google Sheet from any page, and each section has its own Sploot (Integrative Eating's is a before-you-eat checklist: breathing, grounding, mindfulness, chewing 30–50 times).
+Groundwork opens on a start page with four tools: the **Somatic Experiencing Method** (the 12-phase program this doc mainly describes, now at `somatic.html`), **Thought Records & Cognitive Distortions** (`thoughts.html`), **DBT Skills** (`dbt.html`) and **Integrative Eating** (`eating.html`). The three newer tools share `assets/tools.css` and `assets/tools.js`, save to `localStorage`, and export saved entries as Markdown or a printable HTML file. All four sections sync to the same Google Sheet from any page, Integrative Eating adds each class session as it's covered (Sessions 1 and 2 of 4 so far; the newest session sits at the top of the Learn tab, and its Daily log has a "Trying now" field for acid, enzyme and diet trials). Each section has its own Sploot (Integrative Eating's is a before-you-eat checklist: breathing, grounding, mindfulness, chewing 30–50 times).
 
 A self-guided, body-based program for steadying the nervous system after trauma, following the order of Peter Levine's twelve-phase healing trauma program. It's a learning and practice companion to use alongside a therapist, not therapy. Exercises stay with present-moment sensation and never ask the user to revisit a traumatic memory.
 
